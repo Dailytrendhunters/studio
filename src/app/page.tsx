@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { FileUploader } from '@/components/file-uploader';
 import { JsonViewer } from '@/components/json-viewer';
-import { getSampleJsonAction, getSummaryAction } from './actions';
+import { processPdfAction, getSummaryAction, getSampleJsonAction } from './actions';
 import { FileText, Cpu, ScanLine, Code, Share2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 
@@ -32,6 +32,17 @@ const features = [
   },
 ];
 
+const fileToDataUri = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      resolve(reader.result as string);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+};
+
 
 export default function Home() {
   const [status, setStatus] = useState<Status>('idle');
@@ -39,12 +50,20 @@ export default function Home() {
   const [summary, setSummary] = useState('');
   const [errorDetails, setErrorDetails] = useState('');
 
-  const handleUpload = async () => {
+  const handleUpload = async (file: File) => {
+    if (!file.type.includes('pdf')) {
+      setErrorDetails('Invalid file type. Please upload a PDF.');
+      setStatus('error');
+      setJsonData('{ "error": "Invalid file type. Please upload a PDF." }');
+      setSummary('Could not process the file.');
+      return;
+    }
+
     setStatus('processing');
     try {
-      const { jsonOutput } = await getSampleJsonAction({ 
-        description: 'A standard 10-K financial report with income statement, balance sheet, and cash flow statement.' 
-      });
+      const pdfDataUri = await fileToDataUri(file);
+
+      const { jsonOutput } = await processPdfAction({ pdfDataUri });
       
       const { summary } = await getSummaryAction({ jsonData: jsonOutput });
       
@@ -99,7 +118,7 @@ export default function Home() {
         <div className="container relative py-8">
           {status === 'idle' && (
             <section className="pb-12 md:pb-24 text-center animate-in fade-in-0 slide-in-from-bottom-12 duration-500">
-              <h1 className="text-4xl md:text-6xl font-bold tracking-tighter mb-4 bg-clip-text text-transparent bg-gradient-to-r from-chart-1 via-chart-2 to-chart-3 [background-size:200%_auto] animate-text-gradient-pan">
+              <h1 className="text-4xl md:text-6xl font-bold tracking-tighter mb-4 bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 via-pink-500 to-blue-500 [background-size:200%_auto] animate-text-gradient-pan">
                 Unlock Data from Documents
               </h1>
               <p className="max-w-2xl mx-auto mb-10 text-lg text-muted-foreground">

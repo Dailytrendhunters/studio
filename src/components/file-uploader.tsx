@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, DragEvent } from 'react';
+import { useState, useEffect, DragEvent, useRef } from 'react';
 import { Upload, File, Loader, CheckCircle2, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
@@ -10,7 +10,7 @@ type Status = 'idle' | 'processing';
 
 interface FileUploaderProps {
   status: Status;
-  onUpload: () => void;
+  onUpload: (file: File) => void;
 }
 
 const processingSteps = [
@@ -25,6 +25,7 @@ export function FileUploader({ status, onUpload }: FileUploaderProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [progress, setProgress] = useState(0);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (status === 'processing') {
@@ -83,14 +84,22 @@ export function FileUploader({ status, onUpload }: FileUploaderProps) {
     e.preventDefault();
     e.stopPropagation();
   };
+  
+  const handleFileSelect = (files: FileList | null) => {
+    if (files && files.length > 0 && status === 'idle') {
+      onUpload(files[0]);
+    }
+  };
 
   const handleDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
-    if (status === 'idle') {
-      onUpload();
-    }
+    handleFileSelect(e.dataTransfer.files);
+  };
+
+  const handleButtonClick = () => {
+    fileInputRef.current?.click();
   };
 
   return (
@@ -106,6 +115,13 @@ export function FileUploader({ status, onUpload }: FileUploaderProps) {
       onDragOver={handleDragOver}
       onDrop={handleDrop}
     >
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={(e) => handleFileSelect(e.target.files)}
+        className="hidden"
+        accept="application/pdf"
+      />
       <div className={cn(
         "absolute -inset-px rounded-xl border-2 border-transparent transition-all duration-300",
         isDragging && "border-primary shadow-2xl shadow-primary/30"
@@ -118,7 +134,7 @@ export function FileUploader({ status, onUpload }: FileUploaderProps) {
           <h3 className="text-2xl font-semibold">Upload Financial PDF</h3>
           <p className="text-muted-foreground">Drag & drop your document here or click to select a file</p>
           <button 
-            onClick={onUpload}
+            onClick={handleButtonClick}
             className="px-6 py-2 mt-2 font-semibold text-primary-foreground rounded-md bg-primary hover:bg-primary/90 transition-all hover:scale-105 active:scale-100 inline-flex items-center gap-2"
           >
             <FileText className="w-4 h-4" />
