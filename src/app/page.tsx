@@ -109,7 +109,7 @@ export default function Home() {
                 {features.map((feature, index) => (
                   <div 
                     key={index} 
-                    className="group relative rounded-xl border border-white/10 bg-card p-6 text-center animate-in fade-in-0 slide-in-from-bottom-4 duration-700 transition-all ease-in-out hover:!shadow-2xl hover:!shadow-primary/20 hover:-translate-y-2"
+                    className="group relative rounded-xl border border-white/10 bg-card p-6 text-center animate-in fade-in-0 slide-in-from-bottom-4 duration-700 transition-all ease-in-out hover:!shadow-2xl hover:!shadow-primary/40 hover:-translate-y-2"
                     style={{ animationFillMode: 'backwards', animationDelay: `${200 + index * 100}ms` }}
                   >
                     <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-primary/5 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"/>
