@@ -136,13 +136,13 @@ export function FileUploader({ status, onUpload }: FileUploaderProps) {
                   key={index} 
                   className={cn(
                     "flex items-center justify-start w-full text-left p-3 bg-secondary/50 rounded-lg animate-in fade-in-0 slide-in-from-left-4 duration-500 transition-all ease-in-out",
-                    currentStep > index ? "border-l-4 border-green-500" : "border-l-4 border-transparent",
+                    currentStep > index ? "border-l-4 border-primary" : "border-l-4 border-transparent",
                     currentStep === index && "bg-primary/10 border-l-4 border-primary",
                     { animationFillMode: 'backwards', animationDelay: `${index * 150}ms` }
                   )}
                 >
                   {currentStep > index ? (
-                    <CheckCircle2 className="w-5 h-5 mr-3 text-green-500 flex-shrink-0" />
+                    <CheckCircle2 className="w-5 h-5 mr-3 text-primary flex-shrink-0" />
                   ) : currentStep === index ? (
                     <Loader className="w-5 h-5 mr-3 text-primary animate-spin flex-shrink-0" />
                   ) : (

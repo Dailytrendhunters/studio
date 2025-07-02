@@ -86,7 +86,7 @@ export function JsonViewer({ jsonData, summary, onReset, isError, errorDetails }
                 </div>
                 <div className="flex items-center gap-2">
                     <Button variant="outline" size="sm" onClick={handleCopy} className="transition-all hover:scale-105 active:scale-100 hover:bg-primary/10 hover:text-primary">
-                        {copied ? <Check className="mr-2 h-4 w-4 text-green-400" /> : <Copy className="mr-2 h-4 w-4" />}
+                        {copied ? <Check className="mr-2 h-4 w-4 text-primary" /> : <Copy className="mr-2 h-4 w-4" />}
                         {copied ? 'Copied' : 'Copy'}
                     </Button>
                     <Button variant="outline" size="sm" onClick={handleDownload} className="transition-all hover:scale-105 active:scale-100 hover:bg-primary/10 hover:text-primary">
