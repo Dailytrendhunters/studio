@@ -112,7 +112,7 @@ export default {
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
-        'background-pan': 'background-pan 12s linear infinite',
+        'background-pan': 'background-pan 20s linear infinite',
         'text-gradient-pan': 'text-gradient-pan 3s ease-in-out infinite',
       },
     },
