@@ -5,31 +5,31 @@ import { useState } from 'react';
 import { FileUploader } from '@/components/file-uploader';
 import { JsonViewer } from '@/components/json-viewer';
 import { getSampleJsonAction, getSummaryAction } from './actions';
-import { FileText, Database, Zap, Download } from 'lucide-react';
+import { FileText, Cpu, ScanLine, Code, Share2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 
 type Status = 'idle' | 'processing' | 'success' | 'error';
 
 const features = [
   {
-    icon: <FileText className="w-8 h-8 text-primary" />,
-    title: 'Smart PDF Reading',
-    description: 'Advanced OCR and text extraction from any PDF document',
+    icon: <ScanLine className="w-8 h-8 text-primary" />,
+    title: 'Intelligent Parsing',
+    description: 'Advanced OCR and text extraction from any PDF document.',
   },
   {
-    icon: <Database className="w-8 h-8 text-primary" />,
-    title: 'Table Detection',
-    description: 'Automatically identifies and extracts tabular data with precision',
+    icon: <Code className="w-8 h-8 text-primary" />,
+    title: 'Table Recognition',
+    description: 'Automatically identifies and extracts tabular data with precision.',
   },
   {
-    icon: <Zap className="w-8 h-8 text-primary" />,
-    title: 'Financial Intelligence',
-    description: 'Recognizes financial patterns, ratios, and key metrics',
+    icon: <Cpu className="w-8 h-8 text-primary" />,
+    title: 'Financial AI',
+    description: 'Recognizes financial patterns, ratios, and key metrics.',
   },
   {
-    icon: <Download className="w-8 h-8 text-primary" />,
+    icon: <Share2 className="w-8 h-8 text-primary" />,
     title: 'JSON Export',
-    description: 'Clean, structured JSON output ready for integration',
+    description: 'Clean, structured JSON output ready for your integrations.',
   },
 ];
 
@@ -47,9 +47,6 @@ export default function Home() {
         description: 'A standard 10-K financial report with income statement, balance sheet, and cash flow statement.' 
       });
       
-      // Add a delay for a more realistic simulation
-      await new Promise(resolve => setTimeout(resolve, 500)); 
-
       const { summary } = await getSummaryAction({ jsonData: jsonOutput });
       
       setJsonData(jsonOutput);
@@ -81,24 +78,20 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen bg-transparent">
-      <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-sm">
-        <div className="container flex h-16 items-center">
-          <div className="mr-4 flex items-center">
-            <div className="p-2 bg-primary rounded-lg mr-3">
-              <FileText className="w-6 h-6 text-primary-foreground" />
-            </div>
-            <div>
-              <h2 className="font-bold text-lg">PDF to JSON</h2>
-              <p className="text-sm text-muted-foreground">Intelligent Document Converter</p>
-            </div>
+      <header className="w-full">
+        <div className="container flex h-20 items-center justify-between">
+          <div className="flex items-center gap-3">
+             <div className="p-2 bg-primary/10 border border-primary/20 rounded-lg">
+                <FileText className="w-6 h-6 text-primary" />
+             </div>
+            <h2 className="font-bold text-lg text-foreground">PDF to JSON</h2>
           </div>
-          <div className="flex flex-1 items-center justify-end space-x-2">
-            <div className="flex items-center gap-2">
-              <span className="relative flex h-2.5 w-2.5">
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-              </span>
-              <p className="text-sm text-muted-foreground">Ready</p>
-            </div>
+          <div className="flex items-center gap-2">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+            </span>
+            <p className="text-sm text-muted-foreground">Ready for analysis</p>
           </div>
         </div>
       </header>
@@ -106,20 +99,30 @@ export default function Home() {
       <main className="flex-1">
         <div className="container relative py-8">
           {status === 'idle' && (
-            <section className="pb-12 md:pb-16">
+            <section className="pb-12 md:pb-24 text-center animate-in fade-in-0 slide-in-from-bottom-12 duration-500">
+              <h1 className="text-4xl md:text-6xl font-bold tracking-tighter mb-4 bg-clip-text text-transparent bg-gradient-to-b from-foreground/90 to-foreground/50">
+                Unlock Data from Documents
+              </h1>
+              <p className="max-w-2xl mx-auto mb-10 text-lg text-muted-foreground">
+                Instantly convert complex financial PDFs into structured JSON. Powered by AI for unmatched accuracy.
+              </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {features.map((feature, index) => (
-                  <Card 
+                  <div 
                     key={index} 
-                    className="p-6 text-center flex flex-col items-center animate-in fade-in-0 slide-in-from-bottom-4 duration-500 transition-all ease-in-out hover:shadow-xl hover:-translate-y-1.5 shadow-md"
-                    style={{ animationFillMode: 'backwards', animationDelay: `${index * 100}ms` }}
+                    className="group relative rounded-xl border border-white/10 bg-card p-6 text-center animate-in fade-in-0 slide-in-from-bottom-4 duration-700 transition-all ease-in-out hover:!shadow-2xl hover:!shadow-primary/20 hover:-translate-y-2"
+                    style={{ animationFillMode: 'backwards', animationDelay: `${200 + index * 100}ms` }}
                   >
-                    <div className="p-4 bg-primary/10 rounded-lg mb-4 inline-block">
-                        {feature.icon}
+                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-primary/5 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"/>
+                     <div className="absolute -inset-px rounded-xl border-2 border-transparent opacity-0 group-hover:opacity-100 group-hover:border-primary/50 transition-all duration-500"/>
+                    <div className="relative z-10 flex flex-col items-center">
+                        <div className="p-3 bg-primary/10 border border-primary/20 rounded-lg mb-4 inline-block">
+                            {feature.icon}
+                        </div>
+                        <h3 className="text-base font-semibold mb-1">{feature.title}</h3>
+                        <p className="text-sm text-muted-foreground">{feature.description}</p>
                     </div>
-                    <h3 className="text-base font-semibold mb-1">{feature.title}</h3>
-                    <p className="text-sm text-muted-foreground">{feature.description}</p>
-                  </Card>
+                  </div>
                 ))}
               </div>
             </section>
