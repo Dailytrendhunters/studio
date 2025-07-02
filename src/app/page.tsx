@@ -80,8 +80,8 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
-      <header className="sticky top-0 z-50 w-full border-b bg-card">
+    <div className="flex flex-col min-h-screen bg-transparent">
+      <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-sm">
         <div className="container flex h-16 items-center">
           <div className="mr-4 flex items-center">
             <div className="p-2 bg-primary rounded-lg mr-3">
@@ -111,7 +111,7 @@ export default function Home() {
                 {features.map((feature, index) => (
                   <Card 
                     key={index} 
-                    className="p-6 text-center flex flex-col items-center animate-in fade-in-0 slide-in-from-bottom-4 duration-500 transition-shadow hover:shadow-lg shadow-md"
+                    className="p-6 text-center flex flex-col items-center animate-in fade-in-0 slide-in-from-bottom-4 duration-500 transition-all ease-in-out hover:shadow-xl hover:-translate-y-1.5 shadow-md"
                     style={{ animationFillMode: 'backwards', animationDelay: `${index * 100}ms` }}
                   >
                     <div className="p-4 bg-primary/10 rounded-lg mb-4 inline-block">

@@ -106,7 +106,7 @@ export function FileUploader({ status, onUpload }: FileUploaderProps) {
           </div>
           <button 
             onClick={onUpload}
-            className="px-6 py-2 font-semibold text-white rounded-md bg-primary hover:bg-primary/90 transition-colors inline-flex items-center gap-2 mt-2"
+            className="px-6 py-2 font-semibold text-white rounded-md bg-primary hover:bg-primary/90 transition-all hover:scale-105 inline-flex items-center gap-2 mt-2"
           >
             <FileText className="w-4 h-4" />
             Choose PDF File
@@ -121,8 +121,11 @@ export function FileUploader({ status, onUpload }: FileUploaderProps) {
               {processingSteps.map((step, index) => (
                 <div 
                   key={index} 
-                  className="flex items-center justify-start w-full text-left p-3 bg-secondary rounded-lg animate-in fade-in-0 slide-in-from-left-4 duration-500"
-                  style={{ animationFillMode: 'backwards', animationDelay: `${index * 200}ms` }}
+                  className={cn(
+                    "flex items-center justify-start w-full text-left p-3 bg-secondary rounded-lg animate-in fade-in-0 slide-in-from-left-4 duration-500 transition-all",
+                    currentStep === index && "bg-primary/10 ring-2 ring-primary",
+                    { animationFillMode: 'backwards', animationDelay: `${index * 200}ms` }
+                  )}
                 >
                   {currentStep > index ? (
                     <CheckCircle2 className="w-5 h-5 mr-3 text-green-500 flex-shrink-0" />
@@ -133,7 +136,8 @@ export function FileUploader({ status, onUpload }: FileUploaderProps) {
                   )}
                   <span className={cn(
                     "transition-colors",
-                    currentStep > index ? "text-foreground font-medium" : "text-muted-foreground"
+                    currentStep > index ? "text-foreground font-medium" : "text-muted-foreground",
+                    currentStep === index && "text-primary-foreground"
                   )}>
                     {step.text}
                   </span>

@@ -83,11 +83,11 @@ export function JsonViewer({ jsonData, summary, onReset, isError, errorDetails }
                     <CardDescription>Structured data from your document.</CardDescription>
                 </div>
                 <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" onClick={handleCopy}>
+                    <Button variant="outline" size="sm" onClick={handleCopy} className="hover:scale-105">
                         {copied ? <Check className="mr-2 h-4 w-4" /> : <Copy className="mr-2 h-4 w-4" />}
                         {copied ? 'Copied' : 'Copy'}
                     </Button>
-                    <Button variant="outline" size="sm" onClick={handleDownload}>
+                    <Button variant="outline" size="sm" onClick={handleDownload} className="hover:scale-105">
                         <Download className="mr-2 h-4 w-4" />
                         Download
                     </Button>
@@ -104,7 +104,7 @@ export function JsonViewer({ jsonData, summary, onReset, isError, errorDetails }
       </Card>
 
       <div className="text-center pt-4 animate-in fade-in-0 slide-in-from-bottom-4 duration-500" style={{animationFillMode: 'backwards', animationDelay: '300ms'}}>
-        <Button size="lg" onClick={onReset} className="bg-primary hover:bg-primary/90 text-primary-foreground">
+        <Button size="lg" onClick={onReset} className="bg-primary hover:bg-primary/90 text-primary-foreground hover:scale-105">
           <RefreshCw className="mr-2 h-4 w-4" />
           Process Another Document
         </Button>
