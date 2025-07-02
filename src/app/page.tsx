@@ -99,7 +99,7 @@ export default function Home() {
         <div className="container relative py-8">
           {status === 'idle' && (
             <section className="pb-12 md:pb-24 text-center animate-in fade-in-0 slide-in-from-bottom-12 duration-500">
-              <h1 className="text-4xl md:text-6xl font-bold tracking-tighter mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary via-foreground/80 to-primary [background-size:200%_auto] animate-text-gradient-pan">
+              <h1 className="text-4xl md:text-6xl font-bold tracking-tighter mb-4 bg-clip-text text-transparent bg-gradient-to-r from-chart-1 via-chart-2 to-chart-3 [background-size:200%_auto] animate-text-gradient-pan">
                 Unlock Data from Documents
               </h1>
               <p className="max-w-2xl mx-auto mb-10 text-lg text-muted-foreground">
@@ -109,11 +109,11 @@ export default function Home() {
                 {features.map((feature, index) => (
                   <div 
                     key={index} 
-                    className="group relative rounded-xl border border-white/10 bg-card p-6 text-center animate-in fade-in-0 slide-in-from-bottom-4 duration-700 transition-all ease-in-out hover:!shadow-2xl hover:!shadow-primary/40 hover:-translate-y-2"
+                    className="group relative rounded-xl border border-white/10 bg-card p-6 text-center animate-in fade-in-0 slide-in-from-bottom-4 duration-700 transition-all ease-in-out hover:!shadow-2xl hover:!shadow-primary/80 hover:-translate-y-2"
                     style={{ animationFillMode: 'backwards', animationDelay: `${200 + index * 100}ms` }}
                   >
                     <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-primary/5 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"/>
-                     <div className="absolute -inset-px rounded-xl border-2 border-transparent opacity-0 group-hover:opacity-100 group-hover:border-primary/50 transition-all duration-500"/>
+                     <div className="absolute -inset-px rounded-xl border-2 border-transparent opacity-0 group-hover:opacity-100 group-hover:border-primary/80 transition-all duration-500"/>
                     <div className="relative z-10 flex flex-col items-center">
                         <div className="p-3 bg-primary/10 border border-primary/20 rounded-lg mb-4 inline-block">
                             {feature.icon}
