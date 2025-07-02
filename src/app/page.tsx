@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -100,7 +101,7 @@ export default function Home() {
              <div className="p-2 bg-primary/10 border border-primary/20 rounded-lg">
                 <FileText className="w-6 h-6 text-primary" />
              </div>
-            <h2 className="font-bold text-lg text-foreground">PDF to JSON</h2>
+            <h2 className="font-bold text-lg text-foreground">Jsonic</h2>
           </div>
           <div className="flex items-center gap-2">
             <span className="relative flex h-2.5 w-2.5">

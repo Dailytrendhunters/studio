@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster"
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'PDF to JSON',
+  title: 'Jsonic',
   description: 'Intelligent Document Converter.',
 };
 
