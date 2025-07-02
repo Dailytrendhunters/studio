@@ -98,7 +98,9 @@ export default {
         },
         'background-pan': {
             '0%': { backgroundPosition: '0% 0%' },
+            '25%': { backgroundPosition: '100% 0%' },
             '50%': { backgroundPosition: '100% 100%' },
+            '75%': { backgroundPosition: '0% 100%' },
             '100%': { backgroundPosition: '0% 0%' },
         },
         'text-gradient-pan': {
@@ -110,7 +112,7 @@ export default {
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
-        'background-pan': 'background-pan 15s ease-in-out infinite',
+        'background-pan': 'background-pan 12s linear infinite',
         'text-gradient-pan': 'text-gradient-pan 3s ease-in-out infinite',
       },
     },
