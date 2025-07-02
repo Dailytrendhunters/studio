@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -100,7 +99,7 @@ export default function Home() {
         <div className="container relative py-8">
           {status === 'idle' && (
             <section className="pb-12 md:pb-24 text-center animate-in fade-in-0 slide-in-from-bottom-12 duration-500">
-              <h1 className="text-4xl md:text-6xl font-bold tracking-tighter mb-4 bg-clip-text text-transparent bg-gradient-to-b from-foreground/90 to-foreground/50">
+              <h1 className="text-4xl md:text-6xl font-bold tracking-tighter mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary via-foreground/80 to-primary [background-size:200%_auto] animate-text-gradient-pan">
                 Unlock Data from Documents
               </h1>
               <p className="max-w-2xl mx-auto mb-10 text-lg text-muted-foreground">
