@@ -14,9 +14,11 @@ interface JsonViewerProps {
   onReset: () => void;
   isError: boolean;
   errorDetails?: string;
+  totalPages: number;
+  pagesProcessed: number;
 }
 
-export function JsonViewer({ jsonData, onReset, isError, errorDetails }: JsonViewerProps) {
+export function JsonViewer({ jsonData, onReset, isError, errorDetails, totalPages, pagesProcessed }: JsonViewerProps) {
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
 
@@ -57,6 +59,15 @@ export function JsonViewer({ jsonData, onReset, isError, errorDetails }: JsonVie
 
   return (
     <div className="space-y-6">
+       {!isError && totalPages > 0 && (
+        <Alert variant="default" className="animate-in fade-in duration-300 bg-primary/10 border-primary/30">
+            <Check className="h-4 w-4 text-primary" />
+            <AlertTitle className="text-primary">Processing Complete</AlertTitle>
+            <AlertDescription className="text-primary/90">
+                {pagesProcessed}/{totalPages} pages from the PDF have been successfully converted and included in the JSON output.
+            </AlertDescription>
+        </Alert>
+      )}
       {isError && errorDetails && (
         <Alert variant="destructive" className="animate-in fade-in duration-300 bg-destructive/10 border-destructive/30">
           <AlertTriangle className="h-4 w-4" />

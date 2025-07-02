@@ -49,6 +49,8 @@ export default function Home() {
   const [jsonData, setJsonData] = useState('');
   const [errorDetails, setErrorDetails] = useState('');
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [totalPages, setTotalPages] = useState(0);
+  const [pagesProcessed, setPagesProcessed] = useState(0);
 
   const handleUpload = async (file: File) => {
     if (!file.type.includes('pdf')) {
@@ -63,9 +65,11 @@ export default function Home() {
     try {
       const pdfDataUri = await fileToDataUri(file);
 
-      const { jsonOutput } = await processPdfAction({ pdfDataUri });
+      const { jsonOutput, totalPages, pagesProcessed } = await processPdfAction({ pdfDataUri });
       
       setJsonData(jsonOutput);
+      setTotalPages(totalPages);
+      setPagesProcessed(pagesProcessed);
       setStatus('success');
     } catch (e) {
       console.error(e);
@@ -73,6 +77,8 @@ export default function Home() {
       try {
         const { jsonOutput } = await getSampleJsonAction({ description: 'A sample balance sheet from a startup.' });
         setJsonData(jsonOutput);
+        setTotalPages(0);
+        setPagesProcessed(0);
         setStatus('error');
       } catch (finalError) {
         console.error(finalError);
@@ -87,6 +93,8 @@ export default function Home() {
     setJsonData('');
     setErrorDetails('');
     setUploadedFile(null);
+    setTotalPages(0);
+    setPagesProcessed(0);
   };
 
   return (
@@ -160,6 +168,8 @@ export default function Home() {
                 onReset={handleReset} 
                 isError={status === 'error'} 
                 errorDetails={errorDetails}
+                totalPages={totalPages}
+                pagesProcessed={pagesProcessed}
               />
             )}
           </div>

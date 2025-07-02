@@ -21,10 +21,12 @@ const ProcessPdfInputSchema = z.object({
 export type ProcessPdfInput = z.infer<typeof ProcessPdfInputSchema>;
 
 const ProcessPdfOutputSchema = z.object({
+  totalPages: z.number().describe('The total number of pages in the PDF document.'),
+  pagesProcessed: z.number().describe('The number of pages successfully processed from the document.'),
   jsonOutput: z
     .string()
     .describe(
-      'The full content of the PDF, intelligently converted into a structured JSON format. This should include metadata, all text, and any tables found in the document.'
+      'The full content of the PDF, intelligently converted into a structured JSON format. This should include metadata, all text, and any tables found in the document. This output should only contain data extracted from the document, with no additional AI-generated content or summaries.'
     ),
 });
 export type ProcessPdfOutput = z.infer<typeof ProcessPdfOutputSchema>;
@@ -37,14 +39,19 @@ const processPdfPrompt = ai.definePrompt({
   name: 'processPdfPrompt',
   input: {schema: ProcessPdfInputSchema},
   output: {schema: ProcessPdfOutputSchema},
-  prompt: `You are an AI expert specializing in document intelligence and data extraction. Your task is to meticulously analyze the provided PDF document and convert its entire content into a single, well-structured JSON object.
+  prompt: `You are an AI expert specializing in document intelligence and data extraction. Your task is to meticulously analyze the provided PDF document, determine the total number of pages, and convert its entire content into a single, well-structured JSON object.
 
-The JSON output should be comprehensive and intelligently organized. It should include:
-1.  **metadata**: Basic information about the document (if discernible), such as title or subject.
-2.  **content**: A structured representation of the text, broken down into sections or paragraphs.
-3.  **tables**: An array of objects, where each object represents a table found in the document. Convert the tabular data into a JSON-friendly format (e.g., an array of row objects).
+Your primary goal is accuracy and completeness. Do not add, invent, or hallucinate any information that is not explicitly present in the document. The output must be a faithful, structured representation of the source material.
 
-Preserve all information from the document. Do not summarize or omit any data. The goal is a complete and accurate conversion of the PDF's content into a structured JSON format that can be easily parsed and analyzed by other systems.
+In your response, you must provide:
+1.  **totalPages**: The total number of pages in the PDF.
+2.  **pagesProcessed**: The number of pages you were able to successfully process. This should match totalPages.
+3.  **jsonOutput**: A string containing a JSON object with the full content of the PDF. This JSON should be intelligently organized with:
+    - **metadata**: Basic information about the document (if discernible).
+    - **content**: A structured representation of all text.
+    - **tables**: All tables found in the document, converted into a JSON-friendly format.
+
+Preserve all information. Do not summarize or omit any data.
 
 PDF Document for processing:
 {{media url=pdfDataUri}}`,
