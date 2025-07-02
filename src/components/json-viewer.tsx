@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Copy, Download, RefreshCw, FileJson, AlertTriangle, Check, BrainCircuit } from 'lucide-react';
+import { Copy, Download, RefreshCw, FileJson, AlertTriangle, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -11,13 +11,12 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface JsonViewerProps {
   jsonData: string;
-  summary: string;
   onReset: () => void;
   isError: boolean;
   errorDetails?: string;
 }
 
-export function JsonViewer({ jsonData, summary, onReset, isError, errorDetails }: JsonViewerProps) {
+export function JsonViewer({ jsonData, onReset, isError, errorDetails }: JsonViewerProps) {
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
 
@@ -65,16 +64,6 @@ export function JsonViewer({ jsonData, summary, onReset, isError, errorDetails }
           <AlertDescription>{errorDetails}</AlertDescription>
         </Alert>
       )}
-
-      <Card className="bg-card/50 backdrop-blur-sm animate-in fade-in-0 slide-in-from-bottom-4 duration-500" style={{animationFillMode: 'backwards', animationDelay: '100ms'}}>
-        <CardHeader>
-          <CardTitle className="flex items-center"><BrainCircuit className="mr-2 h-6 w-6 text-primary" />AI-Generated Summary</CardTitle>
-          <CardDescription>A concise overview of the key financial data.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-foreground/90 leading-relaxed">{summary}</p>
-        </CardContent>
-      </Card>
       
       <Card className="relative bg-card/50 backdrop-blur-sm animate-in fade-in-0 slide-in-from-bottom-4 duration-500" style={{animationFillMode: 'backwards', animationDelay: '200ms'}}>
         <div className="absolute -inset-px rounded-xl border border-primary/20" />

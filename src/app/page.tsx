@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { FileUploader } from '@/components/file-uploader';
 import { JsonViewer } from '@/components/json-viewer';
-import { processPdfAction, getSummaryAction, getSampleJsonAction } from './actions';
+import { processPdfAction, getSampleJsonAction } from './actions';
 import { FileText, Cpu, ScanLine, Code, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -47,7 +47,6 @@ const fileToDataUri = (file: File): Promise<string> => {
 export default function Home() {
   const [status, setStatus] = useState<Status>('idle');
   const [jsonData, setJsonData] = useState('');
-  const [summary, setSummary] = useState('');
   const [errorDetails, setErrorDetails] = useState('');
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 
@@ -56,7 +55,6 @@ export default function Home() {
       setErrorDetails('Invalid file type. Please upload a PDF.');
       setStatus('error');
       setJsonData('{ "error": "Invalid file type. Please upload a PDF." }');
-      setSummary('Could not process the file.');
       return;
     }
     
@@ -67,10 +65,7 @@ export default function Home() {
 
       const { jsonOutput } = await processPdfAction({ pdfDataUri });
       
-      const { summary } = await getSummaryAction({ jsonData: jsonOutput });
-      
       setJsonData(jsonOutput);
-      setSummary(summary);
       setStatus('success');
     } catch (e) {
       console.error(e);
@@ -78,12 +73,10 @@ export default function Home() {
       try {
         const { jsonOutput } = await getSampleJsonAction({ description: 'A sample balance sheet from a startup.' });
         setJsonData(jsonOutput);
-        setSummary('Could not generate a summary due to a processing error.');
         setStatus('error');
       } catch (finalError) {
         console.error(finalError);
         setJsonData('{ "error": "Could not generate sample data." }');
-        setSummary('A critical error occurred while fetching fallback data. Please try again later.');
         setStatus('error');
       }
     }
@@ -92,7 +85,6 @@ export default function Home() {
   const handleReset = () => {
     setStatus('idle');
     setJsonData('');
-    setSummary('');
     setErrorDetails('');
     setUploadedFile(null);
   };
@@ -165,7 +157,6 @@ export default function Home() {
             ) : (
               <JsonViewer 
                 jsonData={jsonData} 
-                summary={summary} 
                 onReset={handleReset} 
                 isError={status === 'error'} 
                 errorDetails={errorDetails}
