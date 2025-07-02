@@ -6,6 +6,8 @@ import { JsonViewer } from '@/components/json-viewer';
 import { processPdfAction, getSampleJsonAction } from './actions';
 import { FileText, Cpu, ScanLine, Code, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { storage } from '@/lib/firebase';
+import { ref, uploadBytes } from 'firebase/storage';
 
 type Status = 'idle' | 'processing' | 'success' | 'error';
 
@@ -32,18 +34,6 @@ const features = [
   },
 ];
 
-const fileToDataUri = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      resolve(reader.result as string);
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-};
-
-
 export default function Home() {
   const [status, setStatus] = useState<Status>('idle');
   const [jsonData, setJsonData] = useState('');
@@ -63,9 +53,14 @@ export default function Home() {
     setUploadedFile(file);
     setStatus('processing');
     try {
-      const pdfDataUri = await fileToDataUri(file);
+      // 1. Upload to Firebase Storage
+      const storageRef = ref(storage, `uploads/${Date.now()}-${file.name}`);
+      await uploadBytes(storageRef, file);
 
-      const { jsonOutput, totalPages, pagesProcessed } = await processPdfAction({ pdfDataUri });
+      // 2. Construct gs:// URI
+      const pdfUri = `gs://${storageRef.bucket}/${storageRef.fullPath}`;
+      
+      const { jsonOutput, totalPages, pagesProcessed } = await processPdfAction({ pdfUri });
       
       setJsonData(jsonOutput);
       setTotalPages(totalPages);

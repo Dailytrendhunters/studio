@@ -12,10 +12,10 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const ProcessPdfInputSchema = z.object({
-  pdfDataUri: z
+  pdfUri: z
     .string()
     .describe(
-      "A PDF file, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:application/pdf;base64,<encoded_data>'."
+      "The gs:// URI of a PDF file in Google Cloud Storage. Expected format: 'gs://<bucket-name>/<file-path>'."
     ),
 });
 export type ProcessPdfInput = z.infer<typeof ProcessPdfInputSchema>;
@@ -54,7 +54,7 @@ In your response, you must provide:
 Preserve all information. Do not summarize or omit any data.
 
 PDF Document for processing:
-{{media url=pdfDataUri}}`,
+{{media url=pdfUri}}`,
 });
 
 const processPdfFlow = ai.defineFlow(
