@@ -6,7 +6,7 @@ import { FileUploader } from '@/components/file-uploader';
 import { JsonViewer } from '@/components/json-viewer';
 import { getSampleJsonAction, getSummaryAction } from './actions';
 import { FileText, Database, Zap, Download } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 
 type Status = 'idle' | 'processing' | 'success' | 'error';
 
@@ -81,11 +81,11 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-50 w-full border-b bg-card">
         <div className="container flex h-16 items-center">
           <div className="mr-4 flex items-center">
-            <div className="p-2 bg-primary/10 rounded-lg mr-3">
-              <FileText className="w-6 h-6 text-primary" />
+            <div className="p-2 bg-primary rounded-lg mr-3">
+              <FileText className="w-6 h-6 text-primary-foreground" />
             </div>
             <div>
               <h2 className="font-bold text-lg">PDF to JSON</h2>
@@ -104,38 +104,25 @@ export default function Home() {
         </div>
       </header>
       
-      <div className="flex-1">
-        <div className="container relative">
-          <section className="mx-auto flex max-w-4xl flex-col items-center gap-2 py-12 text-center md:py-20">
-            <h1 className="text-3xl font-bold leading-tight tracking-tighter md:text-5xl lg:leading-[1.1]">
-              Transform Your <span className="text-accent">Financial PDFs</span> Into <span className="text-accent">Smart JSON</span>
-            </h1>
-            <p className="max-w-2xl text-muted-foreground sm:text-lg">
-              Upload any financial document and get intelligently extracted data in seconds. Perfect for automated analysis, reporting, and integration.
-            </p>
-          </section>
-          
+      <main className="flex-1">
+        <div className="container relative py-8">
           {status === 'idle' && (
-            <section className="pb-12 md:pb-20">
+            <section className="pb-12 md:pb-16">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {features.map((feature, index) => (
-                  <Card key={index} className="bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow">
-                    <CardHeader className="flex flex-col items-start space-y-4">
-                      <div className="p-3 bg-primary/10 rounded-lg">
+                  <Card key={index} className="bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow p-6 text-center flex flex-col items-center">
+                    <div className="p-4 bg-primary/10 rounded-lg mb-4 inline-block">
                         {feature.icon}
-                      </div>
-                      <CardTitle>{feature.title}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-muted-foreground">{feature.description}</p>
-                    </CardContent>
+                    </div>
+                    <h3 className="text-base font-semibold mb-1">{feature.title}</h3>
+                    <p className="text-sm text-muted-foreground">{feature.description}</p>
                   </Card>
                 ))}
               </div>
             </section>
           )}
 
-          <main className="transition-all duration-500 ease-in-out pb-12 md:pb-20">
+          <div className="transition-all duration-500 ease-in-out">
             {status === 'idle' || status === 'processing' ? (
               <FileUploader status={status} onUpload={handleUpload} />
             ) : (
@@ -147,9 +134,9 @@ export default function Home() {
                 errorDetails={errorDetails}
               />
             )}
-          </main>
+          </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

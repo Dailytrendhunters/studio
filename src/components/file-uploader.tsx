@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, DragEvent } from 'react';
-import { UploadCloud, File, Loader, CheckCircle2 } from 'lucide-react';
+import { Upload, File, Loader, CheckCircle2, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
 
@@ -28,7 +28,6 @@ export function FileUploader({ status, onUpload }: FileUploaderProps) {
 
   useEffect(() => {
     if (status === 'processing') {
-      onUpload();
       let stepTimeout: NodeJS.Timeout;
       
       const runStep = (stepIndex: number) => {
@@ -51,7 +50,7 @@ export function FileUploader({ status, onUpload }: FileUploaderProps) {
 
       return () => clearTimeout(stepTimeout);
     }
-  }, [status]); // Only re-trigger on status change from parent
+  }, [status]);
 
   const handleDragEnter = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -74,8 +73,6 @@ export function FileUploader({ status, onUpload }: FileUploaderProps) {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
-    // In a real app, you would handle the file here
-    // For this simulation, we just trigger the upload process
     if (status === 'idle') {
       onUpload();
     }
@@ -95,18 +92,25 @@ export function FileUploader({ status, onUpload }: FileUploaderProps) {
     >
       {status === 'idle' ? (
         <div className="flex flex-col items-center justify-center text-center space-y-4">
-          <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10">
-            <UploadCloud className="w-8 h-8 text-primary" />
+          <div className="flex items-center justify-center w-20 h-20 rounded-full bg-primary/10">
+            <Upload className="w-10 h-10 text-primary" />
           </div>
-          <h3 className="text-2xl font-semibold">Drag & drop your PDF here</h3>
-          <p className="text-muted-foreground">or</p>
+          <h3 className="text-2xl font-semibold">Upload Financial PDF</h3>
+          <p className="text-muted-foreground">Drag and drop your financial document or click to browse</p>
+          <div className="text-xs text-muted-foreground flex items-center gap-x-2">
+            <span>PDF files only</span>
+            <span className="text-lg leading-none">&middot;</span>
+            <span>Up to 50MB</span>
+            <span className="text-lg leading-none">&middot;</span>
+            <span>Secure processing</span>
+          </div>
           <button 
             onClick={onUpload}
-            className="px-6 py-2 font-semibold text-white rounded-md bg-primary hover:bg-primary/90 transition-colors"
+            className="px-6 py-2 font-semibold text-white rounded-md bg-primary hover:bg-primary/90 transition-colors inline-flex items-center gap-2 mt-2"
           >
-            Browse Files
+            <FileText className="w-4 h-4" />
+            Choose PDF File
           </button>
-          <p className="text-sm text-muted-foreground pt-4">Simulated processing for demonstration purposes.</p>
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center text-center space-y-6">

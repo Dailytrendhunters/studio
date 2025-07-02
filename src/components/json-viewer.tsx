@@ -104,7 +104,7 @@ export function JsonViewer({ jsonData, summary, onReset, isError, errorDetails }
       </Card>
 
       <div className="text-center pt-4">
-        <Button size="lg" onClick={onReset} className="bg-accent hover:bg-accent/90 text-accent-foreground">
+        <Button size="lg" onClick={onReset} className="bg-primary hover:bg-primary/90 text-primary-foreground">
           <RefreshCw className="mr-2 h-4 w-4" />
           Process Another Document
         </Button>
