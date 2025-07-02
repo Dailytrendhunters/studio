@@ -110,7 +110,11 @@ export default function Home() {
             <section className="pb-12 md:pb-16">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {features.map((feature, index) => (
-                  <Card key={index} className="bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow p-6 text-center flex flex-col items-center">
+                  <Card 
+                    key={index} 
+                    className="bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow p-6 text-center flex flex-col items-center animate-in fade-in-0 slide-in-from-bottom-4 duration-500"
+                    style={{ animationFillMode: 'backwards', animationDelay: `${index * 100}ms` }}
+                  >
                     <div className="p-4 bg-primary/10 rounded-lg mb-4 inline-block">
                         {feature.icon}
                     </div>

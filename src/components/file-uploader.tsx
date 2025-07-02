@@ -81,7 +81,7 @@ export function FileUploader({ status, onUpload }: FileUploaderProps) {
   return (
     <div 
       className={cn(
-        "w-full rounded-xl border-2 border-dashed transition-all duration-300",
+        "w-full rounded-xl border-2 border-dashed transition-all duration-300 animate-in fade-in-0 slide-in-from-bottom-5",
         isDragging ? "border-primary bg-primary/10" : "border-border bg-card",
         status === 'processing' ? "p-8" : "p-12",
       )}
@@ -91,7 +91,7 @@ export function FileUploader({ status, onUpload }: FileUploaderProps) {
       onDrop={handleDrop}
     >
       {status === 'idle' ? (
-        <div className="flex flex-col items-center justify-center text-center space-y-4">
+        <div className="flex flex-col items-center justify-center text-center space-y-4 animate-in fade-in zoom-in-95 duration-300">
           <div className="flex items-center justify-center w-20 h-20 rounded-full bg-primary/10">
             <Upload className="w-10 h-10 text-primary" />
           </div>
@@ -114,12 +114,16 @@ export function FileUploader({ status, onUpload }: FileUploaderProps) {
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center text-center space-y-6">
-          <h3 className="text-2xl font-semibold">Processing Document...</h3>
+          <h3 className="text-2xl font-semibold animate-in fade-in duration-500">Processing Document...</h3>
           <div className="w-full max-w-md space-y-4">
             <Progress value={progress} className="w-full h-2" />
             <div className="space-y-3 pt-2">
               {processingSteps.map((step, index) => (
-                <div key={index} className="flex items-center justify-start w-full text-left p-3 bg-background rounded-lg">
+                <div 
+                  key={index} 
+                  className="flex items-center justify-start w-full text-left p-3 bg-background rounded-lg animate-in fade-in-0 slide-in-from-left-4 duration-500"
+                  style={{ animationFillMode: 'backwards', animationDelay: `${index * 200}ms` }}
+                >
                   {currentStep > index ? (
                     <CheckCircle2 className="w-5 h-5 mr-3 text-green-500 flex-shrink-0" />
                   ) : currentStep === index ? (

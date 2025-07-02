@@ -56,16 +56,16 @@ export function JsonViewer({ jsonData, summary, onReset, isError, errorDetails }
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
+    <div className="space-y-6">
       {isError && errorDetails && (
-        <Alert variant="destructive">
+        <Alert variant="destructive" className="animate-in fade-in duration-300">
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Processing Error</AlertTitle>
           <AlertDescription>{errorDetails}</AlertDescription>
         </Alert>
       )}
 
-      <Card>
+      <Card className="animate-in fade-in-0 slide-in-from-bottom-4 duration-500" style={{animationFillMode: 'backwards', animationDelay: '100ms'}}>
         <CardHeader>
           <CardTitle>AI-Generated Summary</CardTitle>
           <CardDescription>A concise overview of the key financial data.</CardDescription>
@@ -75,7 +75,7 @@ export function JsonViewer({ jsonData, summary, onReset, isError, errorDetails }
         </CardContent>
       </Card>
       
-      <Card>
+      <Card className="animate-in fade-in-0 slide-in-from-bottom-4 duration-500" style={{animationFillMode: 'backwards', animationDelay: '200ms'}}>
         <CardHeader>
             <div className="flex justify-between items-start">
                 <div>
@@ -103,7 +103,7 @@ export function JsonViewer({ jsonData, summary, onReset, isError, errorDetails }
         </CardContent>
       </Card>
 
-      <div className="text-center pt-4">
+      <div className="text-center pt-4 animate-in fade-in-0 slide-in-from-bottom-4 duration-500" style={{animationFillMode: 'backwards', animationDelay: '300ms'}}>
         <Button size="lg" onClick={onReset} className="bg-primary hover:bg-primary/90 text-primary-foreground">
           <RefreshCw className="mr-2 h-4 w-4" />
           Process Another Document
