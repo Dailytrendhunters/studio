@@ -5,7 +5,7 @@ import { FileUploader } from '@/components/file-uploader';
 import { JsonViewer } from '@/components/json-viewer';
 import { processPdfAction, getSummaryAction, getSampleJsonAction } from './actions';
 import { FileText, Cpu, ScanLine, Code, Share2 } from 'lucide-react';
-import { Card } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
 type Status = 'idle' | 'processing' | 'success' | 'error';
 
@@ -49,6 +49,7 @@ export default function Home() {
   const [jsonData, setJsonData] = useState('');
   const [summary, setSummary] = useState('');
   const [errorDetails, setErrorDetails] = useState('');
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 
   const handleUpload = async (file: File) => {
     if (!file.type.includes('pdf')) {
@@ -58,7 +59,8 @@ export default function Home() {
       setSummary('Could not process the file.');
       return;
     }
-
+    
+    setUploadedFile(file);
     setStatus('processing');
     try {
       const pdfDataUri = await fileToDataUri(file);
@@ -92,6 +94,7 @@ export default function Home() {
     setJsonData('');
     setSummary('');
     setErrorDetails('');
+    setUploadedFile(null);
   };
 
   return (
@@ -106,10 +109,16 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-2">
             <span className="relative flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary"></span>
+              <span className={cn(
+                "animate-ping absolute inline-flex h-full w-full rounded-full opacity-75",
+                status === 'processing' ? 'bg-yellow-400' : 'bg-primary'
+              )}></span>
+              <span className={cn(
+                "relative inline-flex rounded-full h-2.5 w-2.5",
+                status === 'processing' ? 'bg-yellow-500' : 'bg-primary'
+              )}></span>
             </span>
-            <p className="text-sm text-muted-foreground">Ready for analysis</p>
+            <p className="text-sm text-muted-foreground">{status === 'processing' ? 'Processing...' : 'Ready for analysis'}</p>
           </div>
         </div>
       </header>
@@ -148,7 +157,11 @@ export default function Home() {
 
           <div className="transition-all duration-500 ease-in-out">
             {status === 'idle' || status === 'processing' ? (
-              <FileUploader status={status} onUpload={handleUpload} />
+              <FileUploader 
+                status={status} 
+                onUpload={handleUpload} 
+                file={uploadedFile} 
+              />
             ) : (
               <JsonViewer 
                 jsonData={jsonData} 
