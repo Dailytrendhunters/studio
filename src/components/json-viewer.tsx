@@ -95,7 +95,7 @@ export function JsonViewer({ jsonData, summary, onReset, isError, errorDetails }
             </div>
         </CardHeader>
         <CardContent>
-          <ScrollArea className="h-96 w-full rounded-md border bg-background p-4">
+          <ScrollArea className="h-96 w-full rounded-md border bg-secondary p-4">
             <pre>
               <code className="text-sm font-mono">{prettyJson()}</code>
             </pre>

@@ -121,7 +121,7 @@ export function FileUploader({ status, onUpload }: FileUploaderProps) {
               {processingSteps.map((step, index) => (
                 <div 
                   key={index} 
-                  className="flex items-center justify-start w-full text-left p-3 bg-background rounded-lg animate-in fade-in-0 slide-in-from-left-4 duration-500"
+                  className="flex items-center justify-start w-full text-left p-3 bg-secondary rounded-lg animate-in fade-in-0 slide-in-from-left-4 duration-500"
                   style={{ animationFillMode: 'backwards', animationDelay: `${index * 200}ms` }}
                 >
                   {currentStep > index ? (

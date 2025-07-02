@@ -94,11 +94,10 @@ export default function Home() {
           </div>
           <div className="flex flex-1 items-center justify-end space-x-2">
             <div className="flex items-center gap-2">
-              <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
               </span>
-              <p className="text-sm text-muted-foreground">Ready to process</p>
+              <p className="text-sm text-muted-foreground">Ready</p>
             </div>
           </div>
         </div>
@@ -112,7 +111,7 @@ export default function Home() {
                 {features.map((feature, index) => (
                   <Card 
                     key={index} 
-                    className="bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow p-6 text-center flex flex-col items-center animate-in fade-in-0 slide-in-from-bottom-4 duration-500"
+                    className="p-6 text-center flex flex-col items-center animate-in fade-in-0 slide-in-from-bottom-4 duration-500 transition-shadow hover:shadow-lg shadow-md"
                     style={{ animationFillMode: 'backwards', animationDelay: `${index * 100}ms` }}
                   >
                     <div className="p-4 bg-primary/10 rounded-lg mb-4 inline-block">
