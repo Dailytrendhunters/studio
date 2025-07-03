@@ -13,10 +13,9 @@ export function SiteHeader() {
           <h2 className="font-bold text-lg text-foreground">Jsonic</h2>
         </Link>
         <nav className="flex items-center gap-4">
-           <Button asChild variant="ghost">
+           <Button asChild variant="ghost" size="icon">
               <Link href="/">
-                <Home className="h-4 w-4 mr-2" />
-                Home
+                <Home className="h-5 w-5" />
               </Link>
             </Button>
         </nav>
