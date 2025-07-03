@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview This file defines a Genkit flow to repair a broken JSON string.
@@ -47,7 +48,7 @@ const repairJsonFlow = ai.defineFlow(
     outputSchema: RepairJsonOutputSchema,
   },
   async (input) => {
-    const response = await repairJsonPrompt.generate(input);
+    const response = await repairJsonPrompt(input);
     const repaired = response.text?.trim().replace(/^```json\n?/, '').replace(/\n?```$/, '');
     
     if (!repaired) {

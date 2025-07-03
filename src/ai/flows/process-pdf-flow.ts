@@ -142,7 +142,7 @@ const processPdfFlow = ai.defineFlow(
   },
   async (input) => {
     // Generate raw text from the model
-    const response = await processPdfPrompt.generate(input);
+    const response = await processPdfPrompt(input);
     const rawText = response.text;
     
     if (!rawText) {
