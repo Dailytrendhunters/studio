@@ -93,6 +93,15 @@ const ProcessPdfModelOutputSchema = z.object({
     ),
 });
 
+// A text description of the required schema to help the repair AI.
+const SCHEMA_DESCRIPTION = `The JSON object must have a 'totalPages' (number), 'pagesProcessed' (number), and a 'structuredContent' object. The 'structuredContent' object must contain:
+- 'subject': string
+- 'chapters': array of objects, each with 'id' (string), 'title' (string), 'learning_outcomes' (array of strings), and 'sections' (array of objects).
+- 'examples': optional array of objects, each with 'id' (string), 'title' (optional string), 'question' (string), and 'analysis' (string).
+Each 'section' object must contain: 'id' (string), 'title' (string), 'paragraphs' (array of strings), optional 'subsections' (array), and optional 'tables' (array).
+Each 'table' object must contain: 'title' (optional string), 'column_headers' (array of strings), and 'rows' (array of objects where keys are column headers).
+Pay close attention to data types. 'totalPages' and 'pagesProcessed' must be numbers. All other fields should be of the specified type.`;
+
 
 const processPdfPrompt = ai.definePrompt({
   name: 'processPdfPrompt',
@@ -135,11 +144,14 @@ const processPdfFlow = ai.defineFlow(
         console.warn("Initial PDF processing failed, attempting AI repair.", e);
         
         // If parsing or validation fails, call the repair flow
-        const { repairedJson } = await repairJson({ brokenJson: rawText });
+        const repairedJsonString = await repairJson({ 
+          brokenJson: rawText,
+          schemaDescription: SCHEMA_DESCRIPTION
+        });
         
         try {
             // Second attempt to parse and validate the repaired JSON
-            const parsedRepaired = JSON.parse(repairedJson);
+            const parsedRepaired = JSON.parse(repairedJsonString);
             modelOutput = ProcessPdfModelOutputSchema.parse(parsedRepaired);
             console.log("AI repair successful!");
         } catch (finalError) {
