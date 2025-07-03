@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview This file defines a Genkit flow to process a PDF document
@@ -26,7 +27,7 @@ const ProcessPdfOutputSchema = z.object({
   jsonOutput: z
     .string()
     .describe(
-      `A JSON string representing the structured content of the document. This JSON object must be optimized for AI analysis and preserve the document's logical hierarchy. It should capture subjects, chapters, sections, tables, and case studies as described in the prompt.`
+      `A JSON string representing the structured content of the document. This JSON object must be optimized for AI analysis and preserve the document's logical hierarchy. It should capture subjects, chapters, sections, tables, and examples as described in the prompt.`
     ),
 });
 export type ProcessPdfOutput = z.infer<typeof ProcessPdfOutputSchema>;
@@ -45,37 +46,37 @@ The output must preserve the document's logical hierarchy and semantic meaning. 
 
 First, determine the total number of pages in the document and ensure all pages are processed.
 
-Then, generate a JSON string for the 'jsonOutput' field. This JSON string MUST adhere to the following detailed structure:
+Then, generate a JSON string for the 'jsonOutput' field. This JSON string MUST adhere to the following detailed, mixed, and nested structure:
 
 - **Root Object**:
   - \`subject\`: (string) The primary subject of the document (e.g., "Corporate Finance," "Quantum Mechanics," "Contract Law").
   - \`chapters\`: (array) An array of chapter objects.
     - **Chapter Object**:
-      - \`id\`: (string, optional) The chapter identifier, if present (e.g., "Chapter 5").
+      - \`id\`: (string) The chapter identifier (e.g., "Chapter 5").
       - \`title\`: (string) The full title of the chapter.
-      - \`objectives\` or \`key_takeaways\`: (array of strings, optional) A list of verbatim learning objectives or key takeaways from the chapter.
+      - \`learning_outcomes\`: (array of strings) A list of verbatim learning outcomes or key takeaways from the chapter.
       - \`sections\`: (array) An array of section objects within the chapter.
         - **Section Object**:
-          - \`id\`: (string, optional) The section identifier, if present (e.g., "5.2").
+          - \`id\`: (string) The section identifier (e.g., "5.2").
           - \`title\`: (string) The title of the section.
           - \`paragraphs\`: (array of strings) The complete, verbatim text of each paragraph in the section.
           - \`subsections\`: (array of objects, optional) For distinct parts like definitions, classifications, or legal/statutory references.
             - **Subsection Object**:
               - \`id\`: (string, optional) Identifier for the subsection.
-              - \`title\`: (string) Title of the subsection (e.g., "Definition of Terms," "Statutory Reference 1.A").
+              - \`title\`: (string) Title of the subsection (e.g., "Definition of Terms").
               - \`content\`: (array of strings) Full content of the subsection, with each paragraph as a separate string.
-  - \`tables\`: (array) A top-level array of all tables extracted from the document.
-    - **Table Object**:
-      - \`id\`: (string, optional) An identifier for the table, if present.
-      - \`title\`: (string, optional) The caption or title associated with the table.
-      - \`column_headers\`: (array of strings) The exact headers of the table columns.
-      - \`rows\`: (array of objects) Each object represents a row, with keys corresponding to the column headers and values as the cell data.
-  - \`case_studies_or_examples\`: (array of objects, optional) For capturing case studies, examples, or problem-solution pairs.
-    - **Case Study/Example Object**:
-      - \`id\`: (string, optional) A unique identifier.
-      - \`title\`: (string, optional) The title of the case study or example.
-      - \`problem\`: (string) The descriptive question or problem statement.
-      - \`solution\`: (string) The analytical commentary, explanation, or solution provided.
+          - \`tables\`: (array of objects, optional) An array of all tables found *within this section*.
+            - **Table Object**:
+              - \`id\`: (string, optional) An identifier for the table.
+              - \`title\`: (string, optional) The caption or title associated with the table.
+              - \`column_headers\`: (array of strings) The exact headers of the table columns.
+              - \`rows\`: (array of objects) Each object represents a row, with keys corresponding to the column headers.
+  - \`examples\`: (array of objects, optional) A top-level array for capturing case studies, examples, or problem-solution pairs.
+    - **Example Object**:
+      - \`id\`: (string) A unique identifier for the example.
+      - \`title\`: (string, optional) The title of the example.
+      - \`question\`: (string) The descriptive question or problem statement.
+      - \`analysis\`: (string) The analytical commentary, explanation, or solution provided.
 
 Your final output must be a single JSON object containing 'totalPages', 'pagesProcessed', and the 'jsonOutput' string.
 
