@@ -12,7 +12,7 @@ import {
   ProcessPdfOutput 
 } from '@/ai/flows/process-pdf-flow';
 import { db } from '@/lib/firebase';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { ref, set, serverTimestamp } from 'firebase/database';
 
 export async function getSampleJsonAction(input: GenerateSampleJsonInput): Promise<GenerateSampleJsonOutput> {
   try {
@@ -28,16 +28,18 @@ export async function processPdfAction(input: ProcessPdfInput): Promise<ProcessP
   try {
     const result = await processPdf(input);
     
-    // Save the result to Firestore
-    const docId = Date.now().toString();
-    const docRef = doc(db, 'processed_documents', docId);
-    await setDoc(docRef, {
-        pdfUri: input.pdfUri,
-        jsonOutput: result.jsonOutput,
-        totalPages: result.totalPages,
-        pagesProcessed: result.pagesProcessed,
-        createdAt: serverTimestamp()
-    });
+    // Save the result to Firebase Realtime Database, but only if db is initialized.
+    if (db) {
+        const docId = Date.now().toString();
+        const dbRef = ref(db, 'processed_documents/' + docId);
+        await set(dbRef, {
+            pdfUri: input.pdfUri,
+            jsonOutput: result.jsonOutput,
+            totalPages: result.totalPages,
+            pagesProcessed: result.pagesProcessed,
+            createdAt: serverTimestamp()
+        });
+    }
 
     return result;
   } catch (error) {
