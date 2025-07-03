@@ -2,7 +2,8 @@
 'use server';
 /**
  * @fileOverview This file defines a Genkit flow to process a PDF document
- * and extract its content into a structured JSON format.
+ * and extract its content into a structured JSON format. It includes an
+ * AI-powered repair mechanism for malformed JSON.
  *
  * - processPdf - A function that handles the PDF processing and JSON conversion.
  * - ProcessPdfInput - The input type for the processPdf function.
@@ -11,6 +12,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { repairJson } from './repair-json-flow';
 
 const ProcessPdfInputSchema = z.object({
   pdfUri: z
@@ -95,14 +97,14 @@ const ProcessPdfModelOutputSchema = z.object({
 const processPdfPrompt = ai.definePrompt({
   name: 'processPdfPrompt',
   input: {schema: ProcessPdfInputSchema},
-  output: {schema: ProcessPdfModelOutputSchema}, // Use the new, fully-structured schema
+  // We no longer define an output schema here so we can parse manually and trigger repair logic.
   prompt: `You are a highly advanced AI specializing in document intelligence for financial, scientific, and legal domains. Your primary task is to convert the provided PDF document into a meticulously structured, machine-readable JSON format that is optimized for AI analysis, retrieval, and content generation.
 
 The output must preserve the document's logical hierarchy and semantic meaning. Do not summarize, interpret, or add any information not present in the source document. Every piece of text, including paragraphs, list items, and table content, must be captured verbatim.
 
 First, determine the total number of pages in the document and ensure all pages are processed.
 
-Then, generate a single JSON object that fully conforms to the provided output schema. It is critical that the output is a single, valid JSON object that strictly adheres to the schema. Pay very close attention to data types (e.g., 'totalPages' and 'pagesProcessed' must be numbers, not strings) and the exact structure of all nested fields as described in the schema.
+Then, generate a single JSON object that fully conforms to the provided output schema. It is critical that the output is a single, valid JSON object that strictly adheres to the schema. Pay very close attention to data types (e.g., 'totalPages' and 'pagesProcessed' must be numbers, not strings) and the exact structure of all nested fields as described in the schema. Do not wrap the JSON in markdown 'json' code blocks.
 
 PDF Document for processing:
 {{media url=pdfUri}}`,
@@ -112,13 +114,42 @@ const processPdfFlow = ai.defineFlow(
   {
     name: 'processPdfFlow',
     inputSchema: ProcessPdfInputSchema,
-    outputSchema: ProcessPdfOutputSchema, // The flow's final output matches what the app expects
+    outputSchema: ProcessPdfOutputSchema, // The flow's final output still matches what the app expects
   },
   async (input) => {
-    const {output: modelOutput} = await processPdfPrompt(input);
+    // Generate raw text from the model
+    const response = await processPdfPrompt.generate(input);
+    const rawText = response.text;
     
+    if (!rawText) {
+        throw new Error('The AI model returned no text output.');
+    }
+
+    let modelOutput: z.infer<typeof ProcessPdfModelOutputSchema>;
+    try {
+        // First attempt to parse and validate the raw text
+        const potentialJson = rawText.trim().replace(/^```json\n?/, '').replace(/\n?```$/, '');
+        const parsed = JSON.parse(potentialJson);
+        modelOutput = ProcessPdfModelOutputSchema.parse(parsed);
+    } catch (e) {
+        console.warn("Initial PDF processing failed, attempting AI repair.", e);
+        
+        // If parsing or validation fails, call the repair flow
+        const { repairedJson } = await repairJson({ brokenJson: rawText });
+        
+        try {
+            // Second attempt to parse and validate the repaired JSON
+            const parsedRepaired = JSON.parse(repairedJson);
+            modelOutput = ProcessPdfModelOutputSchema.parse(parsedRepaired);
+            console.log("AI repair successful!");
+        } catch (finalError) {
+            console.error("AI repair also failed.", finalError);
+            throw new Error(`PDF processing failed even after AI repair. Initial error: ${e}. Repair error: ${finalError}`);
+        }
+    }
+
     if (!modelOutput) {
-      throw new Error('The AI model returned no output.');
+      throw new Error('Model output was empty or invalid after all attempts.');
     }
 
     return {
