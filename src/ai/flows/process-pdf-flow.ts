@@ -14,6 +14,21 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import { repairJson } from './repair-json-flow';
 
+/**
+ * Extracts a JSON object from a string that might contain other text,
+ * like conversational pleasantries from the AI.
+ * @param text The string to search within.
+ * @returns The extracted JSON object as a string, or null if not found.
+ */
+function extractJsonObject(text: string): string | null {
+    const firstBrace = text.indexOf('{');
+    const lastBrace = text.lastIndexOf('}');
+    if (firstBrace !== -1 && lastBrace > firstBrace) {
+        return text.substring(firstBrace, lastBrace + 1);
+    }
+    return null;
+}
+
 const ProcessPdfInputSchema = z.object({
   pdfUri: z
     .string()
@@ -137,7 +152,10 @@ const processPdfFlow = ai.defineFlow(
     let modelOutput: z.infer<typeof ProcessPdfModelOutputSchema>;
     try {
         // First attempt to parse and validate the raw text
-        const potentialJson = rawText.trim().replace(/^```json\n?/, '').replace(/\n?```$/, '');
+        const potentialJson = extractJsonObject(rawText);
+        if (!potentialJson) {
+            throw new Error("Could not find a JSON object in the model's response.");
+        }
         const parsed = JSON.parse(potentialJson);
         modelOutput = ProcessPdfModelOutputSchema.parse(parsed);
     } catch (e) {
@@ -151,7 +169,11 @@ const processPdfFlow = ai.defineFlow(
         
         try {
             // Second attempt to parse and validate the repaired JSON
-            const parsedRepaired = JSON.parse(repairedJsonString);
+            const potentialRepairedJson = extractJsonObject(repairedJsonString);
+             if (!potentialRepairedJson) {
+                throw new Error("Could not find a JSON object in the repaired response.");
+            }
+            const parsedRepaired = JSON.parse(potentialRepairedJson);
             modelOutput = ProcessPdfModelOutputSchema.parse(parsedRepaired);
             console.log("AI repair successful!");
         } catch (finalError) {
