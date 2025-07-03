@@ -45,6 +45,9 @@ export async function processPdfAction(input: ProcessPdfInput): Promise<ProcessP
     return result;
   } catch (error) {
     console.error("Error in processPdfAction:", error);
-    throw new Error("Failed to process the PDF document.");
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error("An unknown error occurred during PDF processing.");
   }
 }

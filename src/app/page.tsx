@@ -68,7 +68,8 @@ export default function Home() {
       setStatus('success');
     } catch (e) {
       console.error(e);
-      setErrorDetails('We encountered an issue processing your document. As a demonstration, here is some sample financial data.');
+      const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred during processing.';
+      setErrorDetails(errorMessage + ' As a demonstration, here is some sample financial data.');
       try {
         const { jsonOutput } = await getSampleJsonAction({ description: 'A sample balance sheet from a startup.' });
         setJsonData(jsonOutput);
@@ -96,7 +97,7 @@ export default function Home() {
     <div className="container relative py-8">
       {status === 'idle' && (
         <section className="pb-12 md:pb-24 text-center animate-in fade-in-0 slide-in-from-bottom-12 duration-500">
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tighter mb-4 bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 via-pink-500 to-blue-500 [background-size:200%_auto] animate-text-gradient-pan">
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tighter mb-4">
             Unlock Data from Documents
           </h1>
           <p className="max-w-2xl mx-auto mb-10 text-lg text-muted-foreground">
