@@ -25,6 +25,7 @@ export async function getSampleJsonAction(input: GenerateSampleJsonInput): Promi
 }
 
 export async function processPdfAction(input: ProcessPdfInput): Promise<ProcessPdfOutput> {
+  console.log("✅ Server action 'processPdfAction' triggered. If you see this, your server console is working.");
   try {
     const result = await processPdf(input);
     
