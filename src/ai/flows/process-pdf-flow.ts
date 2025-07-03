@@ -121,16 +121,12 @@ Pay close attention to data types. 'totalPages' and 'pagesProcessed' must be num
 const processPdfPrompt = ai.definePrompt({
   name: 'processPdfPrompt',
   input: {schema: ProcessPdfInputSchema},
-  // We no longer define an output schema here so we can parse manually and trigger repair logic.
+  output: {schema: ProcessPdfModelOutputSchema}, // Use Genkit's structured output feature
   prompt: `You are a highly advanced AI specializing in document intelligence. Your task is to convert the provided PDF document into a meticulously structured JSON format.
 
 - The output must be a single, valid JSON object. Do not wrap it in markdown.
 - Do not summarize or add information not present in the source document. Capture all text verbatim.
-- First, determine the total number of pages and pages processed.
-- The JSON object must strictly adhere to the following schema definition. Pay very close attention to the specified data types.
-
-SCHEMA DEFINITION:
-${SCHEMA_DESCRIPTION}
+- Adhere strictly to the provided JSON output schema's structure and data types.
 
 PDF Document for processing:
 {{media url=pdfUri}}`,
@@ -140,52 +136,47 @@ const processPdfFlow = ai.defineFlow(
   {
     name: 'processPdfFlow',
     inputSchema: ProcessPdfInputSchema,
-    outputSchema: ProcessPdfOutputSchema, // The flow's final output still matches what the app expects
+    outputSchema: ProcessPdfOutputSchema,
   },
   async (input) => {
-    // Generate raw text from the model
     const response = await processPdfPrompt(input);
-    const rawText = response.text;
     
-    if (!rawText) {
-        throw new Error('The AI model returned no text output.');
-    }
+    let modelOutput = response.output; // Attempt to get structured output first.
 
-    let modelOutput: z.infer<typeof ProcessPdfModelOutputSchema>;
-    try {
-        // First attempt to parse and validate the raw text
-        const potentialJson = extractJsonObject(rawText);
-        if (!potentialJson) {
-            throw new Error("Could not find a JSON object in the model's response.");
-        }
-        const parsed = JSON.parse(potentialJson);
-        modelOutput = ProcessPdfModelOutputSchema.parse(parsed);
-    } catch (e) {
-        console.warn("Initial PDF processing failed, attempting AI repair.", e);
+    // If Genkit failed to parse the output, try to repair the raw text.
+    if (!modelOutput) {
+        console.warn("Initial structured output failed. Attempting AI repair on raw text.");
+        const rawText = response.text;
         
-        // If parsing or validation fails, call the repair flow
-        const repairedJsonString = await repairJson({ 
-          brokenJson: rawText,
-          schemaDescription: SCHEMA_DESCRIPTION
-        });
+        if (!rawText) {
+            throw new Error('The AI model returned no text output to repair.');
+        }
         
         try {
-            // Second attempt to parse and validate the repaired JSON
+            const repairedJsonString = await repairJson({ 
+              brokenJson: rawText,
+              schemaDescription: SCHEMA_DESCRIPTION // Give the repair bot the schema
+            });
+            
             const potentialRepairedJson = extractJsonObject(repairedJsonString);
-             if (!potentialRepairedJson) {
-                throw new Error("Could not find a JSON object in the repaired response.");
+            if (!potentialRepairedJson) {
+                throw new Error("AI repair returned a response, but no JSON object could be found within it.");
             }
             const parsedRepaired = JSON.parse(potentialRepairedJson);
-            modelOutput = ProcessPdfModelOutputSchema.parse(parsedRepaired);
+            modelOutput = ProcessPdfModelOutputSchema.parse(parsedRepaired); // Validate the repaired JSON
             console.log("AI repair successful!");
-        } catch (finalError) {
-            console.error("AI repair also failed.", finalError);
-            throw new Error(`PDF processing failed even after AI repair. Initial error: ${e}. Repair error: ${finalError}`);
+        } catch (repairError) {
+            console.error("AI repair also failed.", repairError);
+            if (repairError instanceof Error) {
+                throw new Error(`PDF processing failed even after AI repair. Details: ${repairError.message}`);
+            }
+            throw new Error('PDF processing failed after an unsuccessful AI repair attempt.');
         }
     }
 
     if (!modelOutput) {
-      throw new Error('Model output was empty or invalid after all attempts.');
+      // This should be rare, but it's a good final check.
+      throw new Error('Model output was empty or invalid after all processing attempts.');
     }
 
     return {
