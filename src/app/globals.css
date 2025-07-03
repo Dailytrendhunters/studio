@@ -87,11 +87,5 @@ body {
   body {
     @apply bg-background text-foreground;
     min-height: 100vh;
-    background-image: 
-      radial-gradient(circle at 15% 50%, hsl(var(--primary) / 0.2), transparent 40%),
-      radial-gradient(circle at 85% 30%, hsl(var(--chart-2) / 0.2), transparent 40%),
-      radial-gradient(circle at 60% 80%, hsl(var(--chart-3) / 0.2), transparent 40%),
-      radial-gradient(ellipse at 50% 50%, hsl(var(--background)) 50%, transparent 100%);
-    background-size: 400% 400%;
   }
 }
