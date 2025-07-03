@@ -122,13 +122,15 @@ const processPdfPrompt = ai.definePrompt({
   name: 'processPdfPrompt',
   input: {schema: ProcessPdfInputSchema},
   // We no longer define an output schema here so we can parse manually and trigger repair logic.
-  prompt: `You are a highly advanced AI specializing in document intelligence for financial, scientific, and legal domains. Your primary task is to convert the provided PDF document into a meticulously structured, machine-readable JSON format that is optimized for AI analysis, retrieval, and content generation.
+  prompt: `You are a highly advanced AI specializing in document intelligence. Your task is to convert the provided PDF document into a meticulously structured JSON format.
 
-The output must preserve the document's logical hierarchy and semantic meaning. Do not summarize, interpret, or add any information not present in the source document. Every piece of text, including paragraphs, list items, and table content, must be captured verbatim.
+- The output must be a single, valid JSON object. Do not wrap it in markdown.
+- Do not summarize or add information not present in the source document. Capture all text verbatim.
+- First, determine the total number of pages and pages processed.
+- The JSON object must strictly adhere to the following schema definition. Pay very close attention to the specified data types.
 
-First, determine the total number of pages in the document and ensure all pages are processed.
-
-Then, generate a single JSON object that fully conforms to the provided output schema. It is critical that the output is a single, valid JSON object that strictly adheres to the schema. Pay very close attention to data types (e.g., 'totalPages' and 'pagesProcessed' must be numbers, not strings) and the exact structure of all nested fields as described in the schema. Do not wrap the JSON in markdown 'json' code blocks.
+SCHEMA DEFINITION:
+${SCHEMA_DESCRIPTION}
 
 PDF Document for processing:
 {{media url=pdfUri}}`,
