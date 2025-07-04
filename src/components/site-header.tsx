@@ -1,6 +1,6 @@
 
 import Link from 'next/link';
-import { FileText, Github, Home } from 'lucide-react';
+import { FileText, Github } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export function SiteHeader() {
