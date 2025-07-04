@@ -72,7 +72,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
       <div
         className={`relative border-2 border-dashed rounded-2xl p-12 text-center transition-all duration-300 ${
           isDragOver
-            ? 'border-primary bg-primary/10 scale-105 shadow-lg'
+            ? 'border-primary bg-primary/10 scale-105 shadow-lg shadow-primary/10'
             : selectedFile && !error
             ? 'border-green-500 bg-green-500/10'
             : error

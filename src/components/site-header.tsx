@@ -1,5 +1,6 @@
+
 import Link from 'next/link';
-import { FileText, Home } from 'lucide-react';
+import { FileText, Github, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export function SiteHeader() {
@@ -10,12 +11,13 @@ export function SiteHeader() {
           <div className="p-2 bg-primary/10 border border-primary/20 rounded-lg">
             <FileText className="w-6 h-6 text-primary" />
           </div>
-          <h2 className="font-bold text-lg text-foreground">Jsonic</h2>
+          <h2 className="font-bold text-lg text-foreground">PDF to JSON</h2>
         </Link>
-        <nav className="flex items-center gap-4">
+        <nav className="flex items-center gap-2">
            <Button asChild variant="ghost" size="icon">
-              <Link href="/">
-                <Home className="h-5 w-5" />
+              <Link href="https://github.com/firebase/studio-pdf-to-json" target="_blank">
+                <Github className="h-5 w-5" />
+                <span className="sr-only">GitHub</span>
               </Link>
             </Button>
         </nav>

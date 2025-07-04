@@ -153,13 +153,13 @@ export const ProcessingStatus: React.FC<ProcessingStatusProps> = ({
                 key={step.id + index}
                 className={`relative p-3 rounded-xl border-2 transition-all duration-300 ${
                   isActive
-                    ? 'border-primary/80 bg-primary/10 shadow-lg'
+                    ? 'border-primary/80 bg-primary/10 shadow-lg shadow-primary/10'
                     : isCompleted
                     ? 'border-green-500/50 bg-green-500/10'
                     : 'border-border bg-secondary/20'
                 }`}
-                animate={isActive ? { scale: [1, 1.02, 1] } : {}}
-                transition={{ duration: 2, repeat: Infinity }}
+                animate={isActive ? { scale: [1, 1.05, 1] } : {}}
+                transition={{ duration: 1.5, repeat: Infinity }}
               >
                 <div className="flex flex-col items-center text-center space-y-2">
                   <motion.div
@@ -172,7 +172,6 @@ export const ProcessingStatus: React.FC<ProcessingStatusProps> = ({
                     }`}
                     animate={isActive ? { 
                       scale: [1, 1.1, 1],
-                      rotate: [0, 5, -5, 0]
                     } : {}}
                     transition={{ duration: 1.5, repeat: Infinity }}
                   >
@@ -221,14 +220,6 @@ export const ProcessingStatus: React.FC<ProcessingStatusProps> = ({
                     )}
                   </div>
                 </div>
-                
-                {isActive && (
-                  <motion.div
-                    className="absolute inset-0 rounded-xl bg-primary/20 pointer-events-none"
-                    animate={{ opacity: [0.3, 0.6, 0.3] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  />
-                )}
               </motion.div>
             );
           })}

@@ -98,9 +98,9 @@ export default function Home() {
               transition={{ duration: 0.8 }}
               className="text-center mb-16"
             >
-              <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-6">
+              <h2 className="text-4xl sm:text-5xl font-extrabold text-foreground mb-6">
                 Transform Your{' '}
-                <span className="bg-gradient-to-r from-primary via-accent to-red-500 bg-clip-text text-transparent animate-text-gradient-pan">
+                <span className="bg-gradient-to-r from-primary via-accent to-red-500 bg-clip-text text-transparent animate-text-gradient-pan bg-[200%_auto]">
                   Financial PDFs
                 </span>
                 <br />
