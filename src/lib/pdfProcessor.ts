@@ -1,3 +1,4 @@
+
 export interface ExtractedData {
   metadata: {
     title: string;

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -92,7 +93,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
+    <div className="min-h-screen bg-background">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {!extractedData && !isProcessing && (
           <>
@@ -103,15 +104,15 @@ export default function Home() {
               transition={{ duration: 0.8 }}
               className="text-center mb-16"
             >
-              <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
+              <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-6">
                 Transform Your{' '}
-                <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-red-500 via-yellow-400 to-blue-500 bg-[200%_auto] bg-clip-text text-transparent animate-text-gradient-pan">
                   Financial PDFs
                 </span>
                 <br />
                 Into Smart JSON
               </h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
+              <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
                 Upload any financial document and get intelligently extracted data in seconds. 
                 Perfect for automated analysis, reporting, and integration.
               </p>
@@ -131,13 +132,13 @@ export default function Home() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.1 * index }}
                   whileHover={{ y: -5, scale: 1.02 }}
-                  className="bg-white rounded-xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300"
+                  className="bg-card rounded-xl p-6 shadow-lg border border-border hover:shadow-primary/20 transition-all duration-300"
                 >
-                  <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg mb-4">
-                    <feature.icon className="w-6 h-6 text-blue-600" />
+                  <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-lg mb-4">
+                    <feature.icon className="w-6 h-6 text-primary" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{feature.title}</h3>
-                  <p className="text-gray-600 text-sm">{feature.description}</p>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">{feature.title}</h3>
+                  <p className="text-muted-foreground text-sm">{feature.description}</p>
                 </motion.div>
               ))}
             </motion.div>
@@ -188,7 +189,7 @@ export default function Home() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={resetApp}
-                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
+                className="px-6 py-3 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition-all shadow-lg hover:shadow-primary/20"
               >
                 Process Another File
               </motion.button>
@@ -202,10 +203,10 @@ export default function Home() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8, delay: 0.4 }}
-        className="bg-white/80 backdrop-blur-sm border-t border-gray-200 mt-24"
+        className="bg-background/80 backdrop-blur-sm border-t border-border mt-24"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center text-gray-600">
+          <div className="text-center text-muted-foreground">
             <p className="text-sm">
               Built with Next.js, TypeScript, and Tailwind CSS. 
               Powered by advanced document processing algorithms.

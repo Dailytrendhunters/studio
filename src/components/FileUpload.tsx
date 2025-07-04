@@ -1,3 +1,4 @@
+
 import React, { useCallback, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, FileText, X, CheckCircle, AlertCircle, Zap } from 'lucide-react';
@@ -72,12 +73,12 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
       <div
         className={`relative border-2 border-dashed rounded-2xl p-12 text-center transition-all duration-300 ${
           isDragOver
-            ? 'border-blue-400 bg-blue-50 scale-105 shadow-lg'
+            ? 'border-primary bg-primary/10 scale-105 shadow-lg'
             : selectedFile && !error
-            ? 'border-green-400 bg-green-50'
+            ? 'border-green-500 bg-green-500/10'
             : error
-            ? 'border-red-400 bg-red-50'
-            : 'border-gray-300 bg-gray-50 hover:border-gray-400 hover:bg-gray-100'
+            ? 'border-destructive bg-destructive/10'
+            : 'border-border bg-card hover:border-primary/50'
         }`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -100,15 +101,15 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
               exit={{ opacity: 0, scale: 0.8 }}
               className="space-y-4"
             >
-              <div className="flex items-center justify-center w-16 h-16 mx-auto bg-green-100 rounded-full">
-                <CheckCircle className="w-8 h-8 text-green-600" />
+              <div className="flex items-center justify-center w-16 h-16 mx-auto bg-green-500/10 rounded-full">
+                <CheckCircle className="w-8 h-8 text-green-400" />
               </div>
               <div className="space-y-2">
-                <p className="text-lg font-semibold text-gray-800 break-all">{selectedFile.name}</p>
-                <p className="text-sm text-gray-600">
+                <p className="text-lg font-semibold text-foreground break-all">{selectedFile.name}</p>
+                <p className="text-sm text-muted-foreground">
                   {formatFileSize(selectedFile.size)}
                 </p>
-                <div className="flex items-center justify-center gap-2 text-sm text-green-600">
+                <div className="flex items-center justify-center gap-2 text-sm text-green-400">
                   <Zap className="w-4 h-4" />
                   <span>Ready for intelligent processing</span>
                 </div>
@@ -116,7 +117,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
               {!isProcessing && (
                 <button
                   onClick={clearFile}
-                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition-colors"
+                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-500 bg-red-500/10 rounded-lg hover:bg-red-500/20 transition-colors"
                 >
                   <X className="w-4 h-4" />
                   Remove File
@@ -131,19 +132,19 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
               exit={{ opacity: 0, scale: 0.8 }}
               className="space-y-4"
             >
-              <div className="flex items-center justify-center w-16 h-16 mx-auto bg-red-100 rounded-full">
-                <AlertCircle className="w-8 h-8 text-red-600" />
+              <div className="flex items-center justify-center w-16 h-16 mx-auto bg-destructive/10 rounded-full">
+                <AlertCircle className="w-8 h-8 text-destructive" />
               </div>
               <div className="space-y-2">
-                <p className="text-lg font-semibold text-red-800">Processing Error</p>
-                <p className="text-sm text-red-600">{error}</p>
-                <p className="text-xs text-gray-500">
+                <p className="text-lg font-semibold text-destructive-foreground">Processing Error</p>
+                <p className="text-sm text-destructive">{error}</p>
+                <p className="text-xs text-muted-foreground">
                   Don't worry - we've generated sample data to show you how the app works!
                 </p>
               </div>
               <button
                 onClick={clearFile}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-muted-foreground bg-secondary rounded-lg hover:bg-accent transition-colors"
               >
                 <X className="w-4 h-4" />
                 Try Another File
@@ -163,31 +164,31 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
                   scale: isDragOver ? 1.1 : 1
                 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                className="flex items-center justify-center w-20 h-20 mx-auto bg-gradient-to-br from-blue-100 to-purple-100 rounded-full"
+                className="flex items-center justify-center w-20 h-20 mx-auto bg-gradient-to-br from-primary/10 to-secondary/10 rounded-full"
               >
                 {isDragOver ? (
                   <motion.div
                     animate={{ rotate: [0, 10, -10, 0] }}
                     transition={{ duration: 0.5, repeat: Infinity }}
                   >
-                    <FileText className="w-10 h-10 text-blue-600" />
+                    <FileText className="w-10 h-10 text-primary" />
                   </motion.div>
                 ) : (
-                  <Upload className="w-10 h-10 text-gray-600" />
+                  <Upload className="w-10 h-10 text-muted-foreground" />
                 )}
               </motion.div>
               
               <div className="space-y-3">
-                <p className="text-xl font-semibold text-gray-800">
+                <p className="text-xl font-semibold text-foreground">
                   {isDragOver ? 'Drop your PDF here!' : 'Upload Financial PDF'}
                 </p>
-                <p className="text-gray-600">
+                <p className="text-muted-foreground">
                   {isDragOver 
                     ? 'Release to start intelligent processing' 
                     : 'Drag and drop your financial document or click to browse'
                   }
                 </p>
-                <div className="flex items-center justify-center gap-4 text-sm text-gray-500">
+                <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground/80">
                   <span>• PDF files only</span>
                   <span>• Up to 50MB</span>
                   <span>• Secure processing</span>
@@ -197,7 +198,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition-all duration-200 shadow-lg hover:shadow-primary/20"
                 disabled={isProcessing}
               >
                 <FileText className="w-5 h-5" />
@@ -208,19 +209,20 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
         </AnimatePresence>
       </div>
       
+      {/* Processing indicator overlay */}
       {isProcessing && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="absolute inset-0 bg-white/80 backdrop-blur-sm rounded-2xl flex items-center justify-center"
+          className="absolute inset-0 bg-background/80 backdrop-blur-sm rounded-2xl flex items-center justify-center"
         >
           <div className="text-center">
             <motion.div
               animate={{ rotate: 360 }}
               transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-              className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full mx-auto mb-2"
+              className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-2"
             />
-            <p className="text-sm font-medium text-gray-600">Processing your PDF...</p>
+            <p className="text-sm font-medium text-muted-foreground">Processing your PDF...</p>
           </div>
         </motion.div>
       )}

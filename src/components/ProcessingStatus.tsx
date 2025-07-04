@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Loader2, FileText, Database, CheckCircle, Zap, Brain, BarChart3, BookOpen } from 'lucide-react';
@@ -54,7 +55,6 @@ export const ProcessingStatus: React.FC<ProcessingStatusProps> = ({
 
   const currentStepIndex = getCurrentStepIndex();
 
-  // Extract total pages from current step if available
   const extractTotalPages = (step: string): string => {
     const pageMatch = step.match(/(\d+)\s*total pages|(\d+)\s*pages/i);
     if (pageMatch) {
@@ -73,35 +73,34 @@ export const ProcessingStatus: React.FC<ProcessingStatusProps> = ({
       exit={{ opacity: 0, y: -20 }}
       className="w-full max-w-4xl mx-auto mt-8"
     >
-      <div className="bg-white rounded-2xl shadow-xl p-8 border">
+      <div className="bg-card rounded-2xl shadow-xl p-8 border border-border">
         {/* Header */}
         <div className="text-center mb-8">
           <motion.div
             animate={{ rotate: 360 }}
             transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-            className="inline-flex items-center justify-center w-16 h-16 mx-auto bg-gradient-to-br from-blue-100 to-purple-100 rounded-full mb-4"
+            className="inline-flex items-center justify-center w-16 h-16 mx-auto bg-gradient-to-br from-primary/10 to-secondary/10 rounded-full mb-4"
           >
-            <Loader2 className="w-8 h-8 text-blue-600" />
+            <Loader2 className="w-8 h-8 text-primary" />
           </motion.div>
-          <h3 className="text-2xl font-bold text-gray-800 mb-2">
+          <h3 className="text-2xl font-bold text-foreground mb-2">
             Processing Your PDF Document{extractTotalPages(currentStep)}
           </h3>
-          <p className="text-gray-600 max-w-2xl mx-auto">{currentStep}</p>
+          <p className="text-muted-foreground max-w-2xl mx-auto">{currentStep}</p>
           
-          {/* Show page count prominently when detected */}
           {currentStep.includes('CONFIRMED') && (
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200"
+              className="mt-4 p-4 bg-primary/10 rounded-lg border border-primary/20"
             >
-              <div className="flex items-center justify-center gap-2 text-blue-800">
+              <div className="flex items-center justify-center gap-2 text-primary">
                 <BookOpen className="w-5 h-5" />
                 <span className="font-semibold">
                   {currentStep.match(/(\d+)\s*total pages/i)?.[1] || 'Multiple'} pages detected - Processing every single page
                 </span>
               </div>
-              <p className="text-sm text-blue-600 mt-1">
+              <p className="text-sm text-primary/80 mt-1">
                 No shortcuts - complete page-by-page analysis for 100% accuracy
               </p>
             </motion.div>
@@ -110,12 +109,12 @@ export const ProcessingStatus: React.FC<ProcessingStatusProps> = ({
 
         {/* Progress Bar */}
         <div className="mb-8">
-          <div className="flex justify-between items-center text-sm text-gray-600 mb-3">
+          <div className="flex justify-between items-center text-sm text-muted-foreground mb-3">
             <span className="font-medium">Overall Progress</span>
-            <span className="font-bold text-blue-600">{Math.round(progress)}%</span>
+            <span className="font-bold text-primary">{Math.round(progress)}%</span>
           </div>
           
-          <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+          <div className="w-full bg-secondary rounded-full h-4 overflow-hidden">
             <motion.div
               className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-green-500 rounded-full relative"
               style={{ width: `${progress}%` }}
@@ -124,24 +123,23 @@ export const ProcessingStatus: React.FC<ProcessingStatusProps> = ({
               transition={{ duration: 0.5, ease: "easeOut" }}
             >
               <motion.div
-                className="absolute inset-0 bg-white/30 rounded-full"
+                className="absolute inset-0 bg-white/20 rounded-full"
                 animate={{ x: ['-100%', '100%'] }}
                 transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
               />
             </motion.div>
           </div>
           
-          {/* Show page progress when processing individual pages */}
           {currentStep.includes('Processing page') && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="mt-2 text-center"
             >
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-muted-foreground">
                 {currentStep.match(/page (\d+)\/(\d+)/)?.[0] || 'Processing pages individually'}
               </div>
-              <div className="text-xs text-gray-500 mt-1">
+              <div className="text-xs text-muted-foreground/80 mt-1">
                 Taking time to ensure every page is processed completely
               </div>
             </motion.div>
@@ -153,17 +151,16 @@ export const ProcessingStatus: React.FC<ProcessingStatusProps> = ({
           {steps.map((step, index) => {
             const isActive = index === currentStepIndex;
             const isCompleted = index < currentStepIndex;
-            const isPending = index > currentStepIndex;
             
             return (
               <motion.div
                 key={step.id + index}
                 className={`relative p-3 rounded-xl border-2 transition-all duration-300 ${
                   isActive
-                    ? 'border-blue-400 bg-blue-50 shadow-lg scale-105'
+                    ? 'border-primary/80 bg-primary/10 shadow-lg'
                     : isCompleted
-                    ? 'border-green-400 bg-green-50'
-                    : 'border-gray-200 bg-gray-50'
+                    ? 'border-green-500/50 bg-green-500/10'
+                    : 'border-border bg-secondary'
                 }`}
                 animate={isActive ? { scale: [1, 1.02, 1] } : {}}
                 transition={{ duration: 2, repeat: Infinity }}
@@ -172,10 +169,10 @@ export const ProcessingStatus: React.FC<ProcessingStatusProps> = ({
                   <motion.div
                     className={`w-8 h-8 rounded-full flex items-center justify-center ${
                       isCompleted
-                        ? 'bg-green-100 text-green-600'
+                        ? 'bg-green-500/20 text-green-400'
                         : isActive
-                        ? 'bg-blue-100 text-blue-600'
-                        : 'bg-gray-100 text-gray-400'
+                        ? 'bg-primary/20 text-primary'
+                        : 'bg-muted-foreground/20 text-muted-foreground'
                     }`}
                     animate={isActive ? { 
                       scale: [1, 1.1, 1],
@@ -188,7 +185,7 @@ export const ProcessingStatus: React.FC<ProcessingStatusProps> = ({
                   
                   <div>
                     <p className={`text-xs font-medium leading-tight ${
-                      isCompleted || isActive ? 'text-gray-800' : 'text-gray-400'
+                      isCompleted || isActive ? 'text-foreground' : 'text-muted-foreground'
                     }`}>
                       {step.label}
                     </p>
@@ -203,7 +200,7 @@ export const ProcessingStatus: React.FC<ProcessingStatusProps> = ({
                           {[0, 1, 2].map((dot) => (
                             <motion.div
                               key={dot}
-                              className="w-1 h-1 bg-blue-600 rounded-full"
+                              className="w-1 h-1 bg-primary rounded-full"
                               animate={{ scale: [1, 1.5, 1] }}
                               transition={{
                                 duration: 1,
@@ -218,7 +215,7 @@ export const ProcessingStatus: React.FC<ProcessingStatusProps> = ({
                     
                     {isCompleted && (
                       <motion.div
-                        className="mt-1 text-green-600"
+                        className="mt-1 text-green-400"
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ type: "spring", stiffness: 500, damping: 30 }}
@@ -229,10 +226,9 @@ export const ProcessingStatus: React.FC<ProcessingStatusProps> = ({
                   </div>
                 </div>
                 
-                {/* Active step glow effect */}
                 {isActive && (
                   <motion.div
-                    className="absolute inset-0 rounded-xl bg-blue-400/20"
+                    className="absolute inset-0 rounded-xl bg-primary/20"
                     animate={{ opacity: [0.3, 0.6, 0.3] }}
                     transition={{ duration: 2, repeat: Infinity }}
                   />
@@ -242,15 +238,14 @@ export const ProcessingStatus: React.FC<ProcessingStatusProps> = ({
           })}
         </div>
 
-        {/* Processing Details */}
         <motion.div
-          className="mt-6 p-4 bg-gray-50 rounded-lg"
+          className="mt-6 p-4 bg-secondary rounded-lg"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <div className="flex items-center gap-3 text-sm text-gray-600">
-            <Zap className="w-4 h-4 text-blue-600" />
+          <div className="flex items-center gap-3 text-sm text-muted-foreground">
+            <Zap className="w-4 h-4 text-primary" />
             <span>
               {progress < 10 
                 ? "Analyzing PDF structure and determining exact page count..."
@@ -267,9 +262,8 @@ export const ProcessingStatus: React.FC<ProcessingStatusProps> = ({
             </span>
           </div>
           
-          {/* Quality assurance message */}
           {progress > 15 && progress < 65 && (
-            <div className="mt-2 text-xs text-blue-600 bg-blue-50 rounded p-2">
+            <div className="mt-2 text-xs text-primary/80 bg-primary/10 rounded p-2">
               <strong>Quality Assurance:</strong> We process every single page individually to guarantee 100% content coverage. 
               This takes more time but ensures no data is lost or skipped.
             </div>
