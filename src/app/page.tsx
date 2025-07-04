@@ -89,7 +89,15 @@ export default function Home() {
 
   return (
     <>
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <header className="absolute top-0 left-0 right-0 z-10 p-4">
+        <div className="container mx-auto flex items-center justify-between">
+           <div className="flex items-center gap-2">
+              <FileText className="w-6 h-6 text-primary" />
+              <h1 className="text-lg font-bold">PDF to JSON</h1>
+           </div>
+        </div>
+      </header>
+      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 pt-24">
         <AnimatePresence mode="wait">
           {!extractedData && !isProcessing && (
             <motion.div
@@ -102,7 +110,7 @@ export default function Home() {
               <div className="text-center mb-16">
                 <h2 className="text-4xl sm:text-5xl font-extrabold text-foreground mb-6">
                   Transform Your{' '}
-                  <span className="bg-gradient-to-r from-primary via-accent to-red-500 bg-clip-text text-transparent animate-text-gradient-pan bg-[200%_auto]">
+                  <span className="bg-gradient-to-r from-primary via-accent to-destructive bg-clip-text text-transparent animate-text-gradient-pan bg-[200%_auto]">
                     Financial PDFs
                   </span>
                   <br />

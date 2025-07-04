@@ -3,7 +3,6 @@ import type {Metadata} from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
-import { SiteHeader } from '@/components/site-header';
 import { Analytics } from "@vercel/analytics/react"
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
@@ -27,7 +26,6 @@ export default function RootLayout({
       </head>
       <body className={`${inter.variable} font-sans antialiased`}>
         <div className="relative flex min-h-screen flex-col bg-background">
-          <SiteHeader />
           <main className="flex-1">{children}</main>
         </div>
         <Toaster />
