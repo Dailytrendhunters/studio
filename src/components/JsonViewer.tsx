@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Download, Copy, Eye, EyeOff, ChevronDown, ChevronRight, FileText, CheckCircle, BarChart3, Database, FileSpreadsheet, BookOpen, Target } from 'lucide-react';
+import { Download, Copy, Eye, ChevronDown, ChevronRight, FileText, CheckCircle, BarChart3, Database, FileSpreadsheet, BookOpen, Target } from 'lucide-react';
 
 interface JsonViewerProps {
   data: any;
@@ -9,7 +9,6 @@ interface JsonViewerProps {
 }
 
 export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
-  const [isExpanded, setIsExpanded] = useState(true);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [downloadStatus, setDownloadStatus] = useState<'idle' | 'downloading' | 'complete'>('idle');
   const [activeTab, setActiveTab] = useState<'overview' | 'pages' | 'tables' | 'financial' | 'full'>('overview');
@@ -51,11 +50,11 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
     const [isItemExpanded, setIsItemExpanded] = useState(depth < 2);
     
     if (value === null) {
-      return <span className="text-gray-500 italic">null</span>;
+      return <span className="text-muted-foreground italic">null</span>;
     }
     
     if (typeof value === 'boolean') {
-      return <span className="text-purple-400 font-medium">{value.toString()}</span>;
+      return <span className="text-accent font-medium">{value.toString()}</span>;
     }
     
     if (typeof value === 'number') {
@@ -114,7 +113,7 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
           </button>
           {isItemExpanded && (
             <div className="ml-4 mt-2 space-y-2 border-l-2 border-border/50 pl-4">
-              {keys.slice(0, 10).map((k, index) => (
+              {keys.slice(0, 10).map((k) => (
                 <div key={k} className="flex items-start gap-2">
                   <span className="text-orange-400 font-medium min-w-fit">"{k}":</span>
                   <div className="flex-1">{renderJsonValue(value[k], k, depth + 1)}</div>
@@ -187,7 +186,7 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
                   <div className="text-xs text-muted-foreground mt-1">100% Coverage</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-purple-400">{((stats.pagesProcessed / stats.actualPagesDetected) * 100 || 0).toFixed(1)}%</div>
+                  <div className="text-2xl font-bold text-purple-400">{((stats.pagesProcessed / (stats.actualPagesDetected || 1)) * 100).toFixed(1)}%</div>
                   <div className="text-sm text-purple-400/80">Processing Rate</div>
                   <div className="text-xs text-muted-foreground mt-1">Completion</div>
                 </div>
@@ -232,7 +231,7 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
               </div>
             </div>
             
-            <div className="bg-secondary rounded-lg p-6">
+            <div className="bg-secondary/20 rounded-lg p-6">
               <h3 className="text-lg font-semibold text-foreground mb-4">Processing Summary</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                 <div>
@@ -267,7 +266,7 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
             </div>
             <div className="max-h-96 overflow-y-auto space-y-3 p-1">
               {data?.content?.pageBreakdown?.map((page: any, index: number) => (
-                <div key={index} className="bg-secondary rounded-lg p-4 border border-border">
+                <div key={index} className="bg-secondary/20 rounded-lg p-4 border border-border">
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-medium text-foreground">Page {page.pageNumber}</span>
                     <div className="flex items-center gap-2 text-sm">
@@ -291,7 +290,7 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
             <h3 className="text-lg font-semibold text-foreground">Extracted Tables ({stats.tables})</h3>
             <div className="max-h-96 overflow-y-auto space-y-4 p-1">
               {data?.content?.tables?.map((table: any, index: number) => (
-                <div key={index} className="bg-secondary rounded-lg p-4 border border-border">
+                <div key={index} className="bg-secondary/20 rounded-lg p-4 border border-border">
                   <div className="flex items-center justify-between mb-3">
                     <h4 className="font-medium text-foreground">{table.title}</h4>
                     <span className="text-sm text-muted-foreground">Page {table.page}</span>
@@ -333,7 +332,7 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
             <h3 className="text-lg font-semibold text-foreground">Financial Data Points ({stats.financialMetrics})</h3>
             <div className="max-h-96 overflow-y-auto space-y-3 p-1">
               {data?.content?.financialData?.map((item: any, index: number) => (
-                <div key={index} className="bg-secondary rounded-lg p-4 border border-border">
+                <div key={index} className="bg-secondary/20 rounded-lg p-4 border border-border">
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="font-medium text-foreground">{item.label}</div>
@@ -401,7 +400,7 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
       </motion.div>
 
       <div className="bg-card rounded-2xl shadow-xl border border-border overflow-hidden">
-        <div className="bg-secondary/50 px-6 py-4 border-b border-border flex items-center justify-between">
+        <div className="bg-card/50 px-6 py-4 border-b border-border flex items-center justify-between">
           <div className="flex items-center gap-3">
             <BookOpen className="w-5 h-5 text-muted-foreground" />
             <div>
@@ -415,7 +414,7 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
           <div className="flex items-center gap-2">
             <motion.button
               whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileTap={{ scale: 1.0 }}
               onClick={() => copyToClipboard(JSON.stringify(data, null, 2))}
               className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-primary hover:text-primary/90 bg-primary/10 rounded-lg hover:bg-primary/20 transition-all"
             >
@@ -425,10 +424,10 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
             
             <motion.button
               whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileTap={{ scale: 1.0 }}
               onClick={downloadJson}
               disabled={downloadStatus === 'downloading'}
-              className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition-all shadow-lg hover:shadow-primary/20 disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium rounded-lg transition-all shadow-lg hover:shadow-primary/20 disabled:opacity-50"
             >
               {downloadStatus === 'downloading' ? (
                 <>
@@ -479,11 +478,11 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
           </nav>
         </div>
 
-        <div className="p-6 bg-background">
+        <div className="p-6 bg-background/50">
           {renderTabContent()}
         </div>
 
-        <div className="bg-secondary/50 px-6 py-4 border-t border-border">
+        <div className="bg-card/50 px-6 py-4 border-t border-border">
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <div className="flex items-center gap-4">
               <span>📄 {fileName}</span>

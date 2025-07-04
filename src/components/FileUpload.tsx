@@ -34,7 +34,6 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
       setSelectedFile(pdfFile);
       onFileSelect(pdfFile);
     } else {
-      // Show error for non-PDF files
       console.error('Please select a PDF file');
     }
   }, [onFileSelect]);
@@ -164,7 +163,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
                   scale: isDragOver ? 1.1 : 1
                 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                className="flex items-center justify-center w-20 h-20 mx-auto bg-gradient-to-br from-primary/10 to-secondary/10 rounded-full"
+                className="flex items-center justify-center w-20 h-20 mx-auto bg-gradient-to-br from-primary/10 to-accent/10 rounded-full"
               >
                 {isDragOver ? (
                   <motion.div
@@ -197,8 +196,8 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
               
               <motion.button
                 whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition-all duration-200 shadow-lg hover:shadow-primary/20"
+                whileTap={{ scale: 1.0 }}
+                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-primary/20"
                 disabled={isProcessing}
               >
                 <FileText className="w-5 h-5" />
@@ -209,7 +208,6 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
         </AnimatePresence>
       </div>
       
-      {/* Processing indicator overlay */}
       {isProcessing && (
         <motion.div
           initial={{ opacity: 0 }}

@@ -43,7 +43,6 @@ export const ProcessingStatus: React.FC<ProcessingStatusProps> = ({
       }
     }
     
-    // Fallback based on progress
     if (progress < 10) return 0;
     if (progress < 15) return 1;
     if (progress < 65) return 2;
@@ -74,12 +73,11 @@ export const ProcessingStatus: React.FC<ProcessingStatusProps> = ({
       className="w-full max-w-4xl mx-auto mt-8"
     >
       <div className="bg-card rounded-2xl shadow-xl p-8 border border-border">
-        {/* Header */}
         <div className="text-center mb-8">
           <motion.div
             animate={{ rotate: 360 }}
             transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-            className="inline-flex items-center justify-center w-16 h-16 mx-auto bg-gradient-to-br from-primary/10 to-secondary/10 rounded-full mb-4"
+            className="inline-flex items-center justify-center w-16 h-16 mx-auto bg-gradient-to-br from-primary/10 to-accent/10 rounded-full mb-4"
           >
             <Loader2 className="w-8 h-8 text-primary" />
           </motion.div>
@@ -107,16 +105,15 @@ export const ProcessingStatus: React.FC<ProcessingStatusProps> = ({
           )}
         </div>
 
-        {/* Progress Bar */}
         <div className="mb-8">
           <div className="flex justify-between items-center text-sm text-muted-foreground mb-3">
             <span className="font-medium">Overall Progress</span>
             <span className="font-bold text-primary">{Math.round(progress)}%</span>
           </div>
           
-          <div className="w-full bg-secondary rounded-full h-4 overflow-hidden">
+          <div className="w-full bg-secondary/20 rounded-full h-4 overflow-hidden">
             <motion.div
-              className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-green-500 rounded-full relative"
+              className="h-full bg-gradient-to-r from-primary to-accent rounded-full relative"
               style={{ width: `${progress}%` }}
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
@@ -146,7 +143,6 @@ export const ProcessingStatus: React.FC<ProcessingStatusProps> = ({
           )}
         </div>
 
-        {/* Processing Steps */}
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
           {steps.map((step, index) => {
             const isActive = index === currentStepIndex;
@@ -160,7 +156,7 @@ export const ProcessingStatus: React.FC<ProcessingStatusProps> = ({
                     ? 'border-primary/80 bg-primary/10 shadow-lg'
                     : isCompleted
                     ? 'border-green-500/50 bg-green-500/10'
-                    : 'border-border bg-secondary'
+                    : 'border-border bg-secondary/20'
                 }`}
                 animate={isActive ? { scale: [1, 1.02, 1] } : {}}
                 transition={{ duration: 2, repeat: Infinity }}
@@ -228,7 +224,7 @@ export const ProcessingStatus: React.FC<ProcessingStatusProps> = ({
                 
                 {isActive && (
                   <motion.div
-                    className="absolute inset-0 rounded-xl bg-primary/20"
+                    className="absolute inset-0 rounded-xl bg-primary/20 pointer-events-none"
                     animate={{ opacity: [0.3, 0.6, 0.3] }}
                     transition={{ duration: 2, repeat: Infinity }}
                   />
@@ -239,7 +235,7 @@ export const ProcessingStatus: React.FC<ProcessingStatusProps> = ({
         </div>
 
         <motion.div
-          className="mt-6 p-4 bg-secondary rounded-lg"
+          className="mt-6 p-4 bg-secondary/20 rounded-lg"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}

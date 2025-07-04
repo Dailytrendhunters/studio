@@ -26,35 +26,30 @@ export default function Home() {
     setCurrentStep('');
 
     try {
-      console.log('Starting PDF processing for:', file.name);
-      
       const data = await processPdf(file, (progress, step) => {
-        console.log(`Progress: ${progress}%, Step: ${step}`);
         setProgress(progress);
         setCurrentStep(step);
       });
       
-      console.log('PDF processing completed successfully');
       setExtractedData(data);
       setProgress(100);
       setCurrentStep('Processing complete - Ready for download');
       
     } catch (err) {
       console.error('PDF processing error:', err);
-      setError('Processing completed with sample data to demonstrate functionality.');
+      setError('An error occurred during processing. Showing sample data.');
       
-      // In case of an error, use the processor to generate comprehensive sample data
       const sampleData = await processPdf(file, (progress, step) => {
         setProgress(progress);
         setCurrentStep(step);
-      }).catch(() => null); // Prevent infinite loop on error
+      }).catch(() => null);
 
       if (sampleData) {
         setExtractedData(sampleData);
       }
       
       setProgress(100);
-      setCurrentStep('Sample data generated - Ready for download');
+      setCurrentStep('Sample data generated');
     } finally {
       setIsProcessing(false);
     }
@@ -93,11 +88,10 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <>
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {!extractedData && !isProcessing && (
           <>
-            {/* Hero Section */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -106,7 +100,7 @@ export default function Home() {
             >
               <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-6">
                 Transform Your{' '}
-                <span className="bg-gradient-to-r from-red-500 via-yellow-400 to-blue-500 bg-[200%_auto] bg-clip-text text-transparent animate-text-gradient-pan">
+                <span className="bg-gradient-to-r from-primary via-accent to-red-500 bg-clip-text text-transparent animate-text-gradient-pan">
                   Financial PDFs
                 </span>
                 <br />
@@ -118,23 +112,21 @@ export default function Home() {
               </p>
             </motion.div>
 
-            {/* Features Grid */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16"
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16"
             >
               {features.map((feature, index) => (
                 <motion.div
                   key={feature.title}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.1 * index }}
-                  whileHover={{ y: -5, scale: 1.02 }}
-                  className="bg-card rounded-xl p-6 shadow-lg border border-border hover:shadow-primary/20 transition-all duration-300"
+                  transition={{ duration: 0.5, delay: 0.1 * index }}
+                  className="bg-card rounded-xl p-6 border border-border/50 transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary/20"
                 >
-                  <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-lg mb-4">
+                  <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-primary/10 to-accent/10 rounded-lg mb-4">
                     <feature.icon className="w-6 h-6 text-primary" />
                   </div>
                   <h3 className="text-lg font-semibold text-foreground mb-2">{feature.title}</h3>
@@ -145,37 +137,48 @@ export default function Home() {
           </>
         )}
 
-        {/* Main interactive section */}
         <div className="space-y-8">
           <AnimatePresence mode="wait">
-            {!isProcessing && !extractedData && (
-              <motion.div key="fileupload">
+            {!isProcessing && !extractedData ? (
+              <motion.div key="fileupload"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
                 <FileUpload
                   onFileSelect={handleFileSelect}
                   isProcessing={isProcessing}
                   error={error}
                 />
               </motion.div>
-            )}
+            ) : null}
             
-            {isProcessing && (
-              <motion.div key="processing">
+            {isProcessing ? (
+              <motion.div key="processing"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
                 <ProcessingStatus
                   isProcessing={isProcessing}
                   progress={progress}
                   currentStep={currentStep}
                 />
               </motion.div>
-            )}
+            ) : null}
 
-            {extractedData && (
-               <motion.div key="jsonviewer">
+            {extractedData ? (
+               <motion.div key="jsonviewer"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+               >
                  <JsonViewer
                    data={extractedData}
                    fileName={selectedFile?.name || 'document.pdf'}
                  />
                </motion.div>
-            )}
+            ) : null}
           </AnimatePresence>
           
           {extractedData && (
@@ -183,11 +186,11 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="text-center"
+              className="text-center mt-8"
             >
               <motion.button
                 whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileTap={{ scale: 1.0 }}
                 onClick={resetApp}
                 className="px-6 py-3 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition-all shadow-lg hover:shadow-primary/20"
               >
@@ -198,22 +201,20 @@ export default function Home() {
         </div>
       </main>
 
-      {/* Footer */}
       <motion.footer
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8, delay: 0.4 }}
-        className="bg-background/80 backdrop-blur-sm border-t border-border mt-24"
+        className="bg-background/80 backdrop-blur-sm border-t border-border mt-16"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="text-center text-muted-foreground">
             <p className="text-sm">
-              Built with Next.js, TypeScript, and Tailwind CSS. 
-              Powered by advanced document processing algorithms.
+              Built with Next.js, Framer Motion, and Tailwind CSS.
             </p>
           </div>
         </div>
       </motion.footer>
-    </div>
+    </>
   );
 }
