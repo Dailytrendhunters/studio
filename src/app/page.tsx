@@ -107,7 +107,7 @@ export default function Home() {
               transition={{ duration: 0.5 }}
             >
               <div className="text-center mb-16">
-                <h2 className="text-4xl sm:text-5xl font-extrabold text-transparent bg-gradient-to-r from-primary via-accent to-yellow-400 bg-clip-text animate-text-gradient-pan bg-[200%_auto] mb-6">
+                <h2 className="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text animate-text-gradient-pan mb-6 bg-[400%_auto] bg-[linear-gradient(to_right,hsl(var(--primary)),hsl(var(--accent)),#ec4899,#facc15,hsl(var(--primary)))]">
                   Transform Your Financial PDFs
                   <br />
                   Into Smart, Structured JSON

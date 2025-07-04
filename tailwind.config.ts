@@ -85,7 +85,7 @@ export default {
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
-        'text-gradient-pan': 'text-gradient-pan 3s ease-in-out infinite',
+        'text-gradient-pan': 'text-gradient-pan 5s ease-in-out infinite',
       },
     },
   },
