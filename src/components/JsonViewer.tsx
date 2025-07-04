@@ -1,4 +1,6 @@
 
+'use client';
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Download, Copy, Eye, ChevronDown, ChevronRight, FileText, CheckCircle, BarChart3, Database, FileSpreadsheet, BookOpen, Target } from 'lucide-react';

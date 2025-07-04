@@ -1,4 +1,6 @@
 
+'use client';
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Loader2, FileText, Database, CheckCircle, Zap, Brain, BarChart3, BookOpen } from 'lucide-react';
