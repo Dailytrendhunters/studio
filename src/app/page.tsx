@@ -100,7 +100,7 @@ export default function Home() {
   };
 
   const headlineText = "Transform Your Financial PDFs Into Smart JSON";
-  const specialWords = ["Financial", "PDFs"];
+  const specialWords = ["Financial", "PDFs", "JSON"];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-black to-purple-950/20">
@@ -175,11 +175,9 @@ export default function Home() {
                         variants={wordVariants}
                         whileHover={{
                           scale: 1.25,
-                          y: -5,
                           rotate: -2,
                           color: isSpecial ? undefined : 'hsl(var(--primary))',
                           textShadow: isSpecial ? '0px 0px 12px hsl(var(--primary))' : 'none',
-                          transition: { type: 'spring', stiffness: 300, damping: 10 },
                         }}
                         className={`inline-block mr-3 ${
                           isSpecial
