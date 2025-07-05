@@ -458,8 +458,8 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
               <motion.button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                whileHover={{ y: -8, scale: 1.05 }}
-                transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                whileHover={{ y: -10, scale: 1.08 }}
+                transition={{ type: "spring", stiffness: 400, damping: 15 }}
                 className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                   activeTab === tab.id
                     ? 'border-primary text-primary'

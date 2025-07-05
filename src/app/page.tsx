@@ -75,6 +75,33 @@ export default function Home() {
     }
   ];
 
+  // Animation variants for the headline
+  const sentenceVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const wordVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: 'spring',
+        damping: 12,
+        stiffness: 100,
+      },
+    },
+  };
+
+  const headlineText = "Transform Your Financial PDFs Into Smart JSON";
+  const specialWords = ["Financial", "PDFs"];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-black to-purple-950/20">
       {/* Header */}
@@ -134,14 +161,39 @@ export default function Home() {
               transition={{ duration: 0.8 }}
               className="text-center mb-16"
             >
-              <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-6">
-                Transform Your{' '}
-                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent bg-[size:200%_auto] animate-text-gradient-pan">
-                  Financial PDFs
-                </span>
-                <br />
-                Into Smart JSON
-              </h2>
+              <motion.h2
+                  variants={sentenceVariants}
+                  initial="hidden"
+                  animate="visible"
+                  className="text-4xl sm:text-5xl font-bold text-foreground mb-6"
+                >
+                  {headlineText.split(" ").map((word, index) => {
+                    if (word === "PDFs") {
+                      return (
+                        <React.Fragment key={index}>
+                          <motion.span
+                            variants={wordVariants}
+                            whileHover={{ scale: 1.25, y: -5, rotate: -2, transition: { type: 'spring', stiffness: 300, damping: 10 } }}
+                            className={`inline-block mr-3 ${specialWords.includes(word) ? 'bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent bg-[size:200%_auto] animate-text-gradient-pan' : ''}`}
+                          >
+                            {word}
+                          </motion.span>
+                          <br />
+                        </React.Fragment>
+                      );
+                    }
+                    return (
+                      <motion.span
+                        key={index}
+                        variants={wordVariants}
+                        whileHover={{ scale: 1.25, y: -5, rotate: -2, transition: { type: 'spring', stiffness: 300, damping: 10 } }}
+                        className={`inline-block mr-3 ${specialWords.includes(word) ? 'bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent bg-[size:200%_auto] animate-text-gradient-pan' : ''}`}
+                      >
+                        {word}
+                      </motion.span>
+                    );
+                  })}
+              </motion.h2>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
                 Upload any financial document and get intelligently extracted data in seconds. 
                 Perfect for automated analysis, reporting, and integration.

@@ -100,8 +100,8 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
               className="space-y-4"
-              whileHover={{ y: -15, scale: 1.08 }}
-              transition={{ type: "spring", stiffness: 300, damping: 15 }}
+              whileHover={{ y: -20, scale: 1.1, rotate: 1 }}
+              transition={{ type: "spring", stiffness: 300, damping: 10 }}
             >
               <div className="flex items-center justify-center w-16 h-16 mx-auto bg-green-500/10 rounded-full">
                 <CheckCircle className="w-8 h-8 text-green-400" />
@@ -135,8 +135,8 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
               className="space-y-4"
-              whileHover={{ y: -15, scale: 1.08 }}
-              transition={{ type: "spring", stiffness: 300, damping: 15 }}
+              whileHover={{ y: -20, scale: 1.1, rotate: -1 }}
+              transition={{ type: "spring", stiffness: 300, damping: 10 }}
             >
               <div className="flex items-center justify-center w-16 h-16 mx-auto bg-destructive/10 rounded-full">
                 <AlertCircle className="w-8 h-8 text-destructive" />
@@ -165,8 +165,8 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
               className="space-y-6"
-              whileHover={{ y: -15, scale: 1.08 }}
-              transition={{ type: "spring", stiffness: 300, damping: 15 }}
+              whileHover={{ y: -20, scale: 1.1, rotate: -3 }}
+              transition={{ type: "spring", stiffness: 300, damping: 10 }}
             >
               <motion.div
                 animate={{ 
