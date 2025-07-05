@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { FileText, Zap, Database, Download } from 'lucide-react';
 import { FileUpload } from '@/components/FileUpload';
 import { ProcessingStatus } from '@/components/ProcessingStatus';
@@ -75,40 +74,10 @@ export default function Home() {
     }
   ];
 
-  // Animation variants for the headline
-  const sentenceVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const wordVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        type: 'spring',
-        damping: 12,
-        stiffness: 100,
-      },
-    },
-  };
-
-  const headlineText = "Transform Your Financial PDFs Into Smart JSON";
-  const specialWords = ["Financial", "PDFs", "JSON"];
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-black to-purple-950/20">
       {/* Header */}
-      <motion.header
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
+      <header
         className="bg-black/50 backdrop-blur-sm border-b border-border sticky top-0 z-10"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -125,16 +94,12 @@ export default function Home() {
             
             <div className="flex items-center gap-4">
               {extractedData && (
-                <motion.button
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  whileHover={{ scale: 1.15 }}
-                  whileTap={{ scale: 0.95 }}
+                <button
                   onClick={resetApp}
                   className="px-4 py-2 bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium rounded-lg transition-all shadow-lg hover:shadow-primary/20"
                 >
                   Process New File
-                </motion.button>
+                </button>
               )}
               
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -148,78 +113,46 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </motion.header>
+      </header>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {!extractedData && (
           <>
             {/* Hero Section */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
+            <div
               className="text-center mb-16"
             >
-              <motion.h2
-                  variants={sentenceVariants}
-                  initial="hidden"
-                  animate="visible"
+              <h2
                   className="text-4xl sm:text-5xl font-bold text-foreground mb-6"
                 >
-                  {headlineText.split(" ").map((word, index) => {
-                    const isSpecial = specialWords.includes(word);
-                    const span = (
-                      <motion.span
-                        key={word + index}
-                        variants={wordVariants}
-                        whileHover={{
-                          scale: 1.25,
-                          rotate: -2,
-                          color: isSpecial ? undefined : 'hsl(var(--primary))',
-                          textShadow: isSpecial ? '0px 0px 12px hsl(var(--primary))' : 'none',
-                        }}
-                        className={`inline-block mr-3 ${
-                          isSpecial
-                            ? 'bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent bg-[size:200%_auto] animate-text-gradient-pan'
-                            : ''
-                        }`}
-                      >
-                        {word}
-                      </motion.span>
-                    );
-
-                    if (word === "PDFs") {
-                      return (
-                        <React.Fragment key={index}>
-                          {span}
-                          <br />
-                        </React.Fragment>
-                      );
-                    }
-                    return span;
-                  })}
-              </motion.h2>
+                  Transform Your{' '}
+                  <span
+                    className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent"
+                  >
+                    Financial PDFs
+                  </span>
+                  <br />
+                  Into Smart{' '}
+                  <span
+                    className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent"
+                  >
+                    JSON
+                  </span>
+              </h2>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
                 Upload any financial document and get intelligently extracted data in seconds. 
                 Perfect for automated analysis, reporting, and integration.
               </p>
-            </motion.div>
+            </div>
 
             {/* Features Grid */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
+            <div
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16"
             >
-              {features.map((feature, index) => (
-                <motion.div
+              {features.map((feature) => (
+                <div
                   key={feature.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.1 * index }}
-                  whileHover={{ y: -15, scale: 1.08, rotate: -2 }}
                   className="bg-card rounded-xl p-6 shadow-lg border border-border/50 hover:shadow-xl hover:shadow-primary/20 hover:border-primary/50 transition-all duration-300"
                 >
                   <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-primary/10 to-accent/10 rounded-lg mb-4">
@@ -227,9 +160,9 @@ export default function Home() {
                   </div>
                   <h3 className="text-lg font-semibold text-foreground mb-2">{feature.title}</h3>
                   <p className="text-muted-foreground text-sm">{feature.description}</p>
-                </motion.div>
+                </div>
               ))}
-            </motion.div>
+            </div>
           </>
         )}
 
@@ -243,32 +176,25 @@ export default function Home() {
             />
           )}
 
-          <AnimatePresence>
-            {isProcessing && (
+          {isProcessing && (
               <ProcessingStatus
                 isProcessing={isProcessing}
                 progress={progress}
                 currentStep={currentStep}
               />
             )}
-          </AnimatePresence>
 
-          <AnimatePresence>
-            {extractedData && !isProcessing && (
+          {extractedData && !isProcessing && (
               <JsonViewer
                 data={extractedData}
                 fileName={selectedFile?.name || 'document.pdf'}
               />
             )}
-          </AnimatePresence>
         </div>
       </main>
 
       {/* Footer */}
-      <motion.footer
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8, delay: 0.4 }}
+      <footer
         className="bg-black/50 backdrop-blur-sm border-t border-border mt-24"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -279,7 +205,7 @@ export default function Home() {
             </p>
           </div>
         </div>
-      </motion.footer>
+      </footer>
     </div>
   );
 }

@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { motion } from 'framer-motion';
 import { Loader2, FileText, Database, CheckCircle, Zap, Brain, BarChart3, BookOpen } from 'lucide-react';
 
 interface ProcessingStatusProps {
@@ -67,30 +66,23 @@ export const ProcessingStatus: React.FC<ProcessingStatusProps> = ({
   if (!isProcessing) return null;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
+    <div
       className="w-full max-w-4xl mx-auto mt-8"
     >
       <div className="bg-card rounded-2xl shadow-xl p-8 border border-border">
         <div className="text-center mb-8">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          <div
             className="inline-flex items-center justify-center w-16 h-16 mx-auto bg-gradient-to-br from-primary/10 to-accent/10 rounded-full mb-4"
           >
-            <Loader2 className="w-8 h-8 text-primary" />
-          </motion.div>
+            <Loader2 className="w-8 h-8 text-primary animate-spin" />
+          </div>
           <h3 className="text-2xl font-bold text-foreground mb-2">
             Processing Your PDF Document{extractTotalPages(currentStep)}
           </h3>
           <p className="text-muted-foreground max-w-2xl mx-auto">{currentStep}</p>
           
           {currentStep.includes('CONFIRMED') && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
+            <div
               className="mt-4 p-4 bg-primary/10 rounded-lg border border-primary/20"
             >
               <div className="flex items-center justify-center gap-2 text-primary">
@@ -102,7 +94,7 @@ export const ProcessingStatus: React.FC<ProcessingStatusProps> = ({
               <p className="text-sm text-primary/80 mt-1">
                 No shortcuts - complete page-by-page analysis for 100% accuracy
               </p>
-            </motion.div>
+            </div>
           )}
         </div>
 
@@ -113,25 +105,15 @@ export const ProcessingStatus: React.FC<ProcessingStatusProps> = ({
           </div>
           
           <div className="w-full bg-secondary/20 rounded-full h-4 overflow-hidden">
-            <motion.div
-              className="h-full bg-gradient-to-r from-primary to-accent rounded-full relative"
+            <div
+              className="h-full bg-gradient-to-r from-primary to-accent rounded-full relative transition-all duration-500 ease-out"
               style={{ width: `${progress}%` }}
-              initial={{ width: 0 }}
-              animate={{ width: `${progress}%` }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
             >
-              <motion.div
-                className="absolute inset-0 bg-white/20 rounded-full"
-                animate={{ x: ['-100%', '100%'] }}
-                transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-              />
-            </motion.div>
+            </div>
           </div>
           
           {currentStep.includes('Processing page') && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+            <div
               className="mt-2 text-center"
             >
               <div className="text-sm text-muted-foreground">
@@ -140,7 +122,7 @@ export const ProcessingStatus: React.FC<ProcessingStatusProps> = ({
               <div className="text-xs text-muted-foreground/80 mt-1">
                 Taking time to ensure every page is processed completely
               </div>
-            </motion.div>
+            </div>
           )}
         </div>
 
@@ -150,9 +132,8 @@ export const ProcessingStatus: React.FC<ProcessingStatusProps> = ({
             const isCompleted = index < currentStepIndex;
             
             return (
-              <motion.div
+              <div
                 key={step.id + index}
-                whileHover={{ y: -8 }}
                 className={`relative p-3 rounded-xl border-2 transition-all duration-300 ${
                   isActive
                     ? 'border-primary/80 bg-primary/10 shadow-lg shadow-primary/10'
@@ -160,11 +141,9 @@ export const ProcessingStatus: React.FC<ProcessingStatusProps> = ({
                     ? 'border-green-500/50 bg-green-500/10'
                     : 'border-border bg-secondary/20'
                 }`}
-                animate={isActive ? { scale: [1, 1.05, 1] } : {}}
-                transition={{ duration: 1.5, repeat: Infinity }}
               >
                 <div className="flex flex-col items-center text-center space-y-2">
-                  <motion.div
+                  <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center ${
                       isCompleted
                         ? 'bg-green-500/20 text-green-400'
@@ -172,13 +151,9 @@ export const ProcessingStatus: React.FC<ProcessingStatusProps> = ({
                         ? 'bg-primary/20 text-primary'
                         : 'bg-muted-foreground/20 text-muted-foreground'
                     }`}
-                    animate={isActive ? { 
-                      scale: [1, 1.1, 1],
-                    } : {}}
-                    transition={{ duration: 1.5, repeat: Infinity }}
                   >
                     <step.icon className="w-4 h-4" />
-                  </motion.div>
+                  </div>
                   
                   <div>
                     <p className={`text-xs font-medium leading-tight ${
@@ -188,50 +163,37 @@ export const ProcessingStatus: React.FC<ProcessingStatusProps> = ({
                     </p>
                     
                     {isActive && (
-                      <motion.div
+                      <div
                         className="mt-1 flex justify-center"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
                       >
                         <div className="flex space-x-1">
                           {[0, 1, 2].map((dot) => (
-                            <motion.div
+                            <div
                               key={dot}
-                              className="w-1 h-1 bg-primary rounded-full"
-                              animate={{ scale: [1, 1.5, 1] }}
-                              transition={{
-                                duration: 1,
-                                repeat: Infinity,
-                                delay: dot * 0.2
-                              }}
+                              className="w-1 h-1 bg-primary rounded-full animate-pulse"
+                              style={{animationDelay: `${dot * 0.2}s`}}
                             />
                           ))}
                         </div>
-                      </motion.div>
+                      </div>
                     )}
                     
                     {isCompleted && (
-                      <motion.div
+                      <div
                         className="mt-1 text-green-400"
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
                       >
                         <CheckCircle className="w-3 h-3 mx-auto" />
-                      </motion.div>
+                      </div>
                     )}
                   </div>
                 </div>
-              </motion.div>
+              </div>
             );
           })}
         </div>
 
-        <motion.div
+        <div
           className="mt-6 p-4 bg-secondary/20 rounded-lg"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
         >
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
             <Zap className="w-4 h-4 text-primary" />
@@ -257,8 +219,8 @@ export const ProcessingStatus: React.FC<ProcessingStatusProps> = ({
               This takes more time but ensures no data is lost or skipped.
             </div>
           )}
-        </motion.div>
+        </div>
       </div>
-    </motion.div>
+    </div>
   );
 };

@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Download, Copy, Eye, ChevronDown, ChevronRight, FileText, CheckCircle, BarChart3, Database, FileSpreadsheet, BookOpen, Target } from 'lucide-react';
 
 interface JsonViewerProps {
@@ -33,9 +32,8 @@ const JsonNode = ({ nodeValue, defaultExpanded = false }: { nodeValue: any, defa
             {isExpanded ? <ChevronDown className="w-4 h-4 transition-transform duration-200" /> : <ChevronRight className="w-4 h-4 transition-transform duration-200" />}
             <span className="text-sm font-medium text-pink-400">[{value.length} items]</span>
           </button>
-          <AnimatePresence>
           {isExpanded && (
-            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden ml-4 mt-2 space-y-2 border-l-2 border-border/50 pl-4">
+            <div className="overflow-hidden ml-4 mt-2 space-y-2 border-l-2 border-border/50 pl-4">
               {value.slice(0, 10).map((item, index) => (
                 <div key={index} className="flex items-start gap-2">
                   <span className="text-muted-foreground text-sm font-mono min-w-[20px]">{index}:</span>
@@ -43,9 +41,8 @@ const JsonNode = ({ nodeValue, defaultExpanded = false }: { nodeValue: any, defa
                 </div>
               ))}
               {value.length > 10 && <div className="text-muted-foreground text-sm italic">... and {value.length - 10} more items</div>}
-            </motion.div>
+            </div>
           )}
-          </AnimatePresence>
         </div>
       );
     }
@@ -58,9 +55,8 @@ const JsonNode = ({ nodeValue, defaultExpanded = false }: { nodeValue: any, defa
             {isExpanded ? <ChevronDown className="w-4 h-4 transition-transform duration-200" /> : <ChevronRight className="w-4 h-4 transition-transform duration-200" />}
             <span className="text-sm font-medium text-purple-400">{'{'}...{'}'} ({keys.length} keys)</span>
           </button>
-          <AnimatePresence>
           {isExpanded && (
-            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden ml-4 mt-2 space-y-2 border-l-2 border-border/50 pl-4">
+            <div className="overflow-hidden ml-4 mt-2 space-y-2 border-l-2 border-border/50 pl-4">
               {keys.slice(0, 10).map((k) => (
                 <div key={k} className="flex items-start gap-2">
                   <span className="text-orange-400 font-medium min-w-fit">"{k}":</span>
@@ -68,9 +64,8 @@ const JsonNode = ({ nodeValue, defaultExpanded = false }: { nodeValue: any, defa
                 </div>
               ))}
               {keys.length > 10 && <div className="text-muted-foreground text-sm italic">... and {keys.length - 10} more properties</div>}
-            </motion.div>
+            </div>
           )}
-          </AnimatePresence>
         </div>
       );
     }
@@ -149,8 +144,7 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
       case 'overview':
         return (
           <div className="space-y-6">
-            <motion.div 
-              initial={{opacity: 0, y: 10}} animate={{opacity: 1, y: 0}} transition={{delay: 0.1}}
+            <div 
               className="bg-gradient-to-r from-green-500/10 to-pink-500/10 rounded-lg p-6 border border-green-500/20">
               <div className="flex items-center gap-3 mb-4">
                 <Target className="w-6 h-6 text-green-400" />
@@ -199,10 +193,9 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
                   </div>
                 </div>
               )}
-            </motion.div>
+            </div>
 
-            <motion.div 
-              initial={{opacity: 0, y: 10}} animate={{opacity: 1, y: 0}} transition={{delay: 0.2}}
+            <div 
               className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="bg-pink-500/10 rounded-lg p-4 border border-pink-500/20">
                 <div className="text-2xl font-bold text-pink-400">{stats.tables}</div>
@@ -220,10 +213,9 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
                 <div className="text-2xl font-bold text-orange-400">{stats.pageBreakdown}</div>
                 <div className="text-sm text-orange-400/80">Page Breakdowns</div>
               </div>
-            </motion.div>
+            </div>
             
-            <motion.div 
-              initial={{opacity: 0, y: 10}} animate={{opacity: 1, y: 0}} transition={{delay: 0.3}}
+            <div 
               className="bg-secondary/20 rounded-lg p-6">
               <h3 className="text-lg font-semibold text-foreground mb-4">Processing Summary</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
@@ -244,7 +236,7 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
                   <div className="font-medium text-foreground/90">{stats.pageCountMethod}</div>
                 </div>
               </div>
-            </motion.div>
+            </div>
           </div>
         );
         
@@ -361,16 +353,10 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.2 }}
+    <div
       className="w-full max-w-6xl mx-auto mt-8"
     >
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
+      <div
         className="bg-gradient-to-r from-green-500/10 to-pink-500/10 rounded-2xl p-6 mb-6 border border-green-500/20"
       >
         <div className="flex items-center gap-4">
@@ -390,7 +376,7 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
             <div className="text-sm text-muted-foreground">100% Complete</div>
           </div>
         </div>
-      </motion.div>
+      </div>
 
       <div className="bg-card rounded-2xl shadow-xl border border-border overflow-hidden">
         <div className="bg-card/50 px-6 py-4 border-b border-border flex items-center justify-between">
@@ -405,29 +391,23 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
           </div>
           
           <div className="flex items-center gap-2">
-            <motion.button
-              whileHover={{ scale: 1.15, rotate: -2 }}
-              whileTap={{ scale: 0.95 }}
+            <button
               onClick={() => copyToClipboard(JSON.stringify(data, null, 2))}
               className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-primary hover:text-primary/90 bg-primary/10 rounded-lg hover:bg-primary/20 transition-all"
             >
               <Copy className="w-4 h-4" />
               {copiedIndex === -1 ? 'Copied!' : 'Copy JSON'}
-            </motion.button>
+            </button>
             
-            <motion.button
-              whileHover={{ scale: 1.15, rotate: 2 }}
-              whileTap={{ scale: 0.95 }}
+            <button
               onClick={downloadJson}
               disabled={downloadStatus === 'downloading'}
               className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium rounded-lg transition-all shadow-lg hover:shadow-primary/20 disabled:opacity-50"
             >
               {downloadStatus === 'downloading' ? (
                 <>
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                    className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
+                  <div
+                    className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"
                   />
                   Downloading...
                 </>
@@ -442,7 +422,7 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
                   Download Complete JSON
                 </>
               )}
-            </motion.button>
+            </button>
           </div>
         </div>
 
@@ -455,11 +435,9 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
               { id: 'financial', label: `Financial (${stats.financialMetrics})`, icon: Database },
               { id: 'full', label: 'Full JSON', icon: Eye }
             ].map((tab) => (
-              <motion.button
+              <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                whileHover={{ y: -10, scale: 1.08 }}
-                transition={{ type: "spring", stiffness: 400, damping: 15 }}
                 className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                   activeTab === tab.id
                     ? 'border-primary text-primary'
@@ -468,23 +446,15 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
               >
                 <tab.icon className="w-4 h-4" />
                 {tab.label}
-              </motion.button>
+              </button>
             ))}
           </nav>
         </div>
 
         <div className="p-6 bg-background/50">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 10 }}
-              transition={{ duration: 0.2 }}
-            >
+            <div>
               {renderTabContent()}
-            </motion.div>
-          </AnimatePresence>
+            </div>
         </div>
 
         <div className="bg-card/50 px-6 py-4 border-t border-border">
@@ -508,6 +478,6 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
