@@ -168,30 +168,38 @@ export default function Home() {
                   className="text-4xl sm:text-5xl font-bold text-foreground mb-6"
                 >
                   {headlineText.split(" ").map((word, index) => {
-                    if (word === "PDFs") {
-                      return (
-                        <React.Fragment key={index}>
-                          <motion.span
-                            variants={wordVariants}
-                            whileHover={{ scale: 1.25, y: -5, rotate: -2, transition: { type: 'spring', stiffness: 300, damping: 10 } }}
-                            className={`inline-block mr-3 ${specialWords.includes(word) ? 'bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent bg-[size:200%_auto] animate-text-gradient-pan' : ''}`}
-                          >
-                            {word}
-                          </motion.span>
-                          <br />
-                        </React.Fragment>
-                      );
-                    }
-                    return (
+                    const isSpecial = specialWords.includes(word);
+                    const span = (
                       <motion.span
-                        key={index}
+                        key={word + index}
                         variants={wordVariants}
-                        whileHover={{ scale: 1.25, y: -5, rotate: -2, transition: { type: 'spring', stiffness: 300, damping: 10 } }}
-                        className={`inline-block mr-3 ${specialWords.includes(word) ? 'bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent bg-[size:200%_auto] animate-text-gradient-pan' : ''}`}
+                        whileHover={{
+                          scale: 1.25,
+                          y: -5,
+                          rotate: -2,
+                          color: isSpecial ? undefined : 'hsl(var(--primary))',
+                          textShadow: isSpecial ? '0px 0px 12px hsl(var(--primary))' : 'none',
+                          transition: { type: 'spring', stiffness: 300, damping: 10 },
+                        }}
+                        className={`inline-block mr-3 ${
+                          isSpecial
+                            ? 'bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent bg-[size:200%_auto] animate-text-gradient-pan'
+                            : ''
+                        }`}
                       >
                         {word}
                       </motion.span>
                     );
+
+                    if (word === "PDFs") {
+                      return (
+                        <React.Fragment key={index}>
+                          {span}
+                          <br />
+                        </React.Fragment>
+                      );
+                    }
+                    return span;
                   })}
               </motion.h2>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
