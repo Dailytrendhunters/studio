@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FileText, Zap, Database, Download } from 'lucide-react';
-import { FileUpload } from './components/FileUpload';
-import { ProcessingStatus } from './components/ProcessingStatus';
-import { JsonViewer } from './components/JsonViewer';
-import { processPdf, ExtractedData } from './utils/pdfProcessor';
+import { FileUpload } from '../FileUpload';
+import { ProcessingStatus } from '../ProcessingStatus';
+import { JsonViewer } from '../JsonViewer';
+import { processPdf, ExtractedData } from './pdfProcessor';
 
 function App() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
