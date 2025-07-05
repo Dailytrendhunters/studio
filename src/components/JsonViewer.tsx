@@ -1,13 +1,84 @@
 'use client';
 
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Download, Copy, Eye, ChevronDown, ChevronRight, FileText, CheckCircle, BarChart3, Database, FileSpreadsheet, BookOpen, Target } from 'lucide-react';
 
 interface JsonViewerProps {
   data: any;
   fileName: string;
 }
+
+const JsonNode = ({ nodeValue, defaultExpanded = false }: { nodeValue: any, defaultExpanded?: boolean }) => {
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
+
+  const renderValue = (value: any): React.ReactNode => {
+    if (value === null) {
+      return <span className="text-muted-foreground italic">null</span>;
+    }
+    if (typeof value === 'boolean') {
+      return <span className="text-accent font-medium">{value.toString()}</span>;
+    }
+    if (typeof value === 'number') {
+      return <span className="text-pink-400 font-medium">{value.toLocaleString()}</span>;
+    }
+    if (typeof value === 'string') {
+      return <span className="text-green-400">"{value}"</span>;
+    }
+    if (Array.isArray(value)) {
+      if (value.length === 0) return <span className="text-muted-foreground">[]</span>;
+      return (
+        <div className="ml-4">
+          <button onClick={() => setIsExpanded(!isExpanded)} className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors mb-1">
+            {isExpanded ? <ChevronDown className="w-4 h-4 transition-transform duration-200" /> : <ChevronRight className="w-4 h-4 transition-transform duration-200" />}
+            <span className="text-sm font-medium text-pink-400">[{value.length} items]</span>
+          </button>
+          <AnimatePresence>
+          {isExpanded && (
+            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden ml-4 mt-2 space-y-2 border-l-2 border-border/50 pl-4">
+              {value.slice(0, 10).map((item, index) => (
+                <div key={index} className="flex items-start gap-2">
+                  <span className="text-muted-foreground text-sm font-mono min-w-[20px]">{index}:</span>
+                  <div className="flex-1"><JsonNode nodeValue={item} defaultExpanded={false} /></div>
+                </div>
+              ))}
+              {value.length > 10 && <div className="text-muted-foreground text-sm italic">... and {value.length - 10} more items</div>}
+            </motion.div>
+          )}
+          </AnimatePresence>
+        </div>
+      );
+    }
+    if (typeof value === 'object') {
+      const keys = Object.keys(value);
+      if (keys.length === 0) return <span className="text-muted-foreground">{'{}'}</span>;
+      return (
+        <div className="ml-4">
+          <button onClick={() => setIsExpanded(!isExpanded)} className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors mb-1">
+            {isExpanded ? <ChevronDown className="w-4 h-4 transition-transform duration-200" /> : <ChevronRight className="w-4 h-4 transition-transform duration-200" />}
+            <span className="text-sm font-medium text-purple-400">{'{'}...{'}'} ({keys.length} keys)</span>
+          </button>
+          <AnimatePresence>
+          {isExpanded && (
+            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden ml-4 mt-2 space-y-2 border-l-2 border-border/50 pl-4">
+              {keys.slice(0, 10).map((k) => (
+                <div key={k} className="flex items-start gap-2">
+                  <span className="text-orange-400 font-medium min-w-fit">"{k}":</span>
+                  <div className="flex-1"><JsonNode nodeValue={value[k]} defaultExpanded={false} /></div>
+                </div>
+              ))}
+              {keys.length > 10 && <div className="text-muted-foreground text-sm italic">... and {keys.length - 10} more properties</div>}
+            </motion.div>
+          )}
+          </AnimatePresence>
+        </div>
+      );
+    }
+    return <span className="text-foreground/90">{String(value)}</span>;
+  };
+
+  return renderValue(nodeValue);
+};
 
 export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
@@ -47,91 +118,6 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
     }
   };
 
-  const renderJsonValue = (value: any, key?: string, depth = 0): React.ReactNode => {
-    const [isItemExpanded, setIsItemExpanded] = useState(depth < 2);
-    
-    if (value === null) {
-      return <span className="text-muted-foreground italic">null</span>;
-    }
-    
-    if (typeof value === 'boolean') {
-      return <span className="text-accent font-medium">{value.toString()}</span>;
-    }
-    
-    if (typeof value === 'number') {
-      return <span className="text-pink-400 font-medium">{value.toLocaleString()}</span>;
-    }
-    
-    if (typeof value === 'string') {
-      return <span className="text-green-400">"{value}"</span>;
-    }
-    
-    if (Array.isArray(value)) {
-      if (value.length === 0) {
-        return <span className="text-muted-foreground">[]</span>;
-      }
-      
-      return (
-        <div className="ml-4">
-          <button
-            onClick={() => setIsItemExpanded(!isItemExpanded)}
-            className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors mb-1"
-          >
-            {isItemExpanded ? <ChevronDown className="w-4 h-4 transition-transform duration-200" /> : <ChevronRight className="w-4 h-4 transition-transform duration-200" />}
-            <span className="text-sm font-medium text-pink-400">[{value.length} items]</span>
-          </button>
-          {isItemExpanded && (
-            <div className="ml-4 mt-2 space-y-2 border-l-2 border-border/50 pl-4">
-              {value.slice(0, 10).map((item, index) => (
-                <div key={index} className="flex items-start gap-2">
-                  <span className="text-muted-foreground text-sm font-mono min-w-[20px]">{index}:</span>
-                  <div className="flex-1">{renderJsonValue(item, undefined, depth + 1)}</div>
-                </div>
-              ))}
-              {value.length > 10 && (
-                <div className="text-muted-foreground text-sm italic">... and {value.length - 10} more items</div>
-              )}
-            </div>
-          )}
-        </div>
-      );
-    }
-    
-    if (typeof value === 'object') {
-      const keys = Object.keys(value);
-      if (keys.length === 0) {
-        return <span className="text-muted-foreground">{'{}'}</span>;
-      }
-      
-      return (
-        <div className="ml-4">
-          <button
-            onClick={() => setIsItemExpanded(!isItemExpanded)}
-            className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors mb-1"
-          >
-            {isItemExpanded ? <ChevronDown className="w-4 h-4 transition-transform duration-200" /> : <ChevronRight className="w-4 h-4 transition-transform duration-200" />}
-            <span className="text-sm font-medium text-purple-400">{'{'}...{'}'}  ({keys.length} keys)</span>
-          </button>
-          {isItemExpanded && (
-            <div className="ml-4 mt-2 space-y-2 border-l-2 border-border/50 pl-4">
-              {keys.slice(0, 10).map((k) => (
-                <div key={k} className="flex items-start gap-2">
-                  <span className="text-orange-400 font-medium min-w-fit">"{k}":</span>
-                  <div className="flex-1">{renderJsonValue(value[k], k, depth + 1)}</div>
-                </div>
-              ))}
-              {keys.length > 10 && (
-                <div className="text-muted-foreground text-sm italic">... and {keys.length - 10} more properties</div>
-              )}
-            </div>
-          )}
-        </div>
-      );
-    }
-    
-    return <span className="text-foreground/90">{String(value)}</span>;
-  };
-
   const stats = {
     totalPages: data?.metadata?.pages || 0,
     actualPagesDetected: data?.metadata?.actualPagesDetected || 0,
@@ -163,7 +149,9 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
       case 'overview':
         return (
           <div className="space-y-6">
-            <div className="bg-gradient-to-r from-green-500/10 to-pink-500/10 rounded-lg p-6 border border-green-500/20">
+            <motion.div 
+              initial={{opacity: 0, y: 10}} animate={{opacity: 1, y: 0}} transition={{delay: 0.1}}
+              className="bg-gradient-to-r from-green-500/10 to-pink-500/10 rounded-lg p-6 border border-green-500/20">
               <div className="flex items-center gap-3 mb-4">
                 <Target className="w-6 h-6 text-green-400" />
                 <h3 className="text-lg font-semibold text-foreground">Complete Page Processing Verification</h3>
@@ -211,9 +199,11 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
                   </div>
                 </div>
               )}
-            </div>
+            </motion.div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <motion.div 
+              initial={{opacity: 0, y: 10}} animate={{opacity: 1, y: 0}} transition={{delay: 0.2}}
+              className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="bg-pink-500/10 rounded-lg p-4 border border-pink-500/20">
                 <div className="text-2xl font-bold text-pink-400">{stats.tables}</div>
                 <div className="text-sm text-pink-400/80">Tables Extracted</div>
@@ -230,9 +220,11 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
                 <div className="text-2xl font-bold text-orange-400">{stats.pageBreakdown}</div>
                 <div className="text-sm text-orange-400/80">Page Breakdowns</div>
               </div>
-            </div>
+            </motion.div>
             
-            <div className="bg-secondary/20 rounded-lg p-6">
+            <motion.div 
+              initial={{opacity: 0, y: 10}} animate={{opacity: 1, y: 0}} transition={{delay: 0.3}}
+              className="bg-secondary/20 rounded-lg p-6">
               <h3 className="text-lg font-semibold text-foreground mb-4">Processing Summary</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                 <div>
@@ -252,7 +244,7 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
                   <div className="font-medium text-foreground/90">{stats.pageCountMethod}</div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </div>
         );
         
@@ -358,7 +350,7 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
         return (
           <div className="bg-black/50 rounded-lg p-6 border border-border shadow-sm max-h-96 overflow-y-auto">
             <div className="font-mono text-sm">
-              {renderJsonValue(data)}
+              <JsonNode nodeValue={data} defaultExpanded={true} />
             </div>
           </div>
         );
@@ -414,7 +406,7 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
           
           <div className="flex items-center gap-2">
             <motion.button
-              whileHover={{ scale: 1.1 }}
+              whileHover={{ scale: 1.15 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => copyToClipboard(JSON.stringify(data, null, 2))}
               className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-primary hover:text-primary/90 bg-primary/10 rounded-lg hover:bg-primary/20 transition-all"
@@ -424,7 +416,7 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
             </motion.button>
             
             <motion.button
-              whileHover={{ scale: 1.1 }}
+              whileHover={{ scale: 1.15 }}
               whileTap={{ scale: 0.95 }}
               onClick={downloadJson}
               disabled={downloadStatus === 'downloading'}
@@ -466,7 +458,7 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
               <motion.button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                whileHover={{ y: -4 }}
+                whileHover={{ y: -5 }}
                 transition={{ duration: 0.2 }}
                 className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                   activeTab === tab.id
@@ -482,7 +474,17 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
         </div>
 
         <div className="p-6 bg-background/50">
-          {renderTabContent()}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 10 }}
+              transition={{ duration: 0.2 }}
+            >
+              {renderTabContent()}
+            </motion.div>
+          </AnimatePresence>
         </div>
 
         <div className="bg-card/50 px-6 py-4 border-t border-border">
