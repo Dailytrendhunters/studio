@@ -100,7 +100,8 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
               className="space-y-4"
-              whileHover={{ y: -12, scale: 1.05 }}
+              whileHover={{ y: -15, scale: 1.08 }}
+              transition={{ type: "spring", stiffness: 300, damping: 15 }}
             >
               <div className="flex items-center justify-center w-16 h-16 mx-auto bg-green-500/10 rounded-full">
                 <CheckCircle className="w-8 h-8 text-green-400" />
@@ -134,7 +135,8 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
               className="space-y-4"
-              whileHover={{ y: -12, scale: 1.05 }}
+              whileHover={{ y: -15, scale: 1.08 }}
+              transition={{ type: "spring", stiffness: 300, damping: 15 }}
             >
               <div className="flex items-center justify-center w-16 h-16 mx-auto bg-destructive/10 rounded-full">
                 <AlertCircle className="w-8 h-8 text-destructive" />
@@ -163,7 +165,8 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
               className="space-y-6"
-              whileHover={{ y: -12, scale: 1.05 }}
+              whileHover={{ y: -15, scale: 1.08 }}
+              transition={{ type: "spring", stiffness: 300, damping: 15 }}
             >
               <motion.div
                 animate={{ 
@@ -203,7 +206,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
               </div>
               
               <motion.button
-                whileHover={{ scale: 1.15 }}
+                whileHover={{ scale: 1.15, rotate: 2 }}
                 whileTap={{ scale: 0.95 }}
                 className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-primary/20"
                 disabled={isProcessing}

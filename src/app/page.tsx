@@ -136,7 +136,7 @@ export default function Home() {
             >
               <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-6">
                 Transform Your{' '}
-                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent bg-[size:200%_auto] animate-text-gradient-pan">
                   Financial PDFs
                 </span>
                 <br />
@@ -161,7 +161,7 @@ export default function Home() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.1 * index }}
-                  whileHover={{ y: -12, scale: 1.05 }}
+                  whileHover={{ y: -15, scale: 1.08, rotate: -2 }}
                   className="bg-card rounded-xl p-6 shadow-lg border border-border/50 hover:shadow-xl hover:shadow-primary/20 hover:border-primary/50 transition-all duration-300"
                 >
                   <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-primary/10 to-accent/10 rounded-lg mb-4">
