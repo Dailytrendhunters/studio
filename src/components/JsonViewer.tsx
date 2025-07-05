@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState } from 'react';
@@ -415,8 +414,8 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
           
           <div className="flex items-center gap-2">
             <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 1.0 }}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => copyToClipboard(JSON.stringify(data, null, 2))}
               className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-primary hover:text-primary/90 bg-primary/10 rounded-lg hover:bg-primary/20 transition-all"
             >
@@ -425,8 +424,8 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
             </motion.button>
             
             <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 1.0 }}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
               onClick={downloadJson}
               disabled={downloadStatus === 'downloading'}
               className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium rounded-lg transition-all shadow-lg hover:shadow-primary/20 disabled:opacity-50"
@@ -467,7 +466,7 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
               <motion.button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                whileHover={{ y: -2 }}
+                whileHover={{ y: -4 }}
                 transition={{ duration: 0.2 }}
                 className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                   activeTab === tab.id

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -126,7 +125,7 @@ export default function Home() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.1 * index }}
-                    whileHover={{ y: -5 }}
+                    whileHover={{ y: -8 }}
                     className="bg-card rounded-xl p-6 border border-border transform transition-all duration-300 hover:shadow-2xl hover:shadow-primary"
                   >
                     <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg mb-4">
@@ -193,8 +192,8 @@ export default function Home() {
               className="text-center mt-8"
             >
               <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 1.0 }}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={resetApp}
                 className="px-6 py-3 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition-all shadow-lg hover:shadow-primary/20"
               >

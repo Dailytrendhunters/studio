@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useCallback, useState } from 'react';
@@ -118,7 +117,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
               {!isProcessing && (
                 <motion.button
                   onClick={clearFile}
-                  whileHover={{ scale: 1.05 }}
+                  whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
                   className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-500 bg-red-500/20 rounded-lg hover:bg-red-500/30 transition-colors"
                 >
@@ -147,7 +146,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
               </div>
               <motion.button
                 onClick={clearFile}
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
                 className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-muted-foreground bg-secondary rounded-lg hover:bg-accent transition-colors"
               >
@@ -201,8 +200,8 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
               </div>
               
               <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 1.0 }}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
                 className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-primary"
                 disabled={isProcessing}
               >
