@@ -153,6 +153,7 @@ export const ProcessingStatus: React.FC<ProcessingStatusProps> = ({
             return (
               <motion.div
                 key={step.id + index}
+                whileHover={{ y: -4 }}
                 className={`relative p-3 rounded-xl border-2 transition-all duration-300 ${
                   isActive
                     ? 'border-primary/80 bg-primary/10 shadow-lg shadow-primary/10'

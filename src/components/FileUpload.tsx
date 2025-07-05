@@ -116,13 +116,15 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
                 </div>
               </div>
               {!isProcessing && (
-                <button
+                <motion.button
                   onClick={clearFile}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-500 bg-red-500/20 rounded-lg hover:bg-red-500/30 transition-colors"
                 >
                   <X className="w-4 h-4" />
                   Remove File
-                </button>
+                </motion.button>
               )}
             </motion.div>
           ) : error ? (
@@ -143,13 +145,15 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
                   Don't worry - we've generated sample data to show you how the app works!
                 </p>
               </div>
-              <button
+              <motion.button
                 onClick={clearFile}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-muted-foreground bg-secondary rounded-lg hover:bg-accent transition-colors"
               >
                 <X className="w-4 h-4" />
                 Try Another File
-              </button>
+              </motion.button>
             </motion.div>
           ) : (
             <motion.div

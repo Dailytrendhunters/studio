@@ -78,7 +78,7 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
             onClick={() => setIsItemExpanded(!isItemExpanded)}
             className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors mb-1"
           >
-            {isItemExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+            {isItemExpanded ? <ChevronDown className="w-4 h-4 transition-transform duration-200" /> : <ChevronRight className="w-4 h-4 transition-transform duration-200" />}
             <span className="text-sm font-medium text-pink-400">[{value.length} items]</span>
           </button>
           {isItemExpanded && (
@@ -110,7 +110,7 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
             onClick={() => setIsItemExpanded(!isItemExpanded)}
             className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors mb-1"
           >
-            {isItemExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+            {isItemExpanded ? <ChevronDown className="w-4 h-4 transition-transform duration-200" /> : <ChevronRight className="w-4 h-4 transition-transform duration-200" />}
             <span className="text-sm font-medium text-purple-400">{'{'}...{'}'}  ({keys.length} keys)</span>
           </button>
           {isItemExpanded && (
@@ -464,9 +464,11 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
               { id: 'financial', label: `Financial (${stats.financialMetrics})`, icon: Database },
               { id: 'full', label: 'Full JSON', icon: Eye }
             ].map((tab) => (
-              <button
+              <motion.button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
+                whileHover={{ y: -2 }}
+                transition={{ duration: 0.2 }}
                 className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                   activeTab === tab.id
                     ? 'border-primary text-primary'
@@ -475,7 +477,7 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
               >
                 <tab.icon className="w-4 h-4" />
                 {tab.label}
-              </button>
+              </motion.button>
             ))}
           </nav>
         </div>
