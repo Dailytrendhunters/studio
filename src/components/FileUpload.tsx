@@ -74,12 +74,12 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
       <div
         className={`relative border-2 border-dashed rounded-2xl p-12 text-center transition-all duration-300 ${
           isDragOver
-            ? 'border-primary bg-primary/10 scale-105 shadow-lg shadow-primary/10'
+            ? 'border-primary bg-primary/20 scale-105 shadow-lg shadow-primary'
             : selectedFile && !error
-            ? 'border-green-500 bg-green-500/10'
+            ? 'border-green-500 bg-green-500/20'
             : error
-            ? 'border-destructive bg-destructive/10'
-            : 'border-border bg-card hover:border-primary/50'
+            ? 'border-destructive bg-destructive/20'
+            : 'border-border bg-card hover:border-primary'
         }`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -102,7 +102,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
               exit={{ opacity: 0, scale: 0.8 }}
               className="space-y-4"
             >
-              <div className="flex items-center justify-center w-16 h-16 mx-auto bg-green-500/10 rounded-full">
+              <div className="flex items-center justify-center w-16 h-16 mx-auto bg-green-500/20 rounded-full">
                 <CheckCircle className="w-8 h-8 text-green-400" />
               </div>
               <div className="space-y-2">
@@ -118,7 +118,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
               {!isProcessing && (
                 <button
                   onClick={clearFile}
-                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-500 bg-red-500/10 rounded-lg hover:bg-red-500/20 transition-colors"
+                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-500 bg-red-500/20 rounded-lg hover:bg-red-500/30 transition-colors"
                 >
                   <X className="w-4 h-4" />
                   Remove File
@@ -133,11 +133,11 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
               exit={{ opacity: 0, scale: 0.8 }}
               className="space-y-4"
             >
-              <div className="flex items-center justify-center w-16 h-16 mx-auto bg-destructive/10 rounded-full">
+              <div className="flex items-center justify-center w-16 h-16 mx-auto bg-destructive/20 rounded-full">
                 <AlertCircle className="w-8 h-8 text-destructive" />
               </div>
               <div className="space-y-2">
-                <p className="text-lg font-semibold text-destructive-foreground">Processing Error</p>
+                <p className="text-lg font-semibold text-foreground">Processing Error</p>
                 <p className="text-sm text-destructive">{error}</p>
                 <p className="text-xs text-muted-foreground">
                   Don't worry - we've generated sample data to show you how the app works!
@@ -165,7 +165,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
                   scale: isDragOver ? 1.1 : 1
                 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                className="flex items-center justify-center w-20 h-20 mx-auto bg-gradient-to-br from-primary/10 to-accent/10 rounded-full"
+                className="flex items-center justify-center w-20 h-20 mx-auto bg-gradient-to-br from-primary/20 to-accent/20 rounded-full"
               >
                 {isDragOver ? (
                   <motion.div
@@ -199,7 +199,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 1.0 }}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-primary/20"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-primary"
                 disabled={isProcessing}
               >
                 <FileText className="w-5 h-5" />
