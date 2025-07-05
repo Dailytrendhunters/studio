@@ -125,7 +125,7 @@ export default function Home() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.1 * index }}
-                    className="bg-card rounded-xl p-6 border border-border/50 transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary/20"
+                    className="bg-card rounded-xl p-6 border border-border/50 transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary/40"
                   >
                     <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-primary/10 to-accent/10 rounded-lg mb-4">
                       <feature.icon className="w-6 h-6 text-primary" />
