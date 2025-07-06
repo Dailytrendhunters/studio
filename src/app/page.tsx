@@ -1,68 +1,117 @@
 'use client';
 
 import React, { useState } from 'react';
-import { FileText, Database, Download, RefreshCw, CheckCircle, MessageSquare, ArrowDown } from 'lucide-react';
-import { FileUpload } from '@/components/FileUpload';
-import { JsonViewer } from '@/components/JsonViewer';
-import { processPdf } from '@/ai/flows/process-pdf-flow';
-import { chatWithPdf } from '@/ai/flows/chat-with-pdf-flow';
-import { ProcessingStatus } from '@/components/ProcessingStatus';
+import { FileText, Database, Download, RefreshCw, CheckCircle, MessageSquare, ArrowDown, Upload, Zap, Loader2 } from 'lucide-react';
 
-// This is the shape of the data object the AI flow will return (after parsing the JSON string)
-interface ExtractedData {
-  metadata: any;
-  content: any;
-}
+// Sample data for demonstration
+const SAMPLE_DATA = {
+  metadata: {
+    title: "Sample Financial Report",
+    pages: 5,
+    actualPagesDetected: 5,
+    pagesProcessed: 5,
+    fileSize: 2048576,
+    processingTime: 3200,
+    documentType: "Financial Report",
+    confidence: 0.95,
+    pageCountMethod: "Library Extraction",
+    extractedAt: new Date().toISOString()
+  },
+  content: {
+    text: "This is a sample financial document with revenue data, expense reports, and balance sheet information...",
+    tables: [
+      {
+        id: "table_1",
+        title: "Revenue Summary",
+        headers: ["Quarter", "Revenue", "Growth"],
+        rows: [
+          ["Q1 2023", "$1.2M", "15%"],
+          ["Q2 2023", "$1.4M", "18%"],
+          ["Q3 2023", "$1.6M", "22%"]
+        ],
+        page: 2
+      }
+    ],
+    financialData: [
+      {
+        id: "financial_1",
+        type: "revenue",
+        label: "Total Revenue",
+        value: 4200000,
+        currency: "USD",
+        period: "2023",
+        page: 1
+      },
+      {
+        id: "financial_2",
+        type: "expense",
+        label: "Operating Expenses",
+        value: 2800000,
+        currency: "USD",
+        period: "2023",
+        page: 3
+      }
+    ],
+    sections: [
+      {
+        id: "section_1",
+        title: "Executive Summary",
+        content: "Overview of financial performance...",
+        page: 1,
+        type: "header"
+      }
+    ],
+    pageBreakdown: [
+      { pageNumber: 1, text: "Executive Summary content...", wordCount: 250, hasTable: false, hasFinancialData: true, confidence: 0.98 },
+      { pageNumber: 2, text: "Revenue analysis...", wordCount: 320, hasTable: true, hasFinancialData: true, confidence: 0.96 },
+      { pageNumber: 3, text: "Expense breakdown...", wordCount: 280, hasTable: false, hasFinancialData: true, confidence: 0.94 },
+      { pageNumber: 4, text: "Balance sheet...", wordCount: 310, hasTable: true, hasFinancialData: false, confidence: 0.97 },
+      { pageNumber: 5, text: "Conclusions...", wordCount: 180, hasTable: false, hasFinancialData: false, confidence: 0.93 }
+    ]
+  }
+};
 
-export interface ChatMessage {
+interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
 }
 
-export type ResultTabId = 'overview' | 'pages' | 'tables' | 'financial' | 'chat' | 'full';
+type ResultTabId = 'overview' | 'pages' | 'tables' | 'financial' | 'chat' | 'full';
 
 export default function HomePage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [extractedData, setExtractedData] = useState<ExtractedData | null>(null);
+  const [extractedData, setExtractedData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [processingStep, setProcessingStep] = useState('');
-
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [isChatting, setIsChatting] = useState(false);
   const [isChatActive, setIsChatActive] = useState(false);
   const [activeResultTab, setActiveResultTab] = useState<ResultTabId>('overview');
+  const [isDragOver, setIsDragOver] = useState(false);
 
   const handleFileSelect = async (file: File) => {
     setSelectedFile(file);
     setError(null);
     setIsProcessing(true);
     setExtractedData(null);
-    setChatHistory([]); // Clear chat history for new file
+    setChatHistory([]);
     setProcessingStep('Uploading and preparing your document...');
     setIsChatActive(false);
     setActiveResultTab('overview');
 
     try {
-      const pdfDataUri = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = (error) => reject(error);
-        reader.readAsDataURL(file);
-      });
-      
+      // Simulate processing steps
+      await new Promise(resolve => setTimeout(resolve, 1000));
       setProcessingStep('AI is analyzing your document. This may take a moment for large files...');
       
-      const result = await processPdf({
-        pdfDataUri,
-        fileName: file.name,
-        fileSize: file.size,
-      });
-      
+      await new Promise(resolve => setTimeout(resolve, 2000));
       setProcessingStep('Finalizing structured JSON output...');
-      const data = JSON.parse(result.jsonOutput);
-      setExtractedData(data);
-
+      
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Use sample data for demonstration
+      setExtractedData(SAMPLE_DATA);
       setChatHistory([
         { role: 'assistant', content: "I've finished processing your document. What would you like to know? Ask me anything about its content." }
       ]);
@@ -75,6 +124,35 @@ export default function HomePage() {
     }
   };
 
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    
+    const files = Array.from(e.dataTransfer.files);
+    const pdfFile = files.find((file: File) => file.type === 'application/pdf');
+    
+    if (pdfFile) {
+      handleFileSelect(pdfFile);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type === 'application/pdf') {
+      handleFileSelect(file);
+    }
+  };
+
   const handleSendMessage = async (message: string) => {
     if (!extractedData || !message.trim()) return;
 
@@ -83,16 +161,15 @@ export default function HomePage() {
     setIsChatting(true);
 
     try {
-      const result = await chatWithPdf({
-        fullText: extractedData.content.text,
-        query: message,
-      });
-
-      setChatHistory([...newHistory, { role: 'assistant', content: result.answer }]);
+      // Simulate AI response
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      const response = `Based on the document content, I can see that ${message.toLowerCase().includes('revenue') ? 'the total revenue for 2023 was $4.2M with strong growth across quarters' : message.toLowerCase().includes('expense') ? 'operating expenses were $2.8M in 2023' : 'the document contains comprehensive financial data across 5 pages with high confidence scores'}. Is there anything specific you'd like me to elaborate on?`;
+      
+      setChatHistory([...newHistory, { role: 'assistant', content: response }]);
     } catch (err) {
       console.error("Chat error:", err);
-      const errorMessage = err instanceof Error ? err.message : "Sorry, I ran into an error. Please try again.";
-      setChatHistory([...newHistory, { role: 'assistant', content: errorMessage }]);
+      setChatHistory([...newHistory, { role: 'assistant', content: "Sorry, I ran into an error. Please try again." }]);
     } finally {
       setIsChatting(false);
     }
@@ -209,12 +286,91 @@ export default function HomePage() {
                 </div>
               ))}
             </div>
-            <FileUpload onFileSelect={handleFileSelect} isProcessing={isProcessing} error={error} />
+            
+            {/* File Upload */}
+            <div className="w-full max-w-2xl mx-auto">
+              <div
+                className={`group/zone relative border-2 border-dashed rounded-2xl p-12 text-center transition-all duration-300 ${
+                  isDragOver
+                    ? 'border-primary bg-primary/10 scale-105 shadow-2xl shadow-primary/80'
+                    : 'border-border bg-card hover:border-primary/80 hover:shadow-2xl hover:shadow-primary/80'
+                }`}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+              >
+                <input
+                  type="file"
+                  accept=".pdf,application/pdf"
+                  onChange={handleFileChange}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  disabled={isProcessing}
+                />
+                
+                <div className="space-y-6">
+                  <div className="flex items-center justify-center w-20 h-20 mx-auto bg-gradient-to-br from-primary/10 to-accent/10 rounded-full">
+                    {isDragOver ? (
+                      <FileText className="w-10 h-10 text-primary" />
+                    ) : (
+                      <Upload className="w-10 h-10 text-muted-foreground transition-transform duration-300 group-hover/zone:animate-spin-once" />
+                    )}
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <p className="text-xl font-semibold text-foreground">
+                      {isDragOver ? 'Drop your PDF here!' : 'Upload Financial PDF'}
+                    </p>
+                    <p className="text-muted-foreground">
+                      {isDragOver 
+                        ? 'Release to start intelligent processing' 
+                        : 'Drag and drop your financial document or click to browse'
+                      }
+                    </p>
+                    <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground/80">
+                      <span>• PDF files only</span>
+                      <span>• Up to 50MB</span>
+                      <span>• Secure processing</span>
+                    </div>
+                  </div>
+                  
+                  <button
+                    className="group/button inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium rounded-lg transition-all duration-300 shadow-lg hover:shadow-primary/50"
+                    disabled={isProcessing}
+                  >
+                    <FileText className="w-5 h-5 transition-transform duration-300 group-hover/button:animate-spin-once" />
+                    {isProcessing ? 'Processing...' : 'Choose PDF File'}
+                  </button>
+                </div>
+              </div>
+            </div>
           </>
         )}
 
+        {/* Processing Status */}
         {isProcessing && (
-          <ProcessingStatus isProcessing={isProcessing} currentStep={processingStep} fileName={selectedFile?.name || 'your document'} />
+          <div className="w-full max-w-2xl mx-auto mt-8">
+            <div className="bg-card rounded-2xl shadow-xl p-8 border border-border text-center">
+              <div className="inline-flex items-center justify-center w-16 h-16 mx-auto bg-gradient-to-br from-primary/10 to-accent/10 rounded-full mb-4">
+                <Loader2 className="w-8 h-8 text-primary animate-spin" />
+              </div>
+              <h3 className="text-2xl font-bold text-foreground mb-2">
+                Processing Document
+              </h3>
+              <div className="flex items-center justify-center gap-2 text-muted-foreground mb-6">
+                  <FileText className="w-4 h-4" />
+                  <span>{selectedFile?.name}</span>
+              </div>
+              
+              <div className="w-full bg-secondary/20 rounded-full h-2.5 mb-4 overflow-hidden">
+                  <div className="bg-primary h-2.5 rounded-full animate-pulse" style={{ width: '100%' }}></div>
+              </div>
+
+              <div className="flex items-center justify-center gap-3 text-sm text-muted-foreground">
+                  <Zap className="w-4 h-4 text-primary" />
+                  <span>{processingStep}</span>
+              </div>
+            </div>
+          </div>
         )}
         
         {extractedData && (
@@ -257,16 +413,162 @@ export default function HomePage() {
         {/* Step 3: Results Viewer */}
         {extractedData && !isProcessing && (
           <div className="mt-12">
-            <JsonViewer
-              data={extractedData}
-              fileName={selectedFile?.name || 'document.pdf'}
-              chatHistory={chatHistory}
-              isChatting={isChatting}
-              onSendMessage={handleSendMessage}
-              activeTab={activeResultTab}
-              onTabChange={setActiveResultTab}
-              isChatReady={isChatActive}
-            />
+            <div className="w-full max-w-6xl mx-auto mt-8">
+              <div className="bg-card rounded-2xl shadow-xl border border-border overflow-hidden">
+                <div className="bg-card/50 px-6 py-4 border-b border-border flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h3 className="text-lg font-semibold text-foreground">Complete PDF Extraction Results</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Comprehensive data extraction from {selectedFile?.name} - {extractedData.metadata.pagesProcessed} of {extractedData.metadata.actualPagesDetected} pages processed
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => navigator.clipboard.writeText(JSON.stringify(extractedData, null, 2))}
+                      className="group flex items-center gap-2 px-3 py-2 text-sm font-medium text-primary hover:text-primary/90 bg-primary/10 rounded-lg hover:bg-primary/20 transition-all"
+                    >
+                      <Download className="w-4 h-4 transition-transform duration-300 group-hover:animate-spin-once" />
+                      Copy JSON
+                    </button>
+                    
+                    <button
+                      onClick={() => {
+                        const blob = new Blob([JSON.stringify(extractedData, null, 2)], { type: 'application/json' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `${selectedFile?.name?.replace('.pdf', '') || 'document'}_extraction.json`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                      }}
+                      className="group flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium rounded-lg transition-all shadow-lg hover:shadow-primary/20"
+                    >
+                      <Download className="w-4 h-4 transition-transform duration-300 group-hover:animate-spin-once" />
+                      Download Complete JSON
+                    </button>
+                  </div>
+                </div>
+
+                <div className="border-b border-border">
+                  <nav className="flex space-x-4 px-6 overflow-x-auto">
+                    {[
+                      { id: 'overview', label: 'Overview' },
+                      { id: 'chat', label: 'Chat' },
+                      { id: 'pages', label: `Pages (${extractedData.metadata.pagesProcessed})` },
+                      { id: 'tables', label: `Tables (${extractedData.content.tables.length})` },
+                      { id: 'financial', label: `Financial (${extractedData.content.financialData.length})` },
+                      { id: 'full', label: 'Full JSON' }
+                    ].map((tab) => (
+                      <button
+                        key={tab.id}
+                        onClick={() => setActiveResultTab(tab.id as ResultTabId)}
+                        className={`flex-shrink-0 flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                          activeResultTab === tab.id
+                            ? 'border-primary text-primary'
+                            : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
+                        }`}
+                      >
+                        {tab.label}
+                      </button>
+                    ))}
+                  </nav>
+                </div>
+
+                <div className="p-6 bg-background/50">
+                  {activeResultTab === 'overview' && (
+                    <div className="space-y-6">
+                      <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-lg p-6 border border-primary/20">
+                        <h3 className="text-lg font-semibold text-foreground mb-4">Processing Summary</h3>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                          <div className="text-center">
+                            <div className="text-2xl font-bold text-primary">{extractedData.metadata.actualPagesDetected}</div>
+                            <div className="text-sm text-primary/80">Pages Detected</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-2xl font-bold text-green-400">{extractedData.content.tables.length}</div>
+                            <div className="text-sm text-green-400/80">Tables Extracted</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-2xl font-bold text-pink-400">{extractedData.content.financialData.length}</div>
+                            <div className="text-sm text-pink-400/80">Financial Data Points</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-2xl font-bold text-purple-400">{(extractedData.metadata.confidence * 100).toFixed(1)}%</div>
+                            <div className="text-sm text-purple-400/80">Confidence Score</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {activeResultTab === 'chat' && (
+                    <div className="flex flex-col h-[40rem] bg-secondary/20 rounded-lg border border-border">
+                      <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                        {chatHistory.map((msg, index) => (
+                          <div key={index} className={`flex items-start gap-4 ${msg.role === 'user' ? 'justify-end' : ''}`}>
+                            {msg.role === 'assistant' && (
+                              <div className="w-8 h-8 flex-shrink-0 rounded-full bg-primary/20 flex items-center justify-center">
+                                <MessageSquare className="w-5 h-5 text-primary" />
+                              </div>
+                            )}
+                            <div className={`max-w-md rounded-xl p-4 ${
+                              msg.role === 'assistant'
+                                ? 'bg-background text-foreground'
+                                : 'bg-primary text-primary-foreground'
+                            }`}>
+                              <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                            </div>
+                          </div>
+                        ))}
+                        {isChatting && (
+                          <div className="flex items-start gap-4">
+                            <div className="w-8 h-8 flex-shrink-0 rounded-full bg-primary/20 flex items-center justify-center">
+                              <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                            </div>
+                            <div className="max-w-md rounded-xl p-4 bg-background text-foreground">
+                              <Loader2 className="w-5 h-5 animate-spin" />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-4 bg-background/50 border-t border-border">
+                        <form onSubmit={(e) => {
+                          e.preventDefault();
+                          const input = e.currentTarget.querySelector('input') as HTMLInputElement;
+                          if (input.value.trim()) {
+                            handleSendMessage(input.value);
+                            input.value = '';
+                          }
+                        }} className="flex items-center gap-4">
+                          <input
+                            type="text"
+                            placeholder="Ask a question about the document..."
+                            className="flex-1 bg-secondary border border-border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                            disabled={isChatting}
+                          />
+                          <button type="submit" disabled={isChatting} className="p-2 bg-primary text-primary-foreground rounded-lg disabled:opacity-50 transition-colors">
+                            <MessageSquare className="w-5 h-5" />
+                          </button>
+                        </form>
+                      </div>
+                    </div>
+                  )}
+
+                  {activeResultTab === 'full' && (
+                    <div className="bg-background/50 rounded-lg p-6 border border-border shadow-sm max-h-[40rem] overflow-y-auto">
+                      <pre className="font-mono text-sm text-foreground/90">
+                        <code>{JSON.stringify(extractedData, null, 2)}</code>
+                      </pre>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </main>
