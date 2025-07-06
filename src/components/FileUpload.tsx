@@ -1,7 +1,7 @@
+
 'use client';
 
-import React, { useCallback, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useCallback, useState, useRef } from 'react';
 import { Upload, FileText, X, CheckCircle, AlertCircle, Zap } from 'lucide-react';
 
 interface FileUploadProps {
@@ -13,6 +13,7 @@ interface FileUploadProps {
 export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessing, error }) => {
   const [isDragOver, setIsDragOver] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -39,7 +40,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
     }
   }, [onFileSelect]);
 
-  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.type === 'application/pdf') {
@@ -50,6 +51,10 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
       }
     }
   }, [onFileSelect]);
+
+  const handleButtonClick = () => {
+    fileInputRef.current?.click();
+  };
 
   const clearFile = useCallback(() => {
     setSelectedFile(null);
@@ -64,77 +69,62 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
+    <div
       className="w-full max-w-2xl mx-auto"
     >
       <div
-        className={`relative border-2 border-dashed rounded-2xl p-12 text-center transition-all duration-300 ${
+        className={`group/zone relative border-2 border-dashed rounded-2xl p-12 text-center transition-all duration-300 ${
           isDragOver
-            ? 'border-primary bg-primary/10 scale-105 shadow-2xl shadow-primary/40'
+            ? 'border-primary bg-primary/10 scale-105 shadow-2xl shadow-primary/80'
             : selectedFile && !error
-            ? 'border-green-500 bg-green-500/10'
+            ? 'border-primary/80 bg-primary/10'
             : error
             ? 'border-destructive bg-destructive/10'
-            : 'border-border bg-card hover:border-primary hover:shadow-2xl hover:shadow-primary/30'
+            : 'border-border bg-card hover:border-primary/80 hover:shadow-2xl hover:shadow-primary/80'
         }`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
         <input
+          ref={fileInputRef}
           type="file"
           accept=".pdf,application/pdf"
-          onChange={handleFileSelect}
+          onChange={handleFileChange}
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
           disabled={isProcessing}
         />
         
-        <AnimatePresence mode="wait">
           {selectedFile && !error ? (
-            <motion.div
-              key="selected"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
+            <div
               className="space-y-4"
-              whileHover={{ y: -12, scale: 1.05 }}
             >
-              <div className="flex items-center justify-center w-16 h-16 mx-auto bg-green-500/10 rounded-full">
-                <CheckCircle className="w-8 h-8 text-green-400" />
+              <div className="flex items-center justify-center w-16 h-16 mx-auto bg-primary/10 rounded-full">
+                <CheckCircle className="w-8 h-8 text-primary" />
               </div>
               <div className="space-y-2">
                 <p className="text-lg font-semibold text-foreground break-all">{selectedFile.name}</p>
                 <p className="text-sm text-muted-foreground">
                   {formatFileSize(selectedFile.size)}
                 </p>
-                <div className="flex items-center justify-center gap-2 text-sm text-green-400">
+                <div className="flex items-center justify-center gap-2 text-sm text-primary">
                   <Zap className="w-4 h-4" />
                   <span>Ready for intelligent processing</span>
                 </div>
               </div>
               {!isProcessing && (
-                <motion.button
+                <button
                   onClick={clearFile}
-                  whileHover={{ scale: 1.15 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-500 bg-red-500/10 rounded-lg hover:bg-red-500/20 transition-colors"
+                  className="group inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-500 bg-red-500/10 rounded-lg hover:bg-red-500/20 transition-colors"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-4 h-4 transition-transform duration-300 group-hover:animate-spin-once" />
                   Remove File
-                </motion.button>
+                </button>
               )}
-            </motion.div>
+            </div>
           ) : error ? (
-            <motion.div
-              key="error"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
+            <div
               className="space-y-4"
-              whileHover={{ y: -12, scale: 1.05 }}
             >
               <div className="flex items-center justify-center w-16 h-16 mx-auto bg-destructive/10 rounded-full">
                 <AlertCircle className="w-8 h-8 text-destructive" />
@@ -146,44 +136,29 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
                   Don't worry - we've generated sample data to show you how the app works!
                 </p>
               </div>
-              <motion.button
+              <button
                 onClick={clearFile}
-                whileHover={{ scale: 1.15 }}
-                whileTap={{ scale: 0.95 }}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-muted-foreground bg-secondary rounded-lg hover:bg-accent transition-colors"
+                className="group inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-muted-foreground bg-secondary rounded-lg hover:bg-accent transition-colors"
               >
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4 transition-transform duration-300 group-hover:animate-spin-once" />
                 Try Another File
-              </motion.button>
-            </motion.div>
+              </button>
+            </div>
           ) : (
-            <motion.div
-              key="upload"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
+            <div
               className="space-y-6"
-              whileHover={{ y: -12, scale: 1.05 }}
             >
-              <motion.div
-                animate={{ 
-                  y: isDragOver ? -10 : 0,
-                  scale: isDragOver ? 1.1 : 1
-                }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              <div
                 className="flex items-center justify-center w-20 h-20 mx-auto bg-gradient-to-br from-primary/10 to-accent/10 rounded-full"
               >
                 {isDragOver ? (
-                  <motion.div
-                    animate={{ rotate: [0, 10, -10, 0] }}
-                    transition={{ duration: 0.5, repeat: Infinity }}
-                  >
+                  <div>
                     <FileText className="w-10 h-10 text-primary" />
-                  </motion.div>
+                  </div>
                 ) : (
-                  <Upload className="w-10 h-10 text-muted-foreground" />
+                  <Upload className="w-10 h-10 text-muted-foreground transition-transform duration-300 group-hover/zone:animate-spin-once" />
                 )}
-              </motion.div>
+              </div>
               
               <div className="space-y-3">
                 <p className="text-xl font-semibold text-foreground">
@@ -202,36 +177,30 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
                 </div>
               </div>
               
-              <motion.button
-                whileHover={{ scale: 1.15 }}
-                whileTap={{ scale: 0.95 }}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-primary/20"
+              <button
+                onClick={handleButtonClick}
+                className="group/button inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium rounded-lg transition-all duration-300 shadow-lg hover:shadow-primary/50 group-hover/zone:scale-150 group-hover/zone:-translate-y-1"
                 disabled={isProcessing}
               >
-                <FileText className="w-5 h-5" />
+                <FileText className="w-5 h-5 transition-transform duration-300 group-hover/button:animate-spin-once" />
                 {isProcessing ? 'Processing...' : 'Choose PDF File'}
-              </motion.button>
-            </motion.div>
+              </button>
+            </div>
           )}
-        </AnimatePresence>
       </div>
       
       {isProcessing && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+        <div
           className="absolute inset-0 bg-background/80 backdrop-blur-sm rounded-2xl flex items-center justify-center"
         >
           <div className="text-center">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-              className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-2"
+            <div
+              className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-2 animate-spin"
             />
             <p className="text-sm font-medium text-muted-foreground">Processing your PDF...</p>
           </div>
-        </motion.div>
+        </div>
       )}
-    </motion.div>
+    </div>
   );
 };

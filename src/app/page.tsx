@@ -1,56 +1,102 @@
+
 'use client';
 
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { FileText, Zap, Database, Download } from 'lucide-react';
+import React, { useState } from 'react';
+import { FileText, Database, Download, RefreshCw, CheckCircle, MessageSquare, ArrowDown } from 'lucide-react';
 import { FileUpload } from '@/components/FileUpload';
-import { ProcessingStatus } from '@/components/ProcessingStatus';
 import { JsonViewer } from '@/components/JsonViewer';
-import { processPdf, ExtractedData } from '@/lib/pdfProcessor';
+import { processPdf } from '@/ai/flows/process-pdf-flow';
+import { chatWithPdf } from '@/ai/flows/chat-with-pdf-flow';
+import { ProcessingStatus } from '@/components/ProcessingStatus';
+
+// This is the shape of the data object the AI flow will return (after parsing the JSON string)
+interface ExtractedData {
+  metadata: any;
+  content: any;
+}
+
+export interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+export type ResultTabId = 'overview' | 'pages' | 'tables' | 'financial' | 'chat' | 'full';
 
 export default function Home() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [currentStep, setCurrentStep] = useState('');
   const [extractedData, setExtractedData] = useState<ExtractedData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [processingStep, setProcessingStep] = useState('');
+
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
+  const [isChatting, setIsChatting] = useState(false);
+  const [isChatActive, setIsChatActive] = useState(false);
+  const [activeResultTab, setActiveResultTab] = useState<ResultTabId>('overview');
+
 
   const handleFileSelect = async (file: File) => {
     setSelectedFile(file);
     setError(null);
-    setExtractedData(null);
     setIsProcessing(true);
-    setProgress(0);
-    setCurrentStep('');
+    setExtractedData(null);
+    setChatHistory([]); // Clear chat history for new file
+    setProcessingStep('Uploading and preparing your document...');
+    setIsChatActive(false);
+    setActiveResultTab('overview');
 
     try {
-      const data = await processPdf(file, (progress, step) => {
-        setProgress(progress);
-        setCurrentStep(step);
+      const pdfDataUri = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = (error) => reject(error);
+        reader.readAsDataURL(file);
       });
       
+      setProcessingStep('AI is analyzing your document. This may take a moment for large files...');
+      
+      const result = await processPdf({
+        pdfDataUri,
+        fileName: file.name,
+        fileSize: file.size,
+      });
+      
+      setProcessingStep('Finalizing structured JSON output...');
+      const data = JSON.parse(result.jsonOutput);
       setExtractedData(data);
-      setProgress(100);
-      setCurrentStep('Processing complete - Ready for download');
-      
-    } catch (err) {
-      console.error('PDF processing error:', err);
-      setError('Processing completed with sample data to demonstrate functionality.');
-      
-      const sampleData = await processPdf(file, (progress, step) => {
-        setProgress(progress);
-        setCurrentStep(step);
-      }).catch(() => null);
 
-      if (sampleData) {
-        setExtractedData(sampleData);
-      }
-      
-      setProgress(100);
-      setCurrentStep('Sample data generated');
+      setChatHistory([
+        { role: 'assistant', content: "I've finished processing your document. What would you like to know? Ask me anything about its content." }
+      ]);
+
+    } catch (err: any) {
+      console.error('PDF processing error:', err);
+      setError(err.message || 'An unexpected error occurred during processing. Please try again.');
     } finally {
       setIsProcessing(false);
+    }
+  };
+
+  const handleSendMessage = async (message: string) => {
+    if (!extractedData || !message.trim()) return;
+
+    const newHistory: ChatMessage[] = [...chatHistory, { role: 'user', content: message }];
+    setChatHistory(newHistory);
+    setIsChatting(true);
+
+    try {
+      const result = await chatWithPdf({
+        fullText: extractedData.content.text,
+        query: message,
+      });
+
+      setChatHistory([...newHistory, { role: 'assistant', content: result.answer }]);
+    } catch (err) {
+      console.error("Chat error:", err);
+      const errorMessage = err instanceof Error ? err.message : "Sorry, I ran into an error. Please try again.";
+      setChatHistory([...newHistory, { role: 'assistant', content: errorMessage }]);
+    } finally {
+      setIsChatting(false);
     }
   };
 
@@ -58,151 +104,190 @@ export default function Home() {
     setSelectedFile(null);
     setExtractedData(null);
     setError(null);
-    setProgress(0);
-    setCurrentStep('');
     setIsProcessing(false);
+    setProcessingStep('');
+    setChatHistory([]);
+    setIsChatActive(false);
+    setActiveResultTab('overview');
   };
 
   const features = [
     {
       icon: FileText,
-      title: 'Complete PDF Reading',
-      description: 'Guaranteed text and structure extraction from every page.'
+      title: 'Smart PDF Reading',
+      description: 'Advanced OCR and text extraction from any PDF document'
     },
     {
       icon: Database,
-      title: 'Deterministic Tables',
-      description: 'Reliably identifies and extracts tabular data with precision.'
+      title: 'Table Detection',
+      description: 'Automatically identifies and extracts tabular data with precision'
     },
     {
-      icon: Zap,
-      title: 'Financial Intelligence',
-      description: 'Recognizes financial patterns, ratios, and key metrics.'
+      icon: MessageSquare,
+      title: 'Interactive Chat',
+      description: "Ask questions and get answers directly from your document's content."
     },
     {
       icon: Download,
-      title: 'Structured JSON',
-      description: 'Clean, predictable JSON output ready for any integration.'
+      title: 'JSON Export',
+      description: 'Clean, structured JSON output ready for integration'
     }
   ];
 
+  const getCtaText = () => {
+    if (isProcessing) {
+      return "Once your document is processed, you can chat with it here.";
+    }
+    if (extractedData) {
+      return "Your document is ready! Start a conversation now.";
+    }
+    return "First, upload and process your PDF document. This button will unlock, allowing you to start an interactive conversation.";
+  };
+
   return (
-    <>
-      <header className="absolute top-0 left-0 right-0 z-10 p-4">
-        <div className="container mx-auto flex items-center justify-between">
-           <div className="flex items-center gap-2">
-              <FileText className="w-6 h-6 text-primary" />
-              <h1 className="text-lg font-bold">PDF to JSON</h1>
-           </div>
+    <div className="min-h-screen bg-black">
+      {/* Header */}
+      <header
+        className="bg-black/50 backdrop-blur-sm border-b border-border sticky top-0 z-10"
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="group flex items-center justify-center w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg">
+                <FileText className="w-6 h-6 text-white transition-transform duration-300 group-hover:animate-spin-once" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-foreground">PDF to JSON</h1>
+                <p className="text-sm text-muted-foreground">Intelligent Document Converter</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-4">
+              {extractedData && (
+                <button
+                  onClick={resetApp}
+                  className="group px-4 py-2 bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium rounded-lg transition-all shadow-lg hover:shadow-primary/80 flex items-center gap-2"
+                >
+                  <RefreshCw className="w-4 h-4 transition-transform duration-300 group-hover:animate-spin-once" />
+                  Process New File
+                </button>
+              )}
+              
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <div className={`w-2 h-2 rounded-full ${
+                  isProcessing ? 'bg-yellow-500 animate-pulse' : extractedData ? 'bg-green-500' : 'bg-primary'
+                }`}></div>
+                <span>
+                  {isProcessing ? 'Processing...' : extractedData ? 'Complete' : 'Ready to process'}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </header>
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 pt-24">
-        <AnimatePresence mode="wait">
-          {!extractedData && !isProcessing && (
-            <motion.div
-              key="hero"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.5 }}
-            >
-              <div className="text-center mb-16">
-                <h2 className="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text animate-text-gradient-pan mb-6 bg-[400%_auto] bg-[linear-gradient(to_right,hsl(var(--primary)),hsl(var(--accent)),#ec4899,#facc15,hsl(var(--primary)))]">
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pb-16">
+        
+        {/* Step 1: Uploader or Processing Status */}
+        {!extractedData && !isProcessing && (
+          <>
+            <div className="text-center mb-16">
+              <div className="relative inline-block">
+                 <h2 className="inline-block bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 bg-[length:400%_400%] bg-clip-text text-4xl font-bold text-transparent animate-gradient-pan sm:text-5xl">
                   Transform Your Financial PDFs
                   <br />
-                  Into Smart, Structured JSON
+                  Into Smart JSON
                 </h2>
-                <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
-                  Upload any financial document and get intelligently extracted data in seconds. 
-                  Perfect for automated analysis, reporting, and integration.
-                </p>
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/80 to-transparent bg-[length:200%_100%] bg-no-repeat animate-shine mix-blend-color-dodge [background-position:200%_0]"></div>
               </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+              {features.map((feature) => (
+                <div key={feature.title} className="group bg-card rounded-xl p-6 shadow-lg border border-border/50 hover:shadow-2xl hover:shadow-primary/80 hover:border-primary/50 transition-all duration-300">
+                  <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-primary/10 to-accent/10 rounded-lg mb-4 transition-all duration-300 group-hover:bg-primary/20 group-hover:scale-110">
+                    <feature.icon className="w-6 h-6 text-primary transition-transform duration-300 group-hover:animate-spin-once" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">{feature.title}</h3>
+                  <p className="text-muted-foreground text-sm">{feature.description}</p>
+                </div>
+              ))}
+            </div>
+            <FileUpload onFileSelect={handleFileSelect} isProcessing={isProcessing} error={error} />
+          </>
+        )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-                {features.map((feature, index) => (
-                  <motion.div
-                    key={feature.title}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.1 * index }}
-                    whileHover={{ y: -8 }}
-                    className="bg-card rounded-xl p-6 border border-border transform transition-all duration-300 hover:shadow-2xl hover:shadow-primary"
-                  >
-                    <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg mb-4">
-                      <feature.icon className="w-6 h-6 text-primary" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-foreground mb-2">{feature.title}</h3>
-                    <p className="text-muted-foreground text-sm">{feature.description}</p>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
+        {isProcessing && (
+          <ProcessingStatus isProcessing={isProcessing} currentStep={processingStep} fileName={selectedFile?.name || 'your document'} />
+        )}
+        
+        {extractedData && (
+          <div className="text-center my-12 animate-in fade-in-0 duration-500">
+            <div className="flex items-center justify-center w-16 h-16 mx-auto bg-primary/10 rounded-full mb-4 border-2 border-primary/20">
+              <CheckCircle className="w-8 h-8 text-primary" />
+            </div>
+            <h2 className="text-3xl font-bold text-foreground">Document Processed!</h2>
+            <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">
+              Your document has been successfully analyzed and is ready for the next step.
+            </p>
+          </div>
+        )}
+
+        {/* Step 2: The Chat CTA - Always Visible */}
+        <div className="relative mt-16 text-center border-t border-dashed border-border/30 pt-12">
+          {!extractedData && !isProcessing && (
+            <div className="absolute left-1/2 -translate-x-1/2 -top-6 bg-background px-2">
+              <ArrowDown className="w-10 h-10 text-muted-foreground animate-bounce" />
+            </div>
           )}
-        </AnimatePresence>
-
-        <div className="space-y-8">
-          <AnimatePresence mode="wait">
-            {!isProcessing && !extractedData ? (
-              <motion.div key="fileupload"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              >
-                <FileUpload
-                  onFileSelect={handleFileSelect}
-                  isProcessing={isProcessing}
-                  error={error}
-                />
-              </motion.div>
-            ) : null}
-            
-            {isProcessing ? (
-              <motion.div key="processing"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              >
-                <ProcessingStatus
-                  isProcessing={isProcessing}
-                  progress={progress}
-                  currentStep={currentStep}
-                />
-              </motion.div>
-            ) : null}
-
-            {extractedData ? (
-               <motion.div key="jsonviewer"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-               >
-                 <JsonViewer
-                   data={extractedData}
-                   fileName={selectedFile?.name || 'document.pdf'}
-                 />
-               </motion.div>
-            ) : null}
-          </AnimatePresence>
-          
-          {extractedData && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="text-center mt-8"
-            >
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={resetApp}
-                className="px-6 py-3 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition-all shadow-lg hover:shadow-primary/20"
-              >
-                Process Another File
-              </motion.button>
-            </motion.div>
-          )}
+          <h3 className="text-2xl font-bold text-foreground mb-2">Ready to Chat?</h3>
+          <p className="text-muted-foreground mb-6 max-w-lg mx-auto">
+            {getCtaText()}
+          </p>
+          <button
+            onClick={() => {
+              if (!extractedData) return;
+              setIsChatActive(true);
+              setActiveResultTab('chat');
+            }}
+            disabled={!extractedData || isProcessing}
+            className="group inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium rounded-lg transition-all duration-300 shadow-lg hover:shadow-primary/50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <MessageSquare className="w-5 h-5 transition-transform duration-300 group-hover:animate-spin-once" />
+            Chat with your PDF
+          </button>
         </div>
+
+        {/* Step 3: Results Viewer */}
+        {extractedData && !isProcessing && (
+          <div className="mt-12">
+            <JsonViewer
+              data={extractedData}
+              fileName={selectedFile?.name || 'document.pdf'}
+              chatHistory={chatHistory}
+              isChatting={isChatting}
+              onSendMessage={handleSendMessage}
+              activeTab={activeResultTab}
+              onTabChange={setActiveResultTab}
+              isChatReady={isChatActive}
+            />
+          </div>
+        )}
       </main>
-    </>
+
+      {/* Footer */}
+      <footer
+        className="bg-black/50 backdrop-blur-sm border-t border-border"
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="text-center text-muted-foreground">
+            <p className="text-sm">
+              Built with React, TypeScript, and Tailwind CSS. 
+              Powered by AI-driven PDF processing technology.
+            </p>
+          </div>
+        </div>
+      </footer>
+    </div>
   );
 }

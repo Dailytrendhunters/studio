@@ -76,16 +76,32 @@ export default {
             height: '0',
           },
         },
-        'text-gradient-pan': {
-            '0%': { backgroundPosition: '0% 50%' },
-            '50%': { backgroundPosition: '100% 50%' },
-            '100%': { backgroundPosition: '0% 50%' },
+        'gradient-pan': {
+          '0%': {
+            'background-position': '0% 50%',
+          },
+          '50%': {
+            'background-position': '100% 50%',
+          },
+          '100%': {
+            'background-position': '0% 50%',
+          },
+        },
+        'spin-once': {
+          'from': { transform: 'rotate(0deg)' },
+          'to': { transform: 'rotate(360deg)' },
+        },
+        'shine': {
+          'from': { backgroundPosition: '200% 0' },
+          'to': { backgroundPosition: '-200% 0' },
         },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
-        'text-gradient-pan': 'text-gradient-pan 5s ease-in-out infinite',
+        'gradient-pan': 'gradient-pan 10s ease-in-out infinite',
+        'spin-once': 'spin-once 0.5s ease-out',
+        'shine': 'shine 3s ease-in-out infinite',
       },
     },
   },
