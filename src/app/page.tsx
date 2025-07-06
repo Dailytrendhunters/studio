@@ -177,7 +177,7 @@ export default function Home() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pb-32">
         {!isProcessing && !extractedData && (
           <>
             {/* Hero Section */}
@@ -239,18 +239,6 @@ export default function Home() {
                 <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">
                   Your document has been successfully analyzed. You can now view the extracted JSON data below, or start an interactive chat to ask questions about its content.
                 </p>
-                <div className="mt-6">
-                  <button
-                    onClick={() => {
-                      setIsChatActive(true);
-                      setActiveResultTab('chat');
-                    }}
-                    className="group inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium rounded-lg transition-all duration-300 shadow-lg hover:shadow-primary/50"
-                  >
-                    <MessageSquare className="w-5 h-5 transition-transform duration-300 group-hover:animate-spin-once" />
-                    Start Interactive Chat
-                  </button>
-                </div>
               </div>
             )}
             
@@ -277,9 +265,28 @@ export default function Home() {
         )}
       </main>
 
+      {/* Sticky Bottom Chat Button Bar */}
+      <div className="fixed bottom-0 left-0 right-0 bg-black/50 backdrop-blur-sm border-t border-border z-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-center">
+            <button
+              onClick={() => {
+                if (!extractedData) return;
+                setIsChatActive(true);
+                setActiveResultTab('chat');
+              }}
+              disabled={!extractedData || isProcessing}
+              className="group inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium rounded-lg transition-all duration-300 shadow-lg hover:shadow-primary/50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <MessageSquare className="w-5 h-5 transition-transform duration-300 group-hover:animate-spin-once" />
+              Chat with your PDF
+            </button>
+        </div>
+      </div>
+
+
       {/* Footer */}
       <footer
-        className="bg-black/50 backdrop-blur-sm border-t border-border mt-24"
+        className="bg-black/50 backdrop-blur-sm border-t border-border"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center text-muted-foreground">
