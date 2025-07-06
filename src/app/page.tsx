@@ -6,12 +6,18 @@ import { FileText, Zap, Database, Download, RefreshCw } from 'lucide-react';
 import { FileUpload } from '@/components/FileUpload';
 import { JsonViewer } from '@/components/JsonViewer';
 import { processPdf } from '@/ai/flows/process-pdf-flow';
+import { chatWithPdf } from '@/ai/flows/chat-with-pdf-flow';
 import { ProcessingStatus } from '@/components/ProcessingStatus';
 
 // This is the shape of the data object the AI flow will return (after parsing the JSON string)
 interface ExtractedData {
   metadata: any;
   content: any;
+}
+
+export interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
 }
 
 export default function Home() {
@@ -21,11 +27,15 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [processingStep, setProcessingStep] = useState('');
 
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
+  const [isChatting, setIsChatting] = useState(false);
+
   const handleFileSelect = async (file: File) => {
     setSelectedFile(file);
     setError(null);
     setIsProcessing(true);
     setExtractedData(null);
+    setChatHistory([]); // Clear chat history for new file
     setProcessingStep('Uploading and preparing your document...');
 
     try {
@@ -48,11 +58,38 @@ export default function Home() {
       const data = JSON.parse(result.jsonOutput);
       setExtractedData(data);
 
+      setChatHistory([
+        { role: 'assistant', content: "I've finished processing your document. What would you like to know? Ask me anything about its content." }
+      ]);
+
     } catch (err: any) {
       console.error('PDF processing error:', err);
       setError(err.message || 'An unexpected error occurred during processing. Please try again.');
     } finally {
       setIsProcessing(false);
+    }
+  };
+
+  const handleSendMessage = async (message: string) => {
+    if (!extractedData || !message.trim()) return;
+
+    const newHistory: ChatMessage[] = [...chatHistory, { role: 'user', content: message }];
+    setChatHistory(newHistory);
+    setIsChatting(true);
+
+    try {
+      const result = await chatWithPdf({
+        fullText: extractedData.content.text,
+        query: message,
+      });
+
+      setChatHistory([...newHistory, { role: 'assistant', content: result.answer }]);
+    } catch (err) {
+      console.error("Chat error:", err);
+      const errorMessage = err instanceof Error ? err.message : "Sorry, I ran into an error. Please try again.";
+      setChatHistory([...newHistory, { role: 'assistant', content: errorMessage }]);
+    } finally {
+      setIsChatting(false);
     }
   };
 
@@ -62,6 +99,7 @@ export default function Home() {
     setError(null);
     setIsProcessing(false);
     setProcessingStep('');
+    setChatHistory([]);
   };
 
   const features = [
@@ -186,6 +224,9 @@ export default function Home() {
               <JsonViewer
                 data={extractedData}
                 fileName={selectedFile?.name || 'document.pdf'}
+                chatHistory={chatHistory}
+                isChatting={isChatting}
+                onSendMessage={handleSendMessage}
               />
             )}
         </div>

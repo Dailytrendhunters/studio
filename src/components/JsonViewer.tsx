@@ -1,12 +1,16 @@
 
 'use client';
 
-import React, { useState } from 'react';
-import { Download, Copy, Eye, ChevronDown, ChevronRight, FileText, CheckCircle, BarChart3, Database, FileSpreadsheet, BookOpen, Target, AlertTriangle } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Download, Copy, Eye, ChevronDown, ChevronRight, FileText, CheckCircle, BarChart3, Database, FileSpreadsheet, BookOpen, Target, AlertTriangle, MessageSquare, User, Bot, Send, Loader2 } from 'lucide-react';
+import type { ChatMessage } from '@/app/page';
 
 interface JsonViewerProps {
   data: any;
   fileName: string;
+  chatHistory: ChatMessage[];
+  isChatting: boolean;
+  onSendMessage: (message: string) => void;
 }
 
 const JsonNode = ({ nodeValue, defaultExpanded = false, depth = 0 }: { nodeValue: any, defaultExpanded?: boolean, depth?: number }) => {
@@ -77,10 +81,26 @@ const JsonNode = ({ nodeValue, defaultExpanded = false, depth = 0 }: { nodeValue
   return renderValue(nodeValue);
 };
 
-export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
+export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName, chatHistory, isChatting, onSendMessage }) => {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [downloadStatus, setDownloadStatus] = useState<'idle' | 'downloading' | 'complete'>('idle');
-  const [activeTab, setActiveTab] = useState<'overview' | 'pages' | 'tables' | 'financial' | 'full'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'pages' | 'tables' | 'financial' | 'chat' | 'full'>('overview');
+  const [chatInput, setChatInput] = useState('');
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (chatContainerRef.current) {
+        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [chatHistory]);
+
+  const handleChatSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (chatInput.trim()) {
+      onSendMessage(chatInput);
+      setChatInput('');
+    }
+  };
 
   const downloadJson = async () => {
     setDownloadStatus('downloading');
@@ -254,7 +274,7 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
                 Showing all {stats.pagesProcessed} processed pages
               </div>
             </div>
-            <div className="max-h-96 overflow-y-auto space-y-3 p-1">
+            <div className="max-h-[40rem] overflow-y-auto space-y-3 p-1">
               {data?.content?.pageBreakdown?.map((page: any, index: number) => (
                 <div key={index} className="bg-secondary/20 rounded-lg p-4 border border-border">
                   <div className="flex items-center justify-between mb-2">
@@ -278,7 +298,7 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
         return (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-foreground">Extracted Tables ({stats.tables})</h3>
-            <div className="max-h-96 overflow-y-auto space-y-4 p-1">
+            <div className="max-h-[40rem] overflow-y-auto space-y-4 p-1">
               {data?.content?.tables?.map((table: any, index: number) => (
                 <div key={index} className="bg-secondary/20 rounded-lg p-4 border border-border">
                   <div className="flex items-center justify-between mb-3">
@@ -320,7 +340,7 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
         return (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-foreground">Financial Data Points ({stats.financialMetrics})</h3>
-            <div className="max-h-96 overflow-y-auto space-y-3 p-1">
+            <div className="max-h-[40rem] overflow-y-auto space-y-3 p-1">
               {data?.content?.financialData?.map((item: any, index: number) => (
                 <div key={index} className="bg-secondary/20 rounded-lg p-4 border border-border">
                   <div className="flex items-center justify-between">
@@ -342,10 +362,64 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
             </div>
           </div>
         );
+      
+      case 'chat':
+        return (
+          <div className="flex flex-col h-[40rem] bg-secondary/20 rounded-lg border border-border">
+            <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-6 space-y-6">
+              {chatHistory.map((msg, index) => (
+                <div key={index} className={`flex items-start gap-4 ${msg.role === 'user' ? 'justify-end' : ''}`}>
+                  {msg.role === 'assistant' && (
+                    <div className="w-8 h-8 flex-shrink-0 rounded-full bg-primary/20 flex items-center justify-center">
+                      <Bot className="w-5 h-5 text-primary" />
+                    </div>
+                  )}
+                  <div className={`max-w-md rounded-xl p-4 ${
+                    msg.role === 'assistant'
+                      ? 'bg-background text-foreground'
+                      : 'bg-primary text-primary-foreground'
+                  }`}>
+                    <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                  </div>
+                  {msg.role === 'user' && (
+                    <div className="w-8 h-8 flex-shrink-0 rounded-full bg-muted flex items-center justify-center">
+                      <User className="w-5 h-5 text-muted-foreground" />
+                    </div>
+                  )}
+                </div>
+              ))}
+              {isChatting && (
+                <div className="flex items-start gap-4">
+                  <div className="w-8 h-8 flex-shrink-0 rounded-full bg-primary/20 flex items-center justify-center">
+                    <Bot className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="max-w-md rounded-xl p-4 bg-background text-foreground">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="p-4 bg-background/50 border-t border-border">
+              <form onSubmit={handleChatSubmit} className="flex items-center gap-4">
+                <input
+                  type="text"
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  placeholder="Ask a question about the document..."
+                  className="flex-1 bg-secondary border border-border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  disabled={isChatting}
+                />
+                <button type="submit" disabled={isChatting || !chatInput.trim()} className="p-2 bg-primary text-primary-foreground rounded-lg disabled:opacity-50 transition-colors">
+                  <Send className="w-5 h-5" />
+                </button>
+              </form>
+            </div>
+          </div>
+        );
         
       case 'full':
         return (
-          <div className="bg-background/50 rounded-lg p-6 border border-border shadow-sm max-h-96 overflow-y-auto">
+          <div className="bg-background/50 rounded-lg p-6 border border-border shadow-sm max-h-[40rem] overflow-y-auto">
             <div className="font-mono text-sm">
               <JsonNode nodeValue={data} defaultExpanded={true} />
             </div>
@@ -412,9 +486,10 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
         </div>
 
         <div className="border-b border-border">
-          <nav className="flex space-x-8 px-6">
+          <nav className="flex space-x-4 px-6 overflow-x-auto">
             {[
               { id: 'overview', label: 'Overview', icon: BarChart3 },
+              { id: 'chat', label: 'Chat', icon: MessageSquare },
               { id: 'pages', label: `Pages (${stats.pagesProcessed})`, icon: FileText },
               { id: 'tables', label: `Tables (${stats.tables})`, icon: FileSpreadsheet },
               { id: 'financial', label: `Financial (${stats.financialMetrics})`, icon: Database },
@@ -423,7 +498,7 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`group flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                className={`group flex-shrink-0 flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                   activeTab === tab.id
                     ? 'border-primary text-primary'
                     : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
