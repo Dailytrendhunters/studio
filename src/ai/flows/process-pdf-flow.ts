@@ -139,7 +139,7 @@ const processPdfPrompt = ai.definePrompt({
 **CRITICAL Instructions:**
 1.  **Trust the Extracted Text:** Do not perform OCR. The \`extractedText\` input is complete and accurate. Your job is to structure it. The 'content.text' field in your output JSON MUST be the verbatim \`extractedText\` you were given.
 2.  **Adhere to Page Count:** The \`numPages\` input is the correct total number of pages. You MUST set \`metadata.actualPagesDetected\`, \`metadata.pages\`, and \`metadata.pagesProcessed\` to this value.
-3.  **Synthesize Page Breakdown:** Create a 'pageBreakdown' array that accurately reflects the content of each page, mapping sections of the \`extractedText\` to their corresponding page number from the visual PDF. The number of items in this array MUST match the \`numPages\` value.
+3.  **Synthesize Page Breakdown:** Create a 'pageBreakdown' array that accurately reflects the content of each page, a mapping sections of the \`extractedText\` to their corresponding page number from the visual PDF. The number of items in this array MUST match the \`numPages\` value.
 4.  **Populate All Fields:** Fill out all fields in the provided JSON schema. Use your internal knowledge for \`extractedAt\` and \`processingTime\`. For \`confidence\`, provide an honest assessment of your ability to structure the provided text. Set \`pageCountMethod\` to "Library Extraction".
 5.  **Strict Schema Adherence:** The final output must be a single, valid JSON object that strictly conforms to the output schema. Do not add extra commentary or markdown.
 
