@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Download, Copy, Eye, ChevronDown, ChevronRight, FileText, CheckCircle, BarChart3, Database, FileSpreadsheet, BookOpen, Target, AlertTriangle, MessageSquare, User, Bot, Send, Loader2 } from 'lucide-react';
+import { Download, Copy, Eye, ChevronDown, ChevronRight, FileText, CheckCircle, BarChart3, Database, FileSpreadsheet, BookOpen, Target, AlertTriangle, MessageSquare, User, Bot, Send, Loader2, Zap } from 'lucide-react';
 import type { ChatMessage } from '@/app/page';
 
 interface JsonViewerProps {
@@ -87,6 +87,7 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName, chatHist
   const [activeTab, setActiveTab] = useState<'overview' | 'pages' | 'tables' | 'financial' | 'chat' | 'full'>('overview');
   const [chatInput, setChatInput] = useState('');
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const [isChatSessionActive, setIsChatSessionActive] = useState(false);
 
   useEffect(() => {
     if (chatContainerRef.current) {
@@ -364,6 +365,24 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName, chatHist
         );
       
       case 'chat':
+        if (!isChatSessionActive) {
+          return (
+            <div className="flex flex-col items-center justify-center h-[40rem] bg-secondary/20 rounded-lg border border-border text-center p-8">
+              <MessageSquare className="w-16 h-16 text-muted-foreground mb-4" />
+              <h3 className="text-2xl font-bold text-foreground mb-2">Chat with Your Document</h3>
+              <p className="text-muted-foreground mb-6 max-w-md">
+                Unlock an interactive RAG-powered chat to ask specific questions about the content of your PDF. The AI will use the document's text to provide accurate answers.
+              </p>
+              <button 
+                onClick={() => setIsChatSessionActive(true)}
+                className="group inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium rounded-lg transition-all duration-300 shadow-lg hover:shadow-primary/50"
+              >
+                <Zap className="w-5 h-5 transition-transform duration-300 group-hover:animate-spin-once" />
+                Start Interactive Chat
+              </button>
+            </div>
+          );
+        }
         return (
           <div className="flex flex-col h-[40rem] bg-secondary/20 rounded-lg border border-border">
             <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-6 space-y-6">
