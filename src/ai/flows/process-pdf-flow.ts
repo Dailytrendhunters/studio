@@ -77,9 +77,9 @@ const ExtractedMetadataSchema = z.object({
     title: z.string().describe("The document title, derived from the filename."),
     author: z.string().optional().describe("The author of the document, if available in the PDF metadata."),
     creator: z.string().optional().describe("The tool used to create the PDF, if available in the PDF metadata."),
-    pages: z.number().describe("The total number of pages in the document."),
-    actualPagesDetected: z.number().describe("The total number of pages you were able to detect."),
-    pagesProcessed: z.number().describe("The total number of pages you successfully processed."),
+    pages: z.number().describe("The total number of pages in the document. This should be the same as pagesProcessed."),
+    actualPagesDetected: z.number().describe("The total number of pages you were able to detect by analyzing the document."),
+    pagesProcessed: z.number().describe("The total number of pages you successfully processed. Your goal is for this to equal actualPagesDetected."),
     fileSize: z.number().describe("The size of the file in bytes."),
     extractedAt: z.string().datetime().describe("The ISO 8601 timestamp of when the extraction was performed."),
     processingTime: z.number().describe("The time taken for processing in milliseconds."),
@@ -133,13 +133,15 @@ const processPdfPrompt = ai.definePrompt({
   name: 'processPdfPrompt',
   input: {schema: ProcessPdfInputSchema},
   output: {schema: ProcessPdfModelOutputSchema},
-  prompt: `You are a world-class financial document analysis AI. Your task is to convert the provided financial PDF into a meticulously structured JSON format.
+  prompt: `You are a world-class financial document analysis AI. Your task is to convert the provided financial PDF into a meticulously structured JSON format. You are capable of handling documents with thousands of pages.
 
-**Instructions:**
-1.  **Analyze Comprehensively:** Analyze the entire document to determine the total number of pages. You must process every single page.
-2.  **Extract Verbatim:** Do not summarize or add information not present in the document unless specified. Extract text, tables, and figures as accurately as possible.
-3.  **Populate All Fields:** Fill out all fields in the provided JSON schema. For metadata fields like \`processingTime\` and \`extractedAt\`, use your internal knowledge to provide accurate values. For \`confidence\`, provide an honest assessment of your extraction quality.
-4.  **Strict Schema Adherence:** The final output must be a single, valid JSON object that strictly conforms to the output schema. Do not add extra commentary or markdown.
+**CRITICAL Instructions:**
+1.  **Analyze Comprehensively & Count Pages:** Before any other processing, you MUST analyze the entire document to determine the exact total number of pages. This is the most critical step. Set the 'actualPagesDetected' field in the metadata to this number.
+2.  **Process Every Single Page:** You MUST process every single page from start to finish. For each page, create a corresponding entry in the 'pageBreakdown' array.
+3.  **Verify Processing:** The final number of items in the 'pageBreakdown' array MUST exactly match the 'actualPagesDetected' number. Set 'pagesProcessed' to this final count. Your goal is 100% coverage.
+4.  **Extract Verbatim:** Extract text, tables, and figures as accurately as possible. Do not summarize unless creating content for a 'section' summary.
+5.  **Populate All Fields:** Fill out all fields in the provided JSON schema. For metadata fields like \`processingTime\` and \`extractedAt\`, use your internal knowledge to provide accurate values. For \`confidence\`, provide an honest assessment of your extraction quality based on the document's clarity and your ability to process all pages.
+6.  **Strict Schema Adherence:** The final output must be a single, valid JSON object that strictly conforms to the output schema. Do not add extra commentary or markdown.
 
 **Input Document Information:**
 -   **Filename:** {{{fileName}}}
@@ -192,6 +194,11 @@ const processPdfFlow = ai.defineFlow(
 
     if (!modelOutput) {
       throw new Error('Model output was empty or invalid after all processing attempts.');
+    }
+
+    // Final verification step
+    if (modelOutput.metadata.actualPagesDetected !== modelOutput.metadata.pagesProcessed) {
+        console.warn(`Page count mismatch detected by flow: ${modelOutput.metadata.actualPagesDetected} detected vs ${modelOutput.metadata.pagesProcessed} processed.`);
     }
 
     return {

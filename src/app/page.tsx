@@ -6,6 +6,7 @@ import { FileText, Zap, Database, Download, RefreshCw } from 'lucide-react';
 import { FileUpload } from '@/components/FileUpload';
 import { JsonViewer } from '@/components/JsonViewer';
 import { processPdf } from '@/ai/flows/process-pdf-flow';
+import { ProcessingStatus } from '@/components/ProcessingStatus';
 
 // This is the shape of the data object the AI flow will return (after parsing the JSON string)
 interface ExtractedData {
@@ -18,12 +19,14 @@ export default function Home() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [extractedData, setExtractedData] = useState<ExtractedData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [processingStep, setProcessingStep] = useState('');
 
   const handleFileSelect = async (file: File) => {
     setSelectedFile(file);
     setError(null);
     setIsProcessing(true);
     setExtractedData(null);
+    setProcessingStep('Uploading and preparing your document...');
 
     try {
       const pdfDataUri = await new Promise<string>((resolve, reject) => {
@@ -33,12 +36,15 @@ export default function Home() {
         reader.readAsDataURL(file);
       });
       
+      setProcessingStep('AI is analyzing your document. This may take a moment for large files...');
+      
       const result = await processPdf({
         pdfDataUri,
         fileName: file.name,
         fileSize: file.size,
       });
-
+      
+      setProcessingStep('Finalizing structured JSON output...');
       const data = JSON.parse(result.jsonOutput);
       setExtractedData(data);
 
@@ -55,6 +61,7 @@ export default function Home() {
     setExtractedData(null);
     setError(null);
     setIsProcessing(false);
+    setProcessingStep('');
   };
 
   const features = [
@@ -124,14 +131,14 @@ export default function Home() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {!extractedData && (
+        {!isProcessing && !extractedData && (
           <>
             {/* Hero Section */}
             <div
               className="text-center mb-16"
             >
               <div className="relative inline-block">
-                <h2 className="inline-block bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 bg-[length:400%_400%] bg-clip-text text-4xl font-bold text-transparent animate-gradient-pan sm:text-5xl">
+                 <h2 className="inline-block bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 bg-[length:400%_400%] bg-clip-text text-4xl font-bold text-transparent animate-gradient-pan sm:text-5xl">
                   Transform Your Financial PDFs
                   <br />
                   Into Smart JSON
@@ -157,20 +164,25 @@ export default function Home() {
                 </div>
               ))}
             </div>
-          </>
-        )}
-
-        {/* Upload Section */}
-        <div className="space-y-8">
-          {!extractedData && (
-            <FileUpload
+             <FileUpload
               onFileSelect={handleFileSelect}
               isProcessing={isProcessing}
               error={error}
             />
-          )}
+          </>
+        )}
 
-          {extractedData && !isProcessing && (
+        {/* Processing and Results Section */}
+        <div className="space-y-8">
+            {isProcessing && (
+                 <ProcessingStatus
+                    isProcessing={isProcessing}
+                    currentStep={processingStep}
+                    fileName={selectedFile?.name || 'your document'}
+                />
+            )}
+
+            {extractedData && !isProcessing && (
               <JsonViewer
                 data={extractedData}
                 fileName={selectedFile?.name || 'document.pdf'}

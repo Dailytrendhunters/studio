@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Download, Copy, Eye, ChevronDown, ChevronRight, FileText, CheckCircle, BarChart3, Database, FileSpreadsheet, BookOpen, Target } from 'lucide-react';
+import { Download, Copy, Eye, ChevronDown, ChevronRight, FileText, CheckCircle, BarChart3, Database, FileSpreadsheet, BookOpen, Target, AlertTriangle } from 'lucide-react';
 
 interface JsonViewerProps {
   data: any;
@@ -10,7 +10,7 @@ interface JsonViewerProps {
 }
 
 const JsonNode = ({ nodeValue, defaultExpanded = false, depth = 0 }: { nodeValue: any, defaultExpanded?: boolean, depth?: number }) => {
-  const [isExpanded, setIsExpanded] = useState(depth < 2);
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded || depth < 2);
 
   const renderValue = (value: any): React.ReactNode => {
     if (value === null) {
@@ -23,7 +23,8 @@ const JsonNode = ({ nodeValue, defaultExpanded = false, depth = 0 }: { nodeValue
       return <span className="text-pink-400 font-medium">{value.toLocaleString()}</span>;
     }
     if (typeof value === 'string') {
-      return <span className="text-green-400">"{value}"</span>;
+        const str = value.length > 200 ? value.substring(0, 200) + "..." : value;
+      return <span className="text-green-400">"{str}"</span>;
     }
     if (Array.isArray(value)) {
       if (value.length === 0) return <span className="text-muted-foreground">[]</span>;
@@ -58,13 +59,13 @@ const JsonNode = ({ nodeValue, defaultExpanded = false, depth = 0 }: { nodeValue
           </button>
           {isExpanded && (
             <div className="overflow-hidden ml-4 mt-2 space-y-2 border-l-2 border-border/50 pl-4">
-              {keys.slice(0, 10).map((k) => (
+              {keys.slice(0, 20).map((k) => (
                 <div key={k} className="flex items-start gap-2">
                   <span className="text-orange-400 font-medium min-w-fit">"{k}":</span>
                   <div className="flex-1"><JsonNode nodeValue={value[k]} defaultExpanded={false} depth={depth+1}/></div>
                 </div>
               ))}
-              {keys.length > 10 && <div className="text-muted-foreground text-sm italic">... and {keys.length - 10} more properties</div>}
+              {keys.length > 20 && <div className="text-muted-foreground text-sm italic">... and {keys.length - 20} more properties</div>}
             </div>
           )}
         </div>
@@ -176,7 +177,7 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
                 </div>
               </div>
               
-              {stats.actualPagesDetected === stats.pagesProcessed ? (
+              {stats.actualPagesDetected > 0 && stats.actualPagesDetected === stats.pagesProcessed ? (
                 <div className="mt-4 p-3 bg-primary/10 rounded-lg border border-primary/30">
                   <div className="flex items-center gap-2 text-primary">
                     <CheckCircle className="w-5 h-5" />
@@ -189,9 +190,12 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
               ) : (
                 <div className="mt-4 p-3 bg-yellow-500/10 rounded-lg border border-yellow-500/30">
                   <div className="flex items-center gap-2 text-yellow-300">
-                    <Target className="w-5 h-5" />
-                    <span className="font-medium">Processing Status: {stats.pagesProcessed} of {stats.actualPagesDetected} pages processed</span>
+                    <AlertTriangle className="w-5 h-5" />
+                    <span className="font-medium">Processing Discrepancy: {stats.pagesProcessed} of {stats.actualPagesDetected} pages processed</span>
                   </div>
+                   <p className="text-sm text-yellow-300/80 mt-1">
+                    The AI processed a different number of pages than it initially detected. The result might be incomplete.
+                  </p>
                 </div>
               )}
             </div>
@@ -358,35 +362,15 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
       className="w-full max-w-6xl mx-auto mt-8"
     >
       <div
-        className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-2xl p-6 mb-6 border border-primary/20"
+        className="bg-card rounded-2xl shadow-xl border border-border overflow-hidden"
       >
-        <div className="flex items-center gap-4">
-          <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-full">
-            <CheckCircle className="w-6 h-6 text-primary" />
-          </div>
-          <div className="flex-1">
-            <h2 className="text-xl font-bold text-foreground mb-1">
-              Complete Processing Successful! All {stats.actualPagesDetected} Pages Processed
-            </h2>
-            <p className="text-muted-foreground">
-              Every single page ({stats.pagesProcessed}/{stats.actualPagesDetected}) has been individually analyzed and converted to structured JSON format.
-            </p>
-          </div>
-          <div className="text-right">
-            <div className="text-2xl font-bold text-primary">✓</div>
-            <div className="text-sm text-muted-foreground">100% Complete</div>
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-card rounded-2xl shadow-xl border border-border overflow-hidden">
         <div className="bg-card/50 px-6 py-4 border-b border-border flex items-center justify-between">
           <div className="flex items-center gap-3">
             <BookOpen className="w-5 h-5 text-muted-foreground" />
             <div>
               <h3 className="text-lg font-semibold text-foreground">Complete PDF Extraction Results</h3>
               <p className="text-sm text-muted-foreground">
-                Comprehensive data extraction from {fileName} - {stats.actualPagesDetected} pages processed
+                Comprehensive data extraction from {fileName} - {stats.pagesProcessed} of {stats.actualPagesDetected} pages processed
               </p>
             </div>
           </div>
@@ -397,7 +381,7 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
               className="group flex items-center gap-2 px-3 py-2 text-sm font-medium text-primary hover:text-primary/90 bg-primary/10 rounded-lg hover:bg-primary/20 transition-all"
             >
               <Copy className="w-4 h-4 transition-transform duration-300 group-hover:animate-spin-once" />
-              {copiedIndex === -1 ? 'Copied!' : 'Copied!'}
+              {copiedIndex === -1 ? 'Copied!' : 'Copy JSON'}
             </button>
             
             <button
