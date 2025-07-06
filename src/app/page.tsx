@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState } from 'react';
@@ -124,15 +125,11 @@ export default function Home() {
               className="text-center mb-16"
             >
               <h2
-                  className="text-4xl sm:text-5xl font-bold text-foreground mb-6"
+                  className="text-4xl sm:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-[size:400%_auto] bg-clip-text text-transparent animate-gradient-pan"
                 >
-                  <span
-                    className="bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-[size:400%_auto] bg-clip-text text-transparent animate-gradient-pan"
-                  >
-                    Transform Your Financial PDFs
-                    <br />
-                    Into Smart JSON
-                  </span>
+                  Transform Your Financial PDFs
+                  <br />
+                  Into Smart JSON
               </h2>
             </div>
 
