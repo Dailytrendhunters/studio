@@ -3,6 +3,7 @@
 /**
  * @fileOverview This file defines a Genkit flow to process a financial PDF document
  * and extract its content into a structured JSON format that matches the application's UI components.
+ * It uses pdf-parse to extract text and then an AI model to structure that text.
  * It includes an AI-powered repair mechanism for malformed JSON.
  *
  * - processPdf - A function that handles the PDF processing and JSON conversion.
@@ -13,6 +14,9 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import { repairJson } from './repair-json-flow';
+// Since pdf-parse is a CJS module, we use require.
+const pdf = require('pdf-parse');
+
 
 /**
  * Extracts a JSON object from a string that might contain other text.
@@ -66,7 +70,7 @@ const PageContentSchema = z.object({
 });
 
 const ExtractedContentSchema = z.object({
-    text: z.string().describe("The consolidated and summarized text from the entire document."),
+    text: z.string().describe("The full, verbatim text content from the entire document. This should not be a summary."),
     tables: z.array(TableSchema).describe("An array of all tables extracted from the document."),
     financialData: z.array(FinancialDataSchema).describe("An array of all structured financial data points."),
     sections: z.array(SectionSchema).describe("An array of identified document sections."),
@@ -85,7 +89,7 @@ const ExtractedMetadataSchema = z.object({
     processingTime: z.number().describe("The time taken for processing in milliseconds."),
     documentType: z.string().describe("The inferred type of financial document (e.g., 'Annual Report', '10-K', 'Quarterly Earnings')."),
     confidence: z.number().min(0).max(1).describe("Overall confidence score for the entire extraction (0 to 1)."),
-    pageCountMethod: z.string().default("AI Model Analysis").describe("The method used to count pages."),
+    pageCountMethod: z.string().default("pdf-parse library").describe("The method used to count pages."),
 });
 
 const ProcessPdfModelOutputSchema = z.object({
@@ -129,26 +133,37 @@ const SCHEMA_DESCRIPTION = `The JSON object must have 'metadata' and 'content' p
 Ensure all required fields are present and data types are correct.`;
 
 
+// This is the new input for the AI prompt. It takes the extracted text.
+const AiPromptInputSchema = z.object({
+    fullText: z.string().describe("The full text content extracted from the PDF."),
+    fileName: z.string().describe("The original name of the file."),
+    fileSize: z.number().describe("The size of the file in bytes."),
+    pageCount: z.number().describe("The total number of pages detected by the parser."),
+});
+
+
 const processPdfPrompt = ai.definePrompt({
   name: 'processPdfPrompt',
-  input: {schema: ProcessPdfInputSchema},
+  input: {schema: AiPromptInputSchema},
   output: {schema: ProcessPdfModelOutputSchema},
-  prompt: `You are a world-class financial document analysis AI. Your task is to convert the provided financial PDF into a meticulously structured JSON format. You are capable of handling documents with thousands of pages.
+  prompt: `You are a world-class financial document analysis AI. Your task is to convert the provided raw text from a financial document into a meticulously structured JSON format. You are capable of handling text from documents with thousands of pages.
 
 **CRITICAL Instructions:**
-1.  **Analyze Comprehensively & Count Pages:** Before any other processing, you MUST analyze the entire document to determine the exact total number of pages. This is the most critical step. Set the 'actualPagesDetected' field in the metadata to this number.
-2.  **Process Every Single Page:** You MUST process every single page from start to finish. For each page, create a corresponding entry in the 'pageBreakdown' array.
-3.  **Verify Processing:** The final number of items in the 'pageBreakdown' array MUST exactly match the 'actualPagesDetected' number. Set 'pagesProcessed' to this final count. Your goal is 100% coverage.
-4.  **Extract Verbatim:** Extract text, tables, and figures as accurately as possible. Do not summarize unless creating content for a 'section' summary.
-5.  **Populate All Fields:** Fill out all fields in the provided JSON schema. For metadata fields like \`processingTime\` and \`extractedAt\`, use your internal knowledge to provide accurate values. For \`confidence\`, provide an honest assessment of your extraction quality based on the document's clarity and your ability to process all pages.
+1.  **Analyze Comprehensively:** The provided text is the entire content of a document with {{{pageCount}}} pages.
+2.  **Process Every Section:** You MUST process the entire text from start to finish. Infer document structure like sections, tables, and financial data points from the text.
+3.  **Synthesize Page Breakdown:** Create a plausible 'pageBreakdown' array based on the content. Since you don't have visual page breaks, you'll need to logically segment the text into page-like chunks. Aim for the number of items in 'pageBreakdown' to be close to the actual 'pageCount' provided. Set 'pagesProcessed' to the number of breakdown items you create.
+4.  **Extract Verbatim:** Extract text, tables, and figures as accurately as possible. Infer table structure from text formatting (e.g., columns of text, headers). The 'content.text' field MUST contain the full, unmodified text that was provided as input. Do not summarize this field.
+5.  **Populate All Fields:** Fill out all fields in the provided JSON schema. For metadata fields like \`processingTime\` and \`extractedAt\`, use your internal knowledge. For \`confidence\`, provide an honest assessment of your extraction quality based on the text's clarity. Set 'actualPagesDetected' and 'pages' to the provided 'pageCount'. Set 'pageCountMethod' to "pdf-parse library".
 6.  **Strict Schema Adherence:** The final output must be a single, valid JSON object that strictly conforms to the output schema. Do not add extra commentary or markdown.
 
 **Input Document Information:**
 -   **Filename:** {{{fileName}}}
 -   **File Size:** {{{fileSize}}} bytes
+-   **Total Pages Detected by Parser:** {{{pageCount}}}
 
-**PDF Document for Processing:**
-{{media url=pdfDataUri}}`,
+**Full Document Text for Processing:**
+{{{fullText}}}
+`,
 });
 
 const processPdfFlow = ai.defineFlow(
@@ -158,7 +173,24 @@ const processPdfFlow = ai.defineFlow(
     outputSchema: ProcessPdfOutputSchema,
   },
   async (input) => {
-    const response = await processPdfPrompt(input);
+    // 1. Convert data URI to buffer
+    const base64Data = input.pdfDataUri.split(',')[1];
+    const pdfBuffer = Buffer.from(base64Data, 'base64');
+    
+    // 2. Parse PDF with pdf-parse and time the operation
+    const startTime = Date.now();
+    const pdfData = await pdf(pdfBuffer);
+    const processingTime = Date.now() - startTime;
+
+    // 3. Call the AI prompt with the extracted text
+    const aiInput = {
+      fullText: pdfData.text,
+      fileName: input.fileName,
+      fileSize: input.fileSize,
+      pageCount: pdfData.numpages,
+    };
+    
+    const response = await processPdfPrompt(aiInput);
     
     let modelOutput = response.output;
 
@@ -195,6 +227,9 @@ const processPdfFlow = ai.defineFlow(
     if (!modelOutput) {
       throw new Error('Model output was empty or invalid after all processing attempts.');
     }
+
+    // Inject the real processing time from our timer, overriding any AI-generated value
+    modelOutput.metadata.processingTime = processingTime;
 
     // Final verification step
     if (modelOutput.metadata.actualPagesDetected !== modelOutput.metadata.pagesProcessed) {
