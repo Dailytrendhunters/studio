@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState } from 'react';
@@ -22,7 +21,7 @@ export interface ChatMessage {
 
 export type ResultTabId = 'overview' | 'pages' | 'tables' | 'financial' | 'chat' | 'full';
 
-export default function Home() {
+export default function HomePage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [extractedData, setExtractedData] = useState<ExtractedData | null>(null);
@@ -33,7 +32,6 @@ export default function Home() {
   const [isChatting, setIsChatting] = useState(false);
   const [isChatActive, setIsChatActive] = useState(false);
   const [activeResultTab, setActiveResultTab] = useState<ResultTabId>('overview');
-
 
   const handleFileSelect = async (file: File) => {
     setSelectedFile(file);
@@ -147,9 +145,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-black">
       {/* Header */}
-      <header
-        className="bg-black/50 backdrop-blur-sm border-b border-border sticky top-0 z-10"
-      >
+      <header className="bg-black/50 backdrop-blur-sm border-b border-border sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -276,9 +272,7 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer
-        className="bg-black/50 backdrop-blur-sm border-t border-border"
-      >
+      <footer className="bg-black/50 backdrop-blur-sm border-t border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center text-muted-foreground">
             <p className="text-sm">
