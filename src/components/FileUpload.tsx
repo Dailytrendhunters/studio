@@ -111,7 +111,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
                   onClick={clearFile}
                   className="group inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-500 bg-red-500/10 rounded-lg hover:bg-red-500/20 transition-colors"
                 >
-                  <X className="w-4 h-4 transition-transform duration-300 group-hover:rotate-90" />
+                  <X className="w-4 h-4 transition-transform duration-300 group-hover:animate-spin" />
                   Remove File
                 </button>
               )}
@@ -134,7 +134,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
                 onClick={clearFile}
                 className="group inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-muted-foreground bg-secondary rounded-lg hover:bg-accent transition-colors"
               >
-                <X className="w-4 h-4 transition-transform duration-300 group-hover:rotate-90" />
+                <X className="w-4 h-4 transition-transform duration-300 group-hover:animate-spin" />
                 Try Another File
               </button>
             </div>
@@ -150,7 +150,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
                     <FileText className="w-10 h-10 text-primary" />
                   </div>
                 ) : (
-                  <Upload className="w-10 h-10 text-muted-foreground transition-transform duration-300 group-hover:rotate-12" />
+                  <Upload className="w-10 h-10 text-muted-foreground transition-transform duration-300 group-hover:animate-spin" />
                 )}
               </div>
               
@@ -175,7 +175,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
                 className="group inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-primary/20"
                 disabled={isProcessing}
               >
-                <FileText className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" />
+                <FileText className="w-5 h-5 transition-transform duration-300 group-hover:animate-spin" />
                 {isProcessing ? 'Processing...' : 'Choose PDF File'}
               </button>
             </div>

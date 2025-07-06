@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { FileText, Zap, Database, Download } from 'lucide-react';
+import { FileText, Zap, Database, Download, RefreshCw } from 'lucide-react';
 import { FileUpload } from '@/components/FileUpload';
 import { ProcessingStatus } from '@/components/ProcessingStatus';
 import { JsonViewer } from '@/components/JsonViewer';
@@ -84,7 +84,7 @@ export default function Home() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="group flex items-center justify-center w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg">
-                <FileText className="w-6 h-6 text-white transition-transform duration-300 group-hover:rotate-12" />
+                <FileText className="w-6 h-6 text-white transition-transform duration-300 group-hover:animate-spin" />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-foreground">PDF to JSON</h1>
@@ -96,8 +96,9 @@ export default function Home() {
               {extractedData && (
                 <button
                   onClick={resetApp}
-                  className="px-4 py-2 bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium rounded-lg transition-all shadow-lg hover:shadow-primary/20"
+                  className="group px-4 py-2 bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium rounded-lg transition-all shadow-lg hover:shadow-primary/20 flex items-center gap-2"
                 >
+                  <RefreshCw className="w-4 h-4 group-hover:animate-spin" />
                   Process New File
                 </button>
               )}
@@ -140,7 +141,7 @@ export default function Home() {
                   className="group bg-card rounded-xl p-6 shadow-lg border border-border/50 hover:shadow-2xl hover:shadow-primary/80 hover:border-primary/50 transition-all duration-300"
                 >
                   <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-primary/10 to-accent/10 rounded-lg mb-4 transition-all duration-300">
-                    <feature.icon className="w-6 h-6 text-primary transition-transform duration-300 group-hover:rotate-12" />
+                    <feature.icon className="w-6 h-6 text-primary transition-transform duration-300 group-hover:animate-spin" />
                   </div>
                   <h3 className="text-lg font-semibold text-foreground mb-2">{feature.title}</h3>
                   <p className="text-muted-foreground text-sm">{feature.description}</p>

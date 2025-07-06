@@ -30,7 +30,7 @@ const JsonNode = ({ nodeValue, defaultExpanded = false, depth = 0 }: { nodeValue
       return (
         <div className="ml-4">
           <button onClick={() => setIsExpanded(!isExpanded)} className="group flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors mb-1">
-            {isExpanded ? <ChevronDown className="w-4 h-4 transition-transform duration-200 group-hover:rotate-12" /> : <ChevronRight className="w-4 h-4 transition-transform duration-200 group-hover:rotate-12" />}
+            {isExpanded ? <ChevronDown className="w-4 h-4 transition-transform duration-200 group-hover:animate-spin" /> : <ChevronRight className="w-4 h-4 transition-transform duration-200 group-hover:animate-spin" />}
             <span className="text-sm font-medium text-pink-400">[{value.length} items]</span>
           </button>
           {isExpanded && (
@@ -53,7 +53,7 @@ const JsonNode = ({ nodeValue, defaultExpanded = false, depth = 0 }: { nodeValue
       return (
         <div className="ml-4">
           <button onClick={() => setIsExpanded(!isExpanded)} className="group flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors mb-1">
-            {isExpanded ? <ChevronDown className="w-4 h-4 transition-transform duration-200 group-hover:rotate-12" /> : <ChevronRight className="w-4 h-4 transition-transform duration-200 group-hover:rotate-12" />}
+            {isExpanded ? <ChevronDown className="w-4 h-4 transition-transform duration-200 group-hover:animate-spin" /> : <ChevronRight className="w-4 h-4 transition-transform duration-200 group-hover:animate-spin" />}
             <span className="text-sm font-medium text-purple-400">{'{'}...{'}'} ({keys.length} keys)</span>
           </button>
           {isExpanded && (
@@ -396,8 +396,8 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
               onClick={() => copyToClipboard(JSON.stringify(data, null, 2))}
               className="group flex items-center gap-2 px-3 py-2 text-sm font-medium text-primary hover:text-primary/90 bg-primary/10 rounded-lg hover:bg-primary/20 transition-all"
             >
-              <Copy className="w-4 h-4 transition-transform duration-300 group-hover:rotate-12" />
-              {copiedIndex === -1 ? 'Copied!' : 'Copy JSON'}
+              <Copy className="w-4 h-4 transition-transform duration-300 group-hover:animate-spin" />
+              {copiedIndex === -1 ? 'Copied!' : 'Copied!'}
             </button>
             
             <button
@@ -414,12 +414,12 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
                 </>
               ) : downloadStatus === 'complete' ? (
                 <>
-                  <CheckCircle className="w-4 h-4 transition-transform duration-300 group-hover:rotate-12" />
+                  <CheckCircle className="w-4 h-4 transition-transform duration-300" />
                   Downloaded!
                 </>
               ) : (
                 <>
-                  <Download className="w-4 h-4 transition-transform duration-300 group-hover:rotate-12" />
+                  <Download className="w-4 h-4 transition-transform duration-300 group-hover:animate-spin" />
                   Download Complete JSON
                 </>
               )}
@@ -445,7 +445,7 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName }) => {
                     : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
                 }`}
               >
-                <tab.icon className="w-4 h-4 transition-transform duration-300 group-hover:rotate-12" />
+                <tab.icon className="w-4 h-4 transition-transform duration-300 group-hover:animate-spin" />
                 {tab.label}
               </button>
             ))}
