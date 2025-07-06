@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState } from 'react';
@@ -98,7 +99,7 @@ export default function Home() {
                   onClick={resetApp}
                   className="group px-4 py-2 bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium rounded-lg transition-all shadow-lg hover:shadow-primary/20 flex items-center gap-2"
                 >
-                  <RefreshCw className="w-4 h-4 group-hover:animate-spin-once" />
+                  <RefreshCw className="w-4 h-4 transition-transform duration-300 group-hover:animate-spin-once" />
                   Process New File
                 </button>
               )}
@@ -124,7 +125,7 @@ export default function Home() {
             <div
               className="text-center mb-16"
             >
-              <h2 className="inline-block bg-gradient-to-r from-fuchsia-500 to-rose-400 bg-[length:400%_400%] bg-clip-text text-4xl font-bold text-transparent animate-gradient-pan sm:text-5xl">
+              <h2 className="inline-block bg-gradient-to-r from-pink-400 via-fuchsia-500 to-rose-500 bg-[length:400%_400%] bg-clip-text text-4xl font-bold text-transparent animate-gradient-pan sm:text-5xl">
                 Transform Your Financial PDFs
                 <br />
                 Into Smart JSON
