@@ -123,9 +123,9 @@ export default function Home() {
       description: 'Automatically identifies and extracts tabular data with precision'
     },
     {
-      icon: Zap,
-      title: 'Financial Intelligence',
-      description: 'Recognizes financial patterns, ratios, and key metrics'
+      icon: MessageSquare,
+      title: 'Interactive Chat',
+      description: "Ask questions and get answers directly from your document's content."
     },
     {
       icon: Download,
