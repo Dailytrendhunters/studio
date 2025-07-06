@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useRef } from 'react';
 import { Upload, FileText, X, CheckCircle, AlertCircle, Zap } from 'lucide-react';
 
 interface FileUploadProps {
@@ -13,6 +13,7 @@ interface FileUploadProps {
 export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessing, error }) => {
   const [isDragOver, setIsDragOver] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -39,7 +40,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
     }
   }, [onFileSelect]);
 
-  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.type === 'application/pdf') {
@@ -50,6 +51,10 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
       }
     }
   }, [onFileSelect]);
+
+  const handleButtonClick = () => {
+    fileInputRef.current?.click();
+  };
 
   const clearFile = useCallback(() => {
     setSelectedFile(null);
@@ -82,9 +87,10 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
         onDrop={handleDrop}
       >
         <input
+          ref={fileInputRef}
           type="file"
           accept=".pdf,application/pdf"
-          onChange={handleFileSelect}
+          onChange={handleFileChange}
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
           disabled={isProcessing}
         />
@@ -172,6 +178,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
               </div>
               
               <button
+                onClick={handleButtonClick}
                 className="group/button inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium rounded-lg transition-all duration-300 shadow-lg hover:shadow-primary/50 group-hover/zone:scale-150 group-hover/zone:-translate-y-1"
                 disabled={isProcessing}
               >
