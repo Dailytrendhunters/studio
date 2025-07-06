@@ -75,10 +75,10 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-primary/10">
+    <div className="min-h-screen bg-black">
       {/* Header */}
       <header
-        className="bg-background/50 backdrop-blur-sm border-b border-border sticky top-0 z-10"
+        className="bg-black/50 backdrop-blur-sm border-b border-border sticky top-0 z-10"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
@@ -127,7 +127,7 @@ export default function Home() {
                   className="text-4xl sm:text-5xl font-bold text-foreground mb-6"
                 >
                   <span
-                    className="bg-gradient-to-r from-primary via-accent to-primary bg-[size:200%_auto] bg-clip-text text-transparent animate-gradient-pan"
+                    className="bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-[size:400%_auto] bg-clip-text text-transparent animate-gradient-pan"
                   >
                     Transform Your Financial PDFs
                     <br />
@@ -185,7 +185,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer
-        className="bg-background/50 backdrop-blur-sm border-t border-border mt-24"
+        className="bg-black/50 backdrop-blur-sm border-t border-border mt-24"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center text-muted-foreground">
