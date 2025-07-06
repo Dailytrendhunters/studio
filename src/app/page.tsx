@@ -128,14 +128,14 @@ export default function Home() {
                 >
                   Transform Your{' '}
                   <span
-                    className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent"
+                    className="bg-gradient-to-r from-primary via-accent to-primary bg-[size:200%_auto] bg-clip-text text-transparent animate-gradient-pan"
                   >
                     Financial PDFs
                   </span>
                   <br />
                   Into Smart{' '}
                   <span
-                    className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent"
+                    className="bg-gradient-to-r from-primary via-accent to-primary bg-[size:200%_auto] bg-clip-text text-transparent animate-gradient-pan"
                   >
                     JSON
                   </span>
