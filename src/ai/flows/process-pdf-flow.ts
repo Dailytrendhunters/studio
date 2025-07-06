@@ -161,9 +161,9 @@ const processPdfFlow = ai.defineFlow(
     outputSchema: ProcessPdfOutputSchema,
   },
   async (input) => {
-    // Since pdf-parse is a CJS module, we use require for better compatibility in Next.js.
-    // Moving it inside the flow prevents initialization errors on server startup.
-    const pdf = require('pdf-parse');
+    // Dynamically import 'pdf-parse' to avoid server-side initialization issues in Next.js.
+    const pdfParser = await import('pdf-parse');
+    const pdf = pdfParser.default;
     const startTime = Date.now();
     
     // Step 1: Decode Data URI and extract text using pdf-parse library
