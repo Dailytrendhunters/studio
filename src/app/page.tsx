@@ -125,7 +125,7 @@ export default function Home() {
             <div
               className="text-center mb-16"
             >
-              <h2 className="inline-block bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 bg-[length:400%_400%] bg-clip-text text-4xl font-bold text-transparent animate-gradient-pan sm:text-5xl">
+              <h2 className="inline-block bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 bg-[length:400%_400%] bg-clip-text text-4xl font-bold text-transparent animate-gradient-pan sm:text-5xl">
                 Transform Your Financial PDFs
                 <br />
                 Into Smart JSON
