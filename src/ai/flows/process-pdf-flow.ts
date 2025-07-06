@@ -5,7 +5,6 @@
  * and extract its content into a structured JSON format. It uses a hybrid approach:
  * 1. A reliable library (`pdf-parse`) extracts raw text and page count.
  * 2. An AI model structures this text, using the original PDF for visual context (e.g., for tables).
- * This includes an AI-powered repair mechanism for malformed JSON.
  *
  * - processPdf - A function that handles the PDF processing and JSON conversion.
  * - ProcessPdfInput - The input type for the processPdf function.
@@ -14,7 +13,6 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { repairJson } from './repair-json-flow';
 
 
 /**
@@ -127,16 +125,6 @@ export async function processPdf(input: ProcessPdfInput): Promise<ProcessPdfOutp
   return processPdfFlow(input);
 }
 
-
-const SCHEMA_DESCRIPTION = `The JSON object must have 'metadata' and 'content' properties.
-- 'metadata' must contain: title (string), fileSize (number), pages (number), actualPagesDetected (number), pagesProcessed (number), documentType (string), confidence (number from 0-1), extractedAt (ISO datetime string), processingTime (number), and pageCountMethod (string).
-- Each 'table' must have: id, title, headers (array of strings), rows (array of array of strings), and page (number).
-- Each 'financialData' point must have: id, type ('revenue' | 'expense' | 'balance' | 'ratio' | 'other'), label, value (number), currency, period, and page (number).
-- Each 'section' must have: id, title, content (string), page (number), and type ('header' | 'paragraph' | 'list' | 'other').
-- Each 'pageBreakdown' item must have: pageNumber, text, wordCount, hasTable (boolean), hasFinancialData (boolean), and confidence (number from 0-1).
-Ensure all required fields are present and data types are correct.`;
-
-
 const processPdfPrompt = ai.definePrompt({
   name: 'processPdfPrompt',
   input: {schema: ProcessPdfPromptInputSchema},
@@ -194,40 +182,10 @@ const processPdfFlow = ai.defineFlow(
     });
     const processingTime = Date.now() - startTime;
     
-    let modelOutput = response.output;
+    const modelOutput = response.output;
 
     if (!modelOutput) {
-        console.warn("Initial structured output from AI failed. Attempting AI repair on raw text.");
-        const rawText = response.text;
-        
-        if (!rawText) {
-            throw new Error('The AI model returned no text output to repair.');
-        }
-        
-        try {
-            const repairedJsonString = await repairJson({ 
-              brokenJson: rawText,
-              schemaDescription: SCHEMA_DESCRIPTION
-            });
-            
-            const potentialRepairedJson = extractJsonObject(repairedJsonString);
-            if (!potentialRepairedJson) {
-                throw new Error("AI repair returned a response, but no JSON object could be found within it.");
-            }
-            const parsedRepaired = JSON.parse(potentialRepairedJson);
-            modelOutput = ProcessPdfModelOutputSchema.parse(parsedRepaired);
-            console.log("AI repair successful!");
-        } catch (repairError) {
-            console.error("AI repair also failed.", repairError);
-            if (repairError instanceof Error) {
-                throw new Error(`PDF processing failed even after AI repair. Details: ${repairError.message}`);
-            }
-            throw new Error('PDF processing failed after an unsuccessful AI repair attempt.');
-        }
-    }
-
-    if (!modelOutput) {
-      throw new Error('Model output was empty or invalid after all processing attempts.');
+      throw new Error('Model output was empty or invalid. The AI failed to generate a valid JSON structure.');
     }
 
     // Override AI-generated values with our more reliable data.
