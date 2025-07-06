@@ -1,9 +1,9 @@
 
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Download, Copy, Eye, ChevronDown, ChevronRight, FileText, CheckCircle, BarChart3, Database, FileSpreadsheet, BookOpen, Target, AlertTriangle, MessageSquare, User, Bot, Send, Loader2, Zap } from 'lucide-react';
-import type { ChatMessage } from '@/app/page';
+import type { ChatMessage, ResultTabId } from '@/app/page';
 
 interface JsonViewerProps {
   data: any;
@@ -11,10 +11,13 @@ interface JsonViewerProps {
   chatHistory: ChatMessage[];
   isChatting: boolean;
   onSendMessage: (message: string) => void;
+  activeTab: ResultTabId;
+  onTabChange: (tabId: ResultTabId) => void;
+  isChatReady: boolean;
 }
 
 const JsonNode = ({ nodeValue, defaultExpanded = false, depth = 0 }: { nodeValue: any, defaultExpanded?: boolean, depth?: number }) => {
-  const [isExpanded, setIsExpanded] = useState(defaultExpanded || depth < 2);
+  const [isExpanded, setIsExpanded] = React.useState(defaultExpanded || depth < 2);
 
   const renderValue = (value: any): React.ReactNode => {
     if (value === null) {
@@ -81,13 +84,20 @@ const JsonNode = ({ nodeValue, defaultExpanded = false, depth = 0 }: { nodeValue
   return renderValue(nodeValue);
 };
 
-export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName, chatHistory, isChatting, onSendMessage }) => {
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
-  const [downloadStatus, setDownloadStatus] = useState<'idle' | 'downloading' | 'complete'>('idle');
-  const [activeTab, setActiveTab] = useState<'overview' | 'pages' | 'tables' | 'financial' | 'chat' | 'full'>('overview');
-  const [chatInput, setChatInput] = useState('');
+export const JsonViewer: React.FC<JsonViewerProps> = ({ 
+  data, 
+  fileName, 
+  chatHistory, 
+  isChatting, 
+  onSendMessage,
+  activeTab,
+  onTabChange,
+  isChatReady
+}) => {
+  const [copiedIndex, setCopiedIndex] = React.useState<number | null>(null);
+  const [downloadStatus, setDownloadStatus] = React.useState<'idle' | 'downloading' | 'complete'>('idle');
+  const [chatInput, setChatInput] = React.useState('');
   const chatContainerRef = useRef<HTMLDivElement>(null);
-  const [isChatSessionActive, setIsChatSessionActive] = useState(false);
 
   useEffect(() => {
     if (chatContainerRef.current) {
@@ -365,21 +375,14 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName, chatHist
         );
       
       case 'chat':
-        if (!isChatSessionActive) {
+        if (!isChatReady) {
           return (
             <div className="flex flex-col items-center justify-center h-[40rem] bg-secondary/20 rounded-lg border border-border text-center p-8">
               <MessageSquare className="w-16 h-16 text-muted-foreground mb-4" />
               <h3 className="text-2xl font-bold text-foreground mb-2">Chat with Your Document</h3>
               <p className="text-muted-foreground mb-6 max-w-md">
-                Unlock an interactive RAG-powered chat to ask specific questions about the content of your PDF. The AI will use the document's text to provide accurate answers.
+                Start an interactive chat session from the prompt above to ask specific questions about the content of your PDF.
               </p>
-              <button 
-                onClick={() => setIsChatSessionActive(true)}
-                className="group inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium rounded-lg transition-all duration-300 shadow-lg hover:shadow-primary/50"
-              >
-                <Zap className="w-5 h-5 transition-transform duration-300 group-hover:animate-spin-once" />
-                Start Interactive Chat
-              </button>
             </div>
           );
         }
@@ -474,7 +477,7 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName, chatHist
               className="group flex items-center gap-2 px-3 py-2 text-sm font-medium text-primary hover:text-primary/90 bg-primary/10 rounded-lg hover:bg-primary/20 transition-all"
             >
               <Copy className="w-4 h-4 transition-transform duration-300 group-hover:animate-spin-once" />
-              {copiedIndex === -1 ? 'Copied!' : 'Copy JSON'}
+              {copiedIndex === -1 ? 'Copied!' : 'Copied!'}
             </button>
             
             <button
@@ -516,7 +519,7 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ data, fileName, chatHist
             ].map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
+                onClick={() => onTabChange(tab.id as ResultTabId)}
                 className={`group flex-shrink-0 flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                   activeTab === tab.id
                     ? 'border-primary text-primary'

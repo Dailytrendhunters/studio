@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { FileText, Zap, Database, Download, RefreshCw } from 'lucide-react';
+import { FileText, Zap, Database, Download, RefreshCw, CheckCircle, MessageSquare } from 'lucide-react';
 import { FileUpload } from '@/components/FileUpload';
 import { JsonViewer } from '@/components/JsonViewer';
 import { processPdf } from '@/ai/flows/process-pdf-flow';
@@ -20,6 +20,8 @@ export interface ChatMessage {
   content: string;
 }
 
+export type ResultTabId = 'overview' | 'pages' | 'tables' | 'financial' | 'chat' | 'full';
+
 export default function Home() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -29,6 +31,9 @@ export default function Home() {
 
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [isChatting, setIsChatting] = useState(false);
+  const [isChatActive, setIsChatActive] = useState(false);
+  const [activeResultTab, setActiveResultTab] = useState<ResultTabId>('overview');
+
 
   const handleFileSelect = async (file: File) => {
     setSelectedFile(file);
@@ -37,6 +42,8 @@ export default function Home() {
     setExtractedData(null);
     setChatHistory([]); // Clear chat history for new file
     setProcessingStep('Uploading and preparing your document...');
+    setIsChatActive(false);
+    setActiveResultTab('overview');
 
     try {
       const pdfDataUri = await new Promise<string>((resolve, reject) => {
@@ -100,6 +107,8 @@ export default function Home() {
     setIsProcessing(false);
     setProcessingStep('');
     setChatHistory([]);
+    setIsChatActive(false);
+    setActiveResultTab('overview');
   };
 
   const features = [
@@ -210,26 +219,62 @@ export default function Home() {
           </>
         )}
 
-        {/* Processing and Results Section */}
-        <div className="space-y-8">
-            {isProcessing && (
-                 <ProcessingStatus
-                    isProcessing={isProcessing}
-                    currentStep={processingStep}
-                    fileName={selectedFile?.name || 'your document'}
-                />
-            )}
+        {isProcessing && (
+             <ProcessingStatus
+                isProcessing={isProcessing}
+                currentStep={processingStep}
+                fileName={selectedFile?.name || 'your document'}
+            />
+        )}
 
-            {extractedData && !isProcessing && (
-              <JsonViewer
-                data={extractedData}
-                fileName={selectedFile?.name || 'document.pdf'}
-                chatHistory={chatHistory}
-                isChatting={isChatting}
-                onSendMessage={handleSendMessage}
-              />
+        {/* Results Section */}
+        {extractedData && !isProcessing && (
+          <div className="space-y-8">
+            {!isChatActive && (
+              <div className="text-center my-12 animate-in fade-in-0 duration-500">
+                <div className="flex items-center justify-center w-16 h-16 mx-auto bg-primary/10 rounded-full mb-4 border-2 border-primary/20">
+                  <CheckCircle className="w-8 h-8 text-primary" />
+                </div>
+                <h2 className="text-3xl font-bold text-foreground">Document Processed!</h2>
+                <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">
+                  Your document has been successfully analyzed. You can now view the extracted JSON data below, or start an interactive chat to ask questions about its content.
+                </p>
+                <div className="mt-6">
+                  <button
+                    onClick={() => {
+                      setIsChatActive(true);
+                      setActiveResultTab('chat');
+                    }}
+                    className="group inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium rounded-lg transition-all duration-300 shadow-lg hover:shadow-primary/50"
+                  >
+                    <MessageSquare className="w-5 h-5 transition-transform duration-300 group-hover:animate-spin-once" />
+                    Start Interactive Chat
+                  </button>
+                </div>
+              </div>
             )}
-        </div>
+            
+            {isChatActive && (
+              <div className="text-center my-12 animate-in fade-in-0 duration-500">
+                <h2 className="text-3xl font-bold text-foreground">Interactive Chat Session</h2>
+                <p className="text-muted-foreground mt-2">
+                  Asking questions about <span className="font-medium text-primary">{selectedFile?.name}</span>
+                </p>
+              </div>
+            )}
+            
+            <JsonViewer
+              data={extractedData}
+              fileName={selectedFile?.name || 'document.pdf'}
+              chatHistory={chatHistory}
+              isChatting={isChatting}
+              onSendMessage={handleSendMessage}
+              activeTab={activeResultTab}
+              onTabChange={setActiveResultTab}
+              isChatReady={isChatActive}
+            />
+          </div>
+        )}
       </main>
 
       {/* Footer */}
