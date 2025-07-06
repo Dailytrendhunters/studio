@@ -137,9 +137,9 @@ export default function Home() {
               {features.map((feature) => (
                 <div
                   key={feature.title}
-                  className="bg-card rounded-xl p-6 shadow-lg border border-border/50 hover:shadow-xl hover:shadow-primary/20 hover:border-primary/50 transition-all duration-300"
+                  className="group bg-card rounded-xl p-6 shadow-lg border border-border/50 hover:bg-primary/10 hover:shadow-xl hover:shadow-primary/20 hover:border-primary/50 transition-all duration-300"
                 >
-                  <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-primary/10 to-accent/10 rounded-lg mb-4">
+                  <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-primary/10 to-accent/10 rounded-lg mb-4 group-hover:from-primary/20 group-hover:to-accent/20 transition-all duration-300">
                     <feature.icon className="w-6 h-6 text-primary" />
                   </div>
                   <h3 className="text-lg font-semibold text-foreground mb-2">{feature.title}</h3>
