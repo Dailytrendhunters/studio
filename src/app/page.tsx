@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { FileText, Database, Download, RefreshCw, CheckCircle, MessageSquare } from 'lucide-react';
+import { FileText, Database, Download, RefreshCw, CheckCircle, MessageSquare, ArrowDown } from 'lucide-react';
 import { FileUpload } from '@/components/FileUpload';
 import { JsonViewer } from '@/components/JsonViewer';
 import { processPdf } from '@/ai/flows/process-pdf-flow';
@@ -234,7 +234,12 @@ export default function Home() {
         )}
 
         {/* Step 2: The Chat CTA - Always Visible */}
-        <div className="mt-16 text-center border-t border-dashed border-border/30 pt-12">
+        <div className="relative mt-16 text-center border-t border-dashed border-border/30 pt-12">
+          {!extractedData && !isProcessing && (
+            <div className="absolute left-1/2 -translate-x-1/2 -top-6 bg-background px-2">
+              <ArrowDown className="w-10 h-10 text-muted-foreground animate-bounce" />
+            </div>
+          )}
           <h3 className="text-2xl font-bold text-foreground mb-2">Ready to Chat?</h3>
           <p className="text-muted-foreground mb-6 max-w-lg mx-auto">
             {getCtaText()}
