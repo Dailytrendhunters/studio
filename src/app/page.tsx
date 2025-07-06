@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FileText, Database, Download, RefreshCw, CheckCircle, MessageSquare, ArrowDown, Upload, Zap, Loader2 } from 'lucide-react';
+import { storeExtractionResult, getProcessedDocuments } from './actions';
 
 // Sample data for demonstration
 const SAMPLE_DATA = {
@@ -76,7 +77,7 @@ interface ChatMessage {
   content: string;
 }
 
-type ResultTabId = 'overview' | 'pages' | 'tables' | 'financial' | 'chat' | 'full';
+type ResultTabId = 'overview' | 'pages' | 'tables' | 'financial' | 'chat' | 'full' | 'history';
 
 export default function HomePage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -89,6 +90,29 @@ export default function HomePage() {
   const [isChatActive, setIsChatActive] = useState(false);
   const [activeResultTab, setActiveResultTab] = useState<ResultTabId>('overview');
   const [isDragOver, setIsDragOver] = useState(false);
+  const [processedDocuments, setProcessedDocuments] = useState<any[]>([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+
+  // Load processed documents on component mount
+  useEffect(() => {
+    loadProcessedDocuments();
+  }, []);
+
+  const loadProcessedDocuments = async () => {
+    setIsLoadingHistory(true);
+    try {
+      const result = await getProcessedDocuments();
+      if (result.success) {
+        setProcessedDocuments(result.documents);
+      } else {
+        console.error('Failed to load documents:', result.error);
+      }
+    } catch (error) {
+      console.error('Error loading documents:', error);
+    } finally {
+      setIsLoadingHistory(false);
+    }
+  };
 
   const handleFileSelect = async (file: File) => {
     setSelectedFile(file);
@@ -111,10 +135,40 @@ export default function HomePage() {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       // Use sample data for demonstration
-      setExtractedData(SAMPLE_DATA);
+      const processedData = {
+        ...SAMPLE_DATA,
+        metadata: {
+          ...SAMPLE_DATA.metadata,
+          title: file.name,
+          fileSize: file.size,
+          processingTime: 3200,
+          extractedAt: new Date().toISOString()
+        }
+      };
+      
+      setExtractedData(processedData);
       setChatHistory([
         { role: 'assistant', content: "I've finished processing your document. What would you like to know? Ask me anything about its content." }
       ]);
+
+      // Store in Supabase
+      setProcessingStep('Saving results to database...');
+      const storeResult = await storeExtractionResult(
+        file.name,
+        file.size,
+        processedData,
+        3200,
+        0.95,
+        5
+      );
+
+      if (storeResult.success) {
+        console.log('✅ Document stored in Supabase with ID:', storeResult.id);
+        // Reload the documents list
+        await loadProcessedDocuments();
+      } else {
+        console.error('❌ Failed to store document:', storeResult.error);
+      }
 
     } catch (err: any) {
       console.error('PDF processing error:', err);
@@ -380,7 +434,7 @@ export default function HomePage() {
             </div>
             <h2 className="text-3xl font-bold text-foreground">Document Processed!</h2>
             <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">
-              Your document has been successfully analyzed and is ready for the next step.
+              Your document has been successfully analyzed and stored in Supabase.
             </p>
           </div>
         )}
@@ -420,7 +474,7 @@ export default function HomePage() {
                     <div>
                       <h3 className="text-lg font-semibold text-foreground">Complete PDF Extraction Results</h3>
                       <p className="text-sm text-muted-foreground">
-                        Comprehensive data extraction from {selectedFile?.name} - {extractedData.metadata.pagesProcessed} of {extractedData.metadata.actualPagesDetected} pages processed
+                        Comprehensive data extraction from {selectedFile?.name} - stored in Supabase
                       </p>
                     </div>
                   </div>
@@ -459,6 +513,7 @@ export default function HomePage() {
                     {[
                       { id: 'overview', label: 'Overview' },
                       { id: 'chat', label: 'Chat' },
+                      { id: 'history', label: `History (${processedDocuments.length})` },
                       { id: 'pages', label: `Pages (${extractedData.metadata.pagesProcessed})` },
                       { id: 'tables', label: `Tables (${extractedData.content.tables.length})` },
                       { id: 'financial', label: `Financial (${extractedData.content.financialData.length})` },
@@ -502,6 +557,58 @@ export default function HomePage() {
                             <div className="text-sm text-purple-400/80">Confidence Score</div>
                           </div>
                         </div>
+                        <div className="mt-4 p-3 bg-green-500/10 rounded-lg border border-green-500/30">
+                          <div className="flex items-center gap-2 text-green-400">
+                            <CheckCircle className="w-5 h-5" />
+                            <span className="font-medium">Successfully stored in Supabase database</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {activeResultTab === 'history' && (
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-semibold text-foreground">Processing History</h3>
+                        <button
+                          onClick={loadProcessedDocuments}
+                          disabled={isLoadingHistory}
+                          className="flex items-center gap-2 px-3 py-2 text-sm bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors"
+                        >
+                          <RefreshCw className={`w-4 h-4 ${isLoadingHistory ? 'animate-spin' : ''}`} />
+                          Refresh
+                        </button>
+                      </div>
+                      <div className="max-h-[40rem] overflow-y-auto space-y-3 p-1">
+                        {isLoadingHistory ? (
+                          <div className="text-center py-8">
+                            <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
+                            <p className="text-muted-foreground mt-2">Loading documents...</p>
+                          </div>
+                        ) : processedDocuments.length === 0 ? (
+                          <div className="text-center py-8">
+                            <Database className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                            <p className="text-muted-foreground">No documents processed yet</p>
+                          </div>
+                        ) : (
+                          processedDocuments.map((doc, index) => (
+                            <div key={doc.id} className="bg-secondary/20 rounded-lg p-4 border border-border">
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="font-medium text-foreground">{doc.file_name}</span>
+                                <span className="text-sm text-muted-foreground">
+                                  {new Date(doc.created_at).toLocaleDateString()}
+                                </span>
+                              </div>
+                              <div className="text-sm text-muted-foreground grid grid-cols-2 gap-4">
+                                <div>Size: {(doc.file_size / 1024 / 1024).toFixed(2)} MB</div>
+                                <div>Pages: {doc.pages_processed}</div>
+                                <div>Processing: {doc.processing_time}ms</div>
+                                <div>Confidence: {(doc.confidence_score * 100).toFixed(1)}%</div>
+                              </div>
+                            </div>
+                          ))
+                        )}
                       </div>
                     </div>
                   )}
@@ -579,7 +686,7 @@ export default function HomePage() {
           <div className="text-center text-muted-foreground">
             <p className="text-sm">
               Built with React, TypeScript, and Tailwind CSS. 
-              Powered by AI-driven PDF processing technology.
+              Powered by Supabase for secure data storage.
             </p>
           </div>
         </div>

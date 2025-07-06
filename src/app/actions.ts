@@ -1,36 +1,59 @@
-
 'use server';
 
-import { db } from '@/lib/firebase';
-import { ref, set, serverTimestamp } from 'firebase/database';
+import { supabaseOperations } from '@/lib/supabase';
 
-// This file is kept for potential future use with server-side actions,
-// but the current implementation uses a client-side PDF processing algorithm.
-// No actions are actively called from the frontend at the moment.
-
+// Server action to store extraction results
 export async function storeExtractionResult(
-    pdfName: string, 
-    extractionData: any
-): Promise<void> {
-  console.log("✅ Server action 'storeExtractionResult' available for use.");
+  fileName: string,
+  fileSize: number,
+  extractedData: any,
+  processingTime: number,
+  confidenceScore: number,
+  pagesProcessed: number
+): Promise<{ success: boolean; id?: string; error?: string }> {
   try {
-    if (db) {
-        const docId = Date.now().toString();
-        const dbRef = ref(db, 'processed_documents/' + docId);
-        await set(dbRef, {
-            pdfName: pdfName,
-            ...extractionData,
-            createdAt: serverTimestamp()
-        });
-        console.log(`📝 Result for ${pdfName} stored in Firebase.`);
+    const result = await supabaseOperations.storeExtractionResult(
+      fileName,
+      fileSize,
+      extractedData,
+      processingTime,
+      confidenceScore,
+      pagesProcessed
+    );
+
+    if (result) {
+      console.log(`✅ Result for ${fileName} stored in Supabase with ID: ${result.id}`);
+      return { success: true, id: result.id };
     } else {
-        console.warn("Firebase DB not initialized. Skipping result storage.");
+      return { success: false, error: 'Failed to store extraction result' };
     }
   } catch (error) {
     console.error("Error in storeExtractionResult:", error);
-    if (error instanceof Error) {
-      throw new Error(error.message);
-    }
-    throw new Error("An unknown error occurred during data storage.");
+    const errorMessage = error instanceof Error ? error.message : "An unknown error occurred during data storage.";
+    return { success: false, error: errorMessage };
+  }
+}
+
+// Server action to get all processed documents
+export async function getProcessedDocuments() {
+  try {
+    const documents = await supabaseOperations.getProcessedDocuments();
+    return { success: true, documents };
+  } catch (error) {
+    console.error("Error in getProcessedDocuments:", error);
+    const errorMessage = error instanceof Error ? error.message : "An unknown error occurred while fetching documents.";
+    return { success: false, error: errorMessage, documents: [] };
+  }
+}
+
+// Server action to delete a document
+export async function deleteDocument(id: string) {
+  try {
+    const success = await supabaseOperations.deleteDocument(id);
+    return { success };
+  } catch (error) {
+    console.error("Error in deleteDocument:", error);
+    const errorMessage = error instanceof Error ? error.message : "An unknown error occurred while deleting the document.";
+    return { success: false, error: errorMessage };
   }
 }
