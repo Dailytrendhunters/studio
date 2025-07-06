@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { FileText, Zap, Database, Download, RefreshCw, CheckCircle, MessageSquare } from 'lucide-react';
+import { FileText, Database, Download, RefreshCw, CheckCircle, MessageSquare } from 'lucide-react';
 import { FileUpload } from '@/components/FileUpload';
 import { JsonViewer } from '@/components/JsonViewer';
 import { processPdf } from '@/ai/flows/process-pdf-flow';
