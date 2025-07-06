@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useCallback, useState } from 'react';
@@ -71,10 +72,10 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
           isDragOver
             ? 'border-primary bg-primary/10 scale-105 shadow-2xl shadow-primary/40'
             : selectedFile && !error
-            ? 'border-green-500 bg-green-500/10'
+            ? 'border-primary/80 bg-primary/10'
             : error
             ? 'border-destructive bg-destructive/10'
-            : 'border-border bg-card hover:border-primary hover:shadow-2xl hover:shadow-primary/30'
+            : 'border-border bg-card hover:border-primary/80 hover:shadow-2xl hover:shadow-primary/30'
         }`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -92,15 +93,15 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
             <div
               className="space-y-4"
             >
-              <div className="flex items-center justify-center w-16 h-16 mx-auto bg-green-500/10 rounded-full">
-                <CheckCircle className="w-8 h-8 text-green-400" />
+              <div className="flex items-center justify-center w-16 h-16 mx-auto bg-primary/10 rounded-full">
+                <CheckCircle className="w-8 h-8 text-primary" />
               </div>
               <div className="space-y-2">
                 <p className="text-lg font-semibold text-foreground break-all">{selectedFile.name}</p>
                 <p className="text-sm text-muted-foreground">
                   {formatFileSize(selectedFile.size)}
                 </p>
-                <div className="flex items-center justify-center gap-2 text-sm text-green-400">
+                <div className="flex items-center justify-center gap-2 text-sm text-primary">
                   <Zap className="w-4 h-4" />
                   <span>Ready for intelligent processing</span>
                 </div>

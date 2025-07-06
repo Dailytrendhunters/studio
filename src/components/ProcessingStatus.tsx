@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -138,7 +139,7 @@ export const ProcessingStatus: React.FC<ProcessingStatusProps> = ({
                   isActive
                     ? 'border-primary/80 bg-primary/10 shadow-lg shadow-primary/10'
                     : isCompleted
-                    ? 'border-green-500/50 bg-green-500/10'
+                    ? 'border-primary/50 bg-primary/10'
                     : 'border-border bg-secondary/20'
                 }`}
               >
@@ -146,7 +147,7 @@ export const ProcessingStatus: React.FC<ProcessingStatusProps> = ({
                   <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center ${
                       isCompleted
-                        ? 'bg-green-500/20 text-green-400'
+                        ? 'bg-primary/20 text-primary'
                         : isActive
                         ? 'bg-primary/20 text-primary'
                         : 'bg-muted-foreground/20 text-muted-foreground'
@@ -180,7 +181,7 @@ export const ProcessingStatus: React.FC<ProcessingStatusProps> = ({
                     
                     {isCompleted && (
                       <div
-                        className="mt-1 text-green-400"
+                        className="mt-1 text-primary"
                       >
                         <CheckCircle className="w-3 h-3 mx-auto" />
                       </div>

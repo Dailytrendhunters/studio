@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState } from 'react';
@@ -75,10 +76,10 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-black to-purple-950/20">
+    <div className="min-h-screen bg-gradient-to-br from-background to-primary/10">
       {/* Header */}
       <header
-        className="bg-black/50 backdrop-blur-sm border-b border-border sticky top-0 z-10"
+        className="bg-background/50 backdrop-blur-sm border-b border-border sticky top-0 z-10"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
@@ -195,7 +196,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer
-        className="bg-black/50 backdrop-blur-sm border-t border-border mt-24"
+        className="bg-background/50 backdrop-blur-sm border-t border-border mt-24"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center text-muted-foreground">
