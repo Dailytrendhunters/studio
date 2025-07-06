@@ -2,9 +2,10 @@
 'use server';
 /**
  * @fileOverview This file defines a Genkit flow to process a financial PDF document
- * and extract its content into a structured JSON format that matches the application's UI components.
- * It uses the AI model's multimodal capabilities to analyze the PDF directly.
- * It includes an AI-powered repair mechanism for malformed JSON.
+ * and extract its content into a structured JSON format. It uses a hybrid approach:
+ * 1. A reliable library (`pdf-parse`) extracts raw text and page count.
+ * 2. An AI model structures this text, using the original PDF for visual context (e.g., for tables).
+ * This includes an AI-powered repair mechanism for malformed JSON.
  *
  * - processPdf - A function that handles the PDF processing and JSON conversion.
  * - ProcessPdfInput - The input type for the processPdf function.
@@ -14,6 +15,8 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import { repairJson } from './repair-json-flow';
+// Since pdf-parse is a CJS module, we use require for better compatibility in Next.js.
+const pdf = require('pdf-parse');
 
 
 /**
@@ -87,7 +90,7 @@ const ExtractedMetadataSchema = z.object({
     processingTime: z.number().describe("The time taken for processing in milliseconds."),
     documentType: z.string().describe("The inferred type of financial document (e.g., 'Annual Report', '10-K', 'Quarterly Earnings')."),
     confidence: z.number().min(0).max(1).describe("Overall confidence score for the entire extraction (0 to 1)."),
-    pageCountMethod: z.string().default("AI Vision Analysis").describe("The method used to count pages."),
+    pageCountMethod: z.string().default("Library Extraction").describe("The method used to count pages."),
 });
 
 const ProcessPdfModelOutputSchema = z.object({
@@ -106,6 +109,12 @@ const ProcessPdfInputSchema = z.object({
   fileSize: z.number().describe("The size of the file in bytes."),
 });
 export type ProcessPdfInput = z.infer<typeof ProcessPdfInputSchema>;
+
+// This is the input schema for the AI prompt, which includes pre-extracted text.
+const ProcessPdfPromptInputSchema = ProcessPdfInputSchema.extend({
+    extractedText: z.string().describe("The reliably extracted raw text from the PDF."),
+    numPages: z.number().describe("The reliably extracted page count from the PDF.")
+});
 
 const ProcessPdfOutputSchema = z.object({
   jsonOutput: z
@@ -132,26 +141,30 @@ Ensure all required fields are present and data types are correct.`;
 
 const processPdfPrompt = ai.definePrompt({
   name: 'processPdfPrompt',
-  input: {schema: ProcessPdfInputSchema},
+  input: {schema: ProcessPdfPromptInputSchema},
   output: {schema: ProcessPdfModelOutputSchema},
-  prompt: `You are a world-class financial document analysis AI. Your task is to analyze the provided PDF document and convert its content into a meticulously structured JSON format. You are capable of handling documents with thousands of pages.
+  prompt: `You are a world-class financial document analysis AI. Your task is to analyze the provided text and convert its content into a meticulously structured JSON format, using the accompanying PDF file for visual context.
+
+**Primary Data Sources:**
+- **Extracted Text:** You have been provided with the full, reliably extracted text of the document. This is your primary source of truth for all content.
+- **Page Count:** You have been given the authoritative page count.
+- **PDF Document for Visual Reference:** Use the provided PDF document **only** for visual context to understand layout, identify tables, group content into sections, and determine which page the text belongs to.
 
 **CRITICAL Instructions:**
-1.  **Visually Analyze the Document:** The provided input is a full PDF document. You MUST analyze it page by page to determine its total page count.
-2.  **Process Every Page:** You MUST process the entire document from start to finish. Infer document structure like sections, tables, and financial data points from the visual layout and text.
-3.  **Synthesize Page Breakdown:** Create a 'pageBreakdown' array that accurately reflects the content of each page. The number of items in 'pageBreakdown' MUST match the total page count you detect.
-4.  **Populate All Fields:**
-    -   Set \`actualPagesDetected\`, \`pages\`, and \`pagesProcessed\` to the total number of pages you find in the document. Your goal is for these three values to be identical.
-    -   Set \`pageCountMethod\` to "AI Vision Analysis".
-    -   The 'content.text' field MUST contain the full, verbatim text content from the entire document. Do not summarize this field.
-    -   Fill out all other fields in the provided JSON schema. For metadata fields like \`processingTime\` and \`extractedAt\`, use your internal knowledge. For \`confidence\`, provide an honest assessment of your extraction quality.
+1.  **Trust the Extracted Text:** Do not perform OCR. The \`extractedText\` input is complete and accurate. Your job is to structure it. The 'content.text' field in your output JSON MUST be the verbatim \`extractedText\` you were given.
+2.  **Adhere to Page Count:** The \`numPages\` input is the correct total number of pages. You MUST set \`metadata.actualPagesDetected\`, \`metadata.pages\`, and \`metadata.pagesProcessed\` to this value.
+3.  **Synthesize Page Breakdown:** Create a 'pageBreakdown' array that accurately reflects the content of each page, mapping sections of the \`extractedText\` to their corresponding page number from the visual PDF. The number of items in this array MUST match the \`numPages\` value.
+4.  **Populate All Fields:** Fill out all fields in the provided JSON schema. Use your internal knowledge for \`extractedAt\` and \`processingTime\`. For \`confidence\`, provide an honest assessment of your ability to structure the provided text. Set \`pageCountMethod\` to "Library Extraction".
 5.  **Strict Schema Adherence:** The final output must be a single, valid JSON object that strictly conforms to the output schema. Do not add extra commentary or markdown.
 
 **Input Document Information:**
--   **Filename:** {{{fileName}}}
--   **File Size:** {{{fileSize}}} bytes
--   **PDF Document:** {{media url=pdfDataUri}}
-
+- **Filename:** {{{fileName}}}
+- **File Size:** {{{fileSize}}} bytes
+- **Authoritative Page Count:** {{{numPages}}}
+- **Extracted Text Content:**
+{{{extractedText}}}
+- **PDF for Visual Reference:**
+{{media url=pdfDataUri}}
 `,
 });
 
@@ -163,13 +176,27 @@ const processPdfFlow = ai.defineFlow(
   },
   async (input) => {
     const startTime = Date.now();
-    const response = await processPdfPrompt(input);
+    
+    // Step 1: Decode Data URI and extract text using pdf-parse library
+    const base64Data = input.pdfDataUri.split(',')[1];
+    if (!base64Data) {
+        throw new Error("Invalid PDF Data URI provided.");
+    }
+    const pdfBuffer = Buffer.from(base64Data, 'base64');
+    const pdfData = await pdf(pdfBuffer);
+    
+    // Step 2: Call the AI model with the extracted text and the PDF for visual context.
+    const response = await processPdfPrompt({
+        ...input,
+        extractedText: pdfData.text,
+        numPages: pdfData.numpages,
+    });
     const processingTime = Date.now() - startTime;
     
     let modelOutput = response.output;
 
     if (!modelOutput) {
-        console.warn("Initial structured output failed. Attempting AI repair on raw text.");
+        console.warn("Initial structured output from AI failed. Attempting AI repair on raw text.");
         const rawText = response.text;
         
         if (!rawText) {
@@ -202,12 +229,17 @@ const processPdfFlow = ai.defineFlow(
       throw new Error('Model output was empty or invalid after all processing attempts.');
     }
 
-    // Inject the real processing time from our timer, overriding any AI-generated value
+    // Override AI-generated values with our more reliable data.
     modelOutput.metadata.processingTime = processingTime;
-
+    modelOutput.metadata.pages = pdfData.numpages;
+    modelOutput.metadata.actualPagesDetected = pdfData.numpages;
+    modelOutput.content.text = pdfData.text; // Ensure the verbatim text is used.
+    
     // Final verification step
     if (modelOutput.metadata.actualPagesDetected !== modelOutput.metadata.pagesProcessed) {
-        console.warn(`Page count mismatch detected by flow: ${modelOutput.metadata.actualPagesDetected} detected vs ${modelOutput.metadata.pagesProcessed} processed.`);
+        console.warn(`Page count mismatch! Library found ${modelOutput.metadata.actualPagesDetected} pages, but AI processed ${modelOutput.metadata.pagesProcessed}.`);
+        // We trust the library's count more.
+        modelOutput.metadata.pagesProcessed = modelOutput.metadata.actualPagesDetected;
     }
 
     return {
