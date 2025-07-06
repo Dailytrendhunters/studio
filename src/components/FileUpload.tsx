@@ -68,7 +68,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
       className="w-full max-w-2xl mx-auto"
     >
       <div
-        className={`group relative border-2 border-dashed rounded-2xl p-12 text-center transition-all duration-300 ${
+        className={`group/zone relative border-2 border-dashed rounded-2xl p-12 text-center transition-all duration-300 ${
           isDragOver
             ? 'border-primary bg-primary/10 scale-105 shadow-2xl shadow-primary/80'
             : selectedFile && !error
@@ -150,7 +150,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
                     <FileText className="w-10 h-10 text-primary" />
                   </div>
                 ) : (
-                  <Upload className="w-10 h-10 text-muted-foreground transition-transform duration-300 group-hover:animate-spin-once" />
+                  <Upload className="w-10 h-10 text-muted-foreground transition-transform duration-300 group-hover/zone:animate-spin-once" />
                 )}
               </div>
               
@@ -172,10 +172,10 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
               </div>
               
               <button
-                className="group inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-primary/50"
+                className="group/button inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-primary/50 group-hover/zone:scale-110 group-hover/zone:animate-bounce"
                 disabled={isProcessing}
               >
-                <FileText className="w-5 h-5 transition-transform duration-300 group-hover:animate-spin-once" />
+                <FileText className="w-5 h-5 transition-transform duration-300 group-hover/button:animate-spin-once" />
                 {isProcessing ? 'Processing...' : 'Choose PDF File'}
               </button>
             </div>
