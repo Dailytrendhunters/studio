@@ -68,7 +68,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
       className="w-full max-w-2xl mx-auto"
     >
       <div
-        className={`relative border-2 border-dashed rounded-2xl p-12 text-center transition-all duration-300 ${
+        className={`group relative border-2 border-dashed rounded-2xl p-12 text-center transition-all duration-300 ${
           isDragOver
             ? 'border-primary bg-primary/10 scale-105 shadow-2xl shadow-primary/40'
             : selectedFile && !error
@@ -109,9 +109,9 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
               {!isProcessing && (
                 <button
                   onClick={clearFile}
-                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-500 bg-red-500/10 rounded-lg hover:bg-red-500/20 transition-colors"
+                  className="group inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-500 bg-red-500/10 rounded-lg hover:bg-red-500/20 transition-colors"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-4 h-4 transition-transform duration-300 group-hover:rotate-90" />
                   Remove File
                 </button>
               )}
@@ -132,9 +132,9 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
               </div>
               <button
                 onClick={clearFile}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-muted-foreground bg-secondary rounded-lg hover:bg-accent transition-colors"
+                className="group inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-muted-foreground bg-secondary rounded-lg hover:bg-accent transition-colors"
               >
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4 transition-transform duration-300 group-hover:rotate-90" />
                 Try Another File
               </button>
             </div>
@@ -150,7 +150,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
                     <FileText className="w-10 h-10 text-primary" />
                   </div>
                 ) : (
-                  <Upload className="w-10 h-10 text-muted-foreground" />
+                  <Upload className="w-10 h-10 text-muted-foreground transition-transform duration-300 group-hover:rotate-12" />
                 )}
               </div>
               
@@ -172,10 +172,10 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
               </div>
               
               <button
-                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-primary/20"
+                className="group inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-primary/20"
                 disabled={isProcessing}
               >
-                <FileText className="w-5 h-5" />
+                <FileText className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" />
                 {isProcessing ? 'Processing...' : 'Choose PDF File'}
               </button>
             </div>

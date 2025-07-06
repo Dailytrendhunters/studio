@@ -83,8 +83,8 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg">
-                <FileText className="w-6 h-6 text-white" />
+              <div className="group flex items-center justify-center w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg">
+                <FileText className="w-6 h-6 text-white transition-transform duration-300 group-hover:rotate-12" />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-foreground">PDF to JSON</h1>
@@ -123,7 +123,7 @@ export default function Home() {
             <div
               className="text-center mb-16"
             >
-              <h2 className="text-4xl sm:text-5xl font-bold mb-6 bg-gradient-to-r from-pink-500 via-yellow-300 to-blue-400 bg-[size:400%_auto] bg-clip-text text-transparent animate-gradient-pan">
+              <h2 className="inline-block text-4xl sm:text-5xl font-bold mb-6 bg-gradient-to-r from-pink-500 via-yellow-300 to-blue-400 bg-[size:400%_auto] bg-clip-text text-transparent animate-gradient-pan">
                 Transform Your Financial PDFs
                 <br />
                 Into Smart JSON
@@ -137,10 +137,10 @@ export default function Home() {
               {features.map((feature) => (
                 <div
                   key={feature.title}
-                  className="group bg-card rounded-xl p-6 shadow-lg border border-border/50 hover:shadow-xl hover:shadow-primary/80 hover:border-primary/50 transition-all duration-300"
+                  className="group bg-card rounded-xl p-6 shadow-lg border border-border/50 hover:shadow-2xl hover:shadow-primary/80 hover:border-primary/50 transition-all duration-300"
                 >
                   <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-primary/10 to-accent/10 rounded-lg mb-4 transition-all duration-300">
-                    <feature.icon className="w-6 h-6 text-primary" />
+                    <feature.icon className="w-6 h-6 text-primary transition-transform duration-300 group-hover:rotate-12" />
                   </div>
                   <h3 className="text-lg font-semibold text-foreground mb-2">{feature.title}</h3>
                   <p className="text-muted-foreground text-sm">{feature.description}</p>
