@@ -4,15 +4,18 @@
 import React, { useState } from 'react';
 import { FileText, Zap, Database, Download, RefreshCw } from 'lucide-react';
 import { FileUpload } from '@/components/FileUpload';
-import { ProcessingStatus } from '@/components/ProcessingStatus';
 import { JsonViewer } from '@/components/JsonViewer';
-import { processPdf, ExtractedData } from '@/lib/pdfProcessor';
+import { processPdf } from '@/ai/flows/process-pdf-flow';
+
+// This is the shape of the data object the AI flow will return (after parsing the JSON string)
+interface ExtractedData {
+  metadata: any;
+  content: any;
+}
 
 export default function Home() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [currentStep, setCurrentStep] = useState('');
   const [extractedData, setExtractedData] = useState<ExtractedData | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,35 +23,37 @@ export default function Home() {
     setSelectedFile(file);
     setError(null);
     setIsProcessing(true);
-    setProgress(0);
     setExtractedData(null);
 
-    // The processor function handles its own errors and returns sample data on failure.
-    const data = await processPdf(file, (progress, step) => {
-      setProgress(progress);
-      setCurrentStep(step);
-    });
+    try {
+      const pdfDataUri = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = (error) => reject(error);
+        reader.readAsDataURL(file);
+      });
+      
+      const result = await processPdf({
+        pdfDataUri,
+        fileName: file.name,
+        fileSize: file.size,
+      });
 
-    setExtractedData(data);
-    
-    // Check if the returned data is a sample due to an error.
-    if (data.metadata.pageCountMethod.includes('Fallback')) {
-       setError('Processing failed. Showing sample data to demonstrate functionality.');
-       setCurrentStep('Sample data generated - Ready for download');
-    } else {
-       setCurrentStep('Processing complete - Ready for download');
+      const data = JSON.parse(result.jsonOutput);
+      setExtractedData(data);
+
+    } catch (err: any) {
+      console.error('PDF processing error:', err);
+      setError(err.message || 'An unexpected error occurred during processing. Please try again.');
+    } finally {
+      setIsProcessing(false);
     }
-
-    setProgress(100);
-    setIsProcessing(false);
   };
 
   const resetApp = () => {
     setSelectedFile(null);
     setExtractedData(null);
     setError(null);
-    setProgress(0);
-    setCurrentStep('');
     setIsProcessing(false);
   };
 
@@ -165,14 +170,6 @@ export default function Home() {
             />
           )}
 
-          {isProcessing && (
-              <ProcessingStatus
-                isProcessing={isProcessing}
-                progress={progress}
-                currentStep={currentStep}
-              />
-            )}
-
           {extractedData && !isProcessing && (
               <JsonViewer
                 data={extractedData}
@@ -190,7 +187,7 @@ export default function Home() {
           <div className="text-center text-muted-foreground">
             <p className="text-sm">
               Built with React, TypeScript, and Tailwind CSS. 
-              Powered by simulated PDF processing technology.
+              Powered by AI-driven PDF processing technology.
             </p>
           </div>
         </div>

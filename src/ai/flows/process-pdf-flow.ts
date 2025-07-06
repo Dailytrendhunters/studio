@@ -1,9 +1,9 @@
 
 'use server';
 /**
- * @fileOverview This file defines a Genkit flow to process a PDF document
- * and extract its content into a structured JSON format. It includes an
- * AI-powered repair mechanism for malformed JSON.
+ * @fileOverview This file defines a Genkit flow to process a financial PDF document
+ * and extract its content into a structured JSON format that matches the application's UI components.
+ * It includes an AI-powered repair mechanism for malformed JSON.
  *
  * - processPdf - A function that handles the PDF processing and JSON conversion.
  * - ProcessPdfInput - The input type for the processPdf function.
@@ -15,8 +15,7 @@ import {z} from 'genkit';
 import { repairJson } from './repair-json-flow';
 
 /**
- * Extracts a JSON object from a string that might contain other text,
- * like conversational pleasantries from the AI.
+ * Extracts a JSON object from a string that might contain other text.
  * @param text The string to search within.
  * @returns The extracted JSON object as a string, or null if not found.
  */
@@ -29,24 +28,88 @@ function extractJsonObject(text: string): string | null {
     return null;
 }
 
+
+// Schemas for the structured data, mirroring the TypeScript interfaces in the application.
+const TableSchema = z.object({
+  id: z.string().describe('A unique identifier for the table (e.g., "table_1").'),
+  title: z.string().describe('The title or caption of the table.'),
+  headers: z.array(z.string()).describe('The column headers of the table.'),
+  rows: z.array(z.array(z.string())).describe('The rows of the table, where each row is an array of strings.'),
+  page: z.number().describe('The page number where the table was found.'),
+});
+
+const FinancialDataSchema = z.object({
+  id: z.string().describe('A unique identifier for the financial data point (e.g., "financial_1").'),
+  type: z.enum(['revenue', 'expense', 'balance', 'ratio', 'other']).describe('The type of financial data.'),
+  label: z.string().describe('The label for the financial data (e.g., "Total Revenue").'),
+  value: z.number().describe('The numerical value of the data point.'),
+  currency: z.string().describe('The currency of the value (e.g., "USD", "%", "ratio").'),
+  period: z.string().describe('The time period this data corresponds to (e.g., "2023", "Q4 2023").'),
+  page: z.number().describe('The page number where the data was found.'),
+});
+
+const SectionSchema = z.object({
+  id: z.string().describe('A unique identifier for the section (e.g., "section_1").'),
+  title: z.string().describe('The title of the section (e.g., "Executive Summary").'),
+  content: z.string().describe('A summary or the full text content of the section.'),
+  page: z.number().describe('The page number where the section begins.'),
+  type: z.enum(['header', 'paragraph', 'list', 'other']).describe('The type of content in the section.'),
+});
+
+const PageContentSchema = z.object({
+  pageNumber: z.number().describe('The page number.'),
+  text: z.string().describe('The full text content of the page.'),
+  wordCount: z.number().describe('The estimated number of words on the page.'),
+  hasTable: z.boolean().describe('Whether the page contains any tables.'),
+  hasFinancialData: z.boolean().describe('Whether the page contains structured financial data points.'),
+  confidence: z.number().min(0).max(1).describe('The confidence score for the extraction on this page (0 to 1).'),
+});
+
+const ExtractedContentSchema = z.object({
+    text: z.string().describe("The consolidated and summarized text from the entire document."),
+    tables: z.array(TableSchema).describe("An array of all tables extracted from the document."),
+    financialData: z.array(FinancialDataSchema).describe("An array of all structured financial data points."),
+    sections: z.array(SectionSchema).describe("An array of identified document sections."),
+    pageBreakdown: z.array(PageContentSchema).describe("A page-by-page breakdown of the content."),
+});
+
+const ExtractedMetadataSchema = z.object({
+    title: z.string().describe("The document title, derived from the filename."),
+    author: z.string().optional().describe("The author of the document, if available in the PDF metadata."),
+    creator: z.string().optional().describe("The tool used to create the PDF, if available in the PDF metadata."),
+    pages: z.number().describe("The total number of pages in the document."),
+    actualPagesDetected: z.number().describe("The total number of pages you were able to detect."),
+    pagesProcessed: z.number().describe("The total number of pages you successfully processed."),
+    fileSize: z.number().describe("The size of the file in bytes."),
+    extractedAt: z.string().datetime().describe("The ISO 8601 timestamp of when the extraction was performed."),
+    processingTime: z.number().describe("The time taken for processing in milliseconds."),
+    documentType: z.string().describe("The inferred type of financial document (e.g., 'Annual Report', '10-K', 'Quarterly Earnings')."),
+    confidence: z.number().min(0).max(1).describe("Overall confidence score for the entire extraction (0 to 1)."),
+    pageCountMethod: z.string().default("AI Model Analysis").describe("The method used to count pages."),
+});
+
+const ProcessPdfModelOutputSchema = z.object({
+    metadata: ExtractedMetadataSchema,
+    content: ExtractedContentSchema,
+});
+
+
 const ProcessPdfInputSchema = z.object({
-  pdfUri: z
+  pdfDataUri: z
     .string()
     .describe(
-      "The gs:// URI of a PDF file in Google Cloud Storage. Expected format: 'gs://<bucket-name>/<file-path>'."
+      "A PDF file represented as a data URI. Expected format: 'data:application/pdf;base64,<encoded_data>'."
     ),
+  fileName: z.string().describe("The original name of the file."),
+  fileSize: z.number().describe("The size of the file in bytes."),
 });
 export type ProcessPdfInput = z.infer<typeof ProcessPdfInputSchema>;
 
-// This is the schema for the final output of the flow, which the frontend consumes.
-// 'jsonOutput' is a string here.
 const ProcessPdfOutputSchema = z.object({
-  totalPages: z.number().describe('The total number of pages in the PDF document.'),
-  pagesProcessed: z.number().describe('The number of pages successfully processed from the document.'),
   jsonOutput: z
     .string()
     .describe(
-      `A JSON string representing the structured content of the document.`
+      `A JSON string representing the full, structured content of the document.`
     ),
 });
 export type ProcessPdfOutput = z.infer<typeof ProcessPdfOutputSchema>;
@@ -55,81 +118,35 @@ export async function processPdf(input: ProcessPdfInput): Promise<ProcessPdfOutp
   return processPdfFlow(input);
 }
 
-// Below are the detailed schemas for the structured content the model should generate.
 
-const TableSchema = z.object({
-  id: z.string().optional().describe('An identifier for the table.'),
-  title: z.string().optional().describe('The caption or title associated with the table.'),
-  column_headers: z.array(z.string()).describe('The exact headers of the table columns.'),
-  rows: z.array(z.record(z.string(), z.any())).describe('Each object represents a row, with keys corresponding to the column headers.'),
-});
-
-const SubsectionSchema = z.object({
-  id: z.string().optional().describe('Identifier for the subsection.'),
-  title: z.string().describe('Title of the subsection (e.g., "Definition of Terms").'),
-  content: z.array(z.string()).describe('Full content of the subsection, with each paragraph as a separate string.'),
-});
-
-const SectionSchema = z.object({
-  id: z.string().describe('The section identifier (e.g., "5.2").'),
-  title: z.string().describe('The title of the section.'),
-  paragraphs: z.array(z.string()).describe('The complete, verbatim text of each paragraph in the section.'),
-  subsections: z.array(SubsectionSchema).optional().describe('For distinct parts like definitions, classifications, or legal/statutory references.'),
-  tables: z.array(TableSchema).optional().describe('An array of all tables found *within this section*.'),
-});
-
-const ChapterSchema = z.object({
-  id: z.string().describe('The chapter identifier (e.g., "Chapter 5").'),
-  title: z.string().describe('The full title of the chapter.'),
-  learning_outcomes: z.array(z.string()).describe('A list of verbatim learning outcomes or key takeaways from the chapter.'),
-  sections: z.array(SectionSchema).describe('An array of section objects within the chapter.'),
-});
-
-const ExampleSchema = z.object({
-  id: z.string().describe('A unique identifier for the example.'),
-  title: z.string().optional().describe('The title of the example.'),
-  question: z.string().describe('The descriptive question or problem statement.'),
-  analysis: z.string().describe('The analytical commentary, explanation, or solution provided.'),
-});
-
-const StructuredContentSchema = z.object({
-  subject: z.string().describe('The primary subject of the document (e.g., "Corporate Finance," "Quantum Mechanics," "Contract Law").'),
-  chapters: z.array(ChapterSchema).describe('An array of chapter objects.'),
-  examples: z.array(ExampleSchema).optional().describe('A top-level array for capturing case studies, examples, or problem-solution pairs.'),
-});
-
-// This is the schema for what the *model* should output.
-// It contains the structured data as a nested object, not a string.
-const ProcessPdfModelOutputSchema = z.object({
-  totalPages: z.number().describe('The total number of pages in the PDF document.'),
-  pagesProcessed: z.number().describe('The number of pages successfully processed from the document.'),
-  structuredContent: StructuredContentSchema.describe(
-      `The structured content of the document.`
-    ),
-});
-
-// A text description of the required schema to help the repair AI.
-const SCHEMA_DESCRIPTION = `The JSON object must have a 'totalPages' (number), 'pagesProcessed' (number), and a 'structuredContent' object. The 'structuredContent' object must contain:
-- 'subject': string
-- 'chapters': array of objects, each with 'id' (string), 'title' (string), 'learning_outcomes' (array of strings), and 'sections' (array of objects).
-- 'examples': optional array of objects, each with 'id' (string), 'title' (optional string), 'question' (string), and 'analysis' (string).
-Each 'section' object must contain: 'id' (string), 'title' (string), 'paragraphs' (array of strings), optional 'subsections' (array), and optional 'tables' (array).
-Each 'table' object must contain: 'title' (optional string), 'column_headers' (array of strings), and 'rows' (array of objects where keys are column headers).
-Pay close attention to data types. 'totalPages' and 'pagesProcessed' must be numbers. All other fields should be of the specified type.`;
+const SCHEMA_DESCRIPTION = `The JSON object must have 'metadata' and 'content' properties.
+- 'metadata' must contain: title (string), fileSize (number), pages (number), actualPagesDetected (number), pagesProcessed (number), documentType (string), confidence (number from 0-1), extractedAt (ISO datetime string), processingTime (number), and pageCountMethod (string).
+- 'content' must contain: text (string), tables (array of objects), financialData (array of objects), sections (array of objects), and pageBreakdown (array of objects).
+- Each 'table' must have: id, title, headers (array of strings), rows (array of array of strings), and page (number).
+- Each 'financialData' point must have: id, type ('revenue' | 'expense' | 'balance' | 'ratio' | 'other'), label, value (number), currency, period, and page (number).
+- Each 'section' must have: id, title, content (string), page (number), and type ('header' | 'paragraph' | 'list' | 'other').
+- Each 'pageBreakdown' item must have: pageNumber, text, wordCount, hasTable (boolean), hasFinancialData (boolean), and confidence (number from 0-1).
+Ensure all required fields are present and data types are correct.`;
 
 
 const processPdfPrompt = ai.definePrompt({
   name: 'processPdfPrompt',
   input: {schema: ProcessPdfInputSchema},
-  output: {schema: ProcessPdfModelOutputSchema}, // Use Genkit's structured output feature
-  prompt: `You are a highly advanced AI specializing in document intelligence. Your task is to convert the provided PDF document into a meticulously structured JSON format.
+  output: {schema: ProcessPdfModelOutputSchema},
+  prompt: `You are a world-class financial document analysis AI. Your task is to convert the provided financial PDF into a meticulously structured JSON format.
 
-- The output must be a single, valid JSON object. Do not wrap it in markdown.
-- Do not summarize or add information not present in the source document. Capture all text verbatim.
-- Adhere strictly to the provided JSON output schema's structure and data types.
+**Instructions:**
+1.  **Analyze Comprehensively:** Analyze the entire document to determine the total number of pages. You must process every single page.
+2.  **Extract Verbatim:** Do not summarize or add information not present in the document unless specified. Extract text, tables, and figures as accurately as possible.
+3.  **Populate All Fields:** Fill out all fields in the provided JSON schema. For metadata fields like \`processingTime\` and \`extractedAt\`, use your internal knowledge to provide accurate values. For \`confidence\`, provide an honest assessment of your extraction quality.
+4.  **Strict Schema Adherence:** The final output must be a single, valid JSON object that strictly conforms to the output schema. Do not add extra commentary or markdown.
 
-PDF Document for processing:
-{{media url=pdfUri}}`,
+**Input Document Information:**
+-   **Filename:** {{{fileName}}}
+-   **File Size:** {{{fileSize}}} bytes
+
+**PDF Document for Processing:**
+{{media url=pdfDataUri}}`,
 });
 
 const processPdfFlow = ai.defineFlow(
@@ -141,9 +158,8 @@ const processPdfFlow = ai.defineFlow(
   async (input) => {
     const response = await processPdfPrompt(input);
     
-    let modelOutput = response.output; // Attempt to get structured output first.
+    let modelOutput = response.output;
 
-    // If Genkit failed to parse the output, try to repair the raw text.
     if (!modelOutput) {
         console.warn("Initial structured output failed. Attempting AI repair on raw text.");
         const rawText = response.text;
@@ -155,7 +171,7 @@ const processPdfFlow = ai.defineFlow(
         try {
             const repairedJsonString = await repairJson({ 
               brokenJson: rawText,
-              schemaDescription: SCHEMA_DESCRIPTION // Give the repair bot the schema
+              schemaDescription: SCHEMA_DESCRIPTION
             });
             
             const potentialRepairedJson = extractJsonObject(repairedJsonString);
@@ -163,7 +179,7 @@ const processPdfFlow = ai.defineFlow(
                 throw new Error("AI repair returned a response, but no JSON object could be found within it.");
             }
             const parsedRepaired = JSON.parse(potentialRepairedJson);
-            modelOutput = ProcessPdfModelOutputSchema.parse(parsedRepaired); // Validate the repaired JSON
+            modelOutput = ProcessPdfModelOutputSchema.parse(parsedRepaired);
             console.log("AI repair successful!");
         } catch (repairError) {
             console.error("AI repair also failed.", repairError);
@@ -175,14 +191,11 @@ const processPdfFlow = ai.defineFlow(
     }
 
     if (!modelOutput) {
-      // This should be rare, but it's a good final check.
       throw new Error('Model output was empty or invalid after all processing attempts.');
     }
 
     return {
-      totalPages: modelOutput.totalPages,
-      pagesProcessed: modelOutput.pagesProcessed,
-      jsonOutput: JSON.stringify(modelOutput.structuredContent, null, 2),
+      jsonOutput: JSON.stringify(modelOutput, null, 2),
     };
   }
 );
