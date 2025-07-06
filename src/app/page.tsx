@@ -97,7 +97,7 @@ export default function Home() {
               {extractedData && (
                 <button
                   onClick={resetApp}
-                  className="group px-4 py-2 bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium rounded-lg transition-all shadow-lg hover:shadow-primary/20 flex items-center gap-2"
+                  className="group px-4 py-2 bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium rounded-lg transition-all shadow-lg hover:shadow-primary/80 flex items-center gap-2"
                 >
                   <RefreshCw className="w-4 h-4 transition-transform duration-300 group-hover:animate-spin-once" />
                   Process New File
@@ -125,7 +125,7 @@ export default function Home() {
             <div
               className="text-center mb-16"
             >
-              <h2 className="inline-block bg-gradient-to-r from-pink-400 via-fuchsia-500 to-rose-500 bg-[length:400%_400%] bg-clip-text text-4xl font-bold text-transparent animate-gradient-pan sm:text-5xl">
+              <h2 className="inline-block bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 bg-[length:400%_400%] bg-clip-text text-4xl font-bold text-transparent animate-gradient-pan sm:text-5xl">
                 Transform Your Financial PDFs
                 <br />
                 Into Smart JSON
@@ -141,7 +141,7 @@ export default function Home() {
                   key={feature.title}
                   className="group bg-card rounded-xl p-6 shadow-lg border border-border/50 hover:shadow-2xl hover:shadow-primary/80 hover:border-primary/50 transition-all duration-300"
                 >
-                  <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-primary/10 to-accent/10 rounded-lg mb-4 transition-all duration-300 group-hover:bg-primary/20">
+                  <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-primary/10 to-accent/10 rounded-lg mb-4 transition-all duration-300 group-hover:bg-primary/20 group-hover:scale-110">
                     <feature.icon className="w-6 h-6 text-primary transition-transform duration-300 group-hover:animate-spin-once" />
                   </div>
                   <h3 className="text-lg font-semibold text-foreground mb-2">{feature.title}</h3>
