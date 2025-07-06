@@ -87,11 +87,16 @@ export default {
             'background-position': '0% 50%',
           },
         },
+        'spin-once': {
+          'from': { transform: 'rotate(0deg)' },
+          'to': { transform: 'rotate(360deg)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'gradient-pan': 'gradient-pan 10s ease-in-out infinite',
+        'spin-once': 'spin-once 0.5s ease-out',
       },
     },
   },

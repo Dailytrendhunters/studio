@@ -84,7 +84,7 @@ export default function Home() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="group flex items-center justify-center w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg">
-                <FileText className="w-6 h-6 text-white transition-transform duration-300 group-hover:animate-spin" />
+                <FileText className="w-6 h-6 text-white transition-transform duration-300 group-hover:animate-spin-once" />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-foreground">PDF to JSON</h1>
@@ -98,7 +98,7 @@ export default function Home() {
                   onClick={resetApp}
                   className="group px-4 py-2 bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium rounded-lg transition-all shadow-lg hover:shadow-primary/20 flex items-center gap-2"
                 >
-                  <RefreshCw className="w-4 h-4 group-hover:animate-spin" />
+                  <RefreshCw className="w-4 h-4 group-hover:animate-spin-once" />
                   Process New File
                 </button>
               )}
@@ -124,7 +124,7 @@ export default function Home() {
             <div
               className="text-center mb-16"
             >
-              <h2 className="inline-block text-4xl sm:text-5xl font-bold mb-6 bg-gradient-to-r from-pink-500 via-yellow-300 to-blue-400 bg-[size:400%_auto] bg-clip-text text-transparent animate-gradient-pan">
+              <h2 className="inline-block bg-gradient-to-r from-pink-500 via-yellow-300 to-blue-400 bg-[length:400%_400%] bg-clip-text text-4xl font-bold text-transparent animate-gradient-pan sm:text-5xl">
                 Transform Your Financial PDFs
                 <br />
                 Into Smart JSON
@@ -141,7 +141,7 @@ export default function Home() {
                   className="group bg-card rounded-xl p-6 shadow-lg border border-border/50 hover:shadow-2xl hover:shadow-primary/80 hover:border-primary/50 transition-all duration-300"
                 >
                   <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-primary/10 to-accent/10 rounded-lg mb-4 transition-all duration-300">
-                    <feature.icon className="w-6 h-6 text-primary transition-transform duration-300 group-hover:animate-spin" />
+                    <feature.icon className="w-6 h-6 text-primary transition-transform duration-300 group-hover:animate-spin-once" />
                   </div>
                   <h3 className="text-lg font-semibold text-foreground mb-2">{feature.title}</h3>
                   <p className="text-muted-foreground text-sm">{feature.description}</p>
