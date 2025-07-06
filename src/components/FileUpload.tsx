@@ -70,12 +70,12 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
       <div
         className={`group relative border-2 border-dashed rounded-2xl p-12 text-center transition-all duration-300 ${
           isDragOver
-            ? 'border-primary bg-primary/10 scale-105 shadow-2xl shadow-primary/40'
+            ? 'border-primary bg-primary/10 scale-105 shadow-2xl shadow-primary/80'
             : selectedFile && !error
             ? 'border-primary/80 bg-primary/10'
             : error
             ? 'border-destructive bg-destructive/10'
-            : 'border-border bg-card hover:border-primary/80 hover:shadow-2xl hover:shadow-primary/30'
+            : 'border-border bg-card hover:border-primary/80 hover:shadow-2xl hover:shadow-primary/80'
         }`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -172,7 +172,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
               </div>
               
               <button
-                className="group inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-primary/20"
+                className="group inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-primary/50"
                 disabled={isProcessing}
               >
                 <FileText className="w-5 h-5 transition-transform duration-300 group-hover:animate-spin-once" />
