@@ -172,7 +172,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
               </div>
               
               <button
-                className="group/button inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium rounded-lg transition-all duration-300 shadow-lg hover:shadow-primary/50 group-hover/zone:scale-110 group-hover/zone:-translate-y-1"
+                className="group/button inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium rounded-lg transition-all duration-300 shadow-lg hover:shadow-primary/50 group-hover/zone:scale-150 group-hover/zone:-translate-y-1"
                 disabled={isProcessing}
               >
                 <FileText className="w-5 h-5 transition-transform duration-300 group-hover/button:animate-spin-once" />
