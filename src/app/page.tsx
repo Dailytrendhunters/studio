@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState } from 'react';
@@ -127,18 +126,12 @@ export default function Home() {
               <h2
                   className="text-4xl sm:text-5xl font-bold text-foreground mb-6"
                 >
-                  Transform Your{' '}
                   <span
                     className="bg-gradient-to-r from-primary via-accent to-primary bg-[size:200%_auto] bg-clip-text text-transparent animate-gradient-pan"
                   >
-                    Financial PDFs
-                  </span>
-                  <br />
-                  Into Smart{' '}
-                  <span
-                    className="bg-gradient-to-r from-primary via-accent to-primary bg-[size:200%_auto] bg-clip-text text-transparent animate-gradient-pan"
-                  >
-                    JSON
+                    Transform Your Financial PDFs
+                    <br />
+                    Into Smart JSON
                   </span>
               </h2>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
