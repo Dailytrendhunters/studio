@@ -125,11 +125,14 @@ export default function Home() {
             <div
               className="text-center mb-16"
             >
-              <h2 className="inline-block bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 bg-[length:400%_400%] bg-clip-text text-4xl font-bold text-transparent animate-gradient-pan sm:text-5xl">
-                Transform Your Financial PDFs
-                <br />
-                Into Smart JSON
-              </h2>
+              <div className="relative inline-block">
+                <h2 className="inline-block bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 bg-[length:400%_400%] bg-clip-text text-4xl font-bold text-transparent animate-gradient-pan sm:text-5xl">
+                  Transform Your Financial PDFs
+                  <br />
+                  Into Smart JSON
+                </h2>
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/80 to-transparent bg-[length:200%_100%] bg-no-repeat animate-shine mix-blend-color-dodge [background-position:200%_0]"></div>
+              </div>
             </div>
 
             {/* Features Grid */}
