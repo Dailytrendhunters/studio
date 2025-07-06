@@ -134,10 +134,6 @@ export default function Home() {
                     Into Smart JSON
                   </span>
               </h2>
-              <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
-                Upload any financial document and get intelligently extracted data in seconds. 
-                Perfect for automated analysis, reporting, and integration.
-              </p>
             </div>
 
             {/* Features Grid */}
